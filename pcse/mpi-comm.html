@@ -30,35 +30,30 @@
 </style>
 
 <script type="application/javascript">
-  // First we declare some metadata, primarily to describe
-  // the container environment.
-  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
-  var mpiExampleMetaJson = {
-    // CHANGE: for now, leave the appended string as .SysJobMetaData;
-    //         other options will be supported in the future
-    "$type": ccrsApiNamespace + ".SysJobMetaData",
-    // CHANGE: shell to use implicitly when running commands in the container
-    "shell": ["bash"],
-    // CHANGE: should currently be one of: .NixOS, .Singularity
-    "containerType": {
-      "$type":  ccrsApiNamespace + ".NixOS"
-    },
-    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
-    "containerId": ["vicOpenMPI"],
-    // CHANGE: Specify the singularity image name
-    "image": [],
-    // Directories on the host to mount in the container, if any:
-    "binds": [],
-    // Only for singularity:
-    "overlay": [],
-    // CHANGE: should be filled in dynamically to contain the (student) user,
-    //         but this is a demo, so we use a static user name:
-    "user": "test0",
-    "address": [],
-    "hostname": [],
-    "url": window.location.href
-  };
-  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+let fileRoot      = "hello";
+let fileName      = fileRoot + ".c";
+let compileCmd    = "mpicc " + fileName + " -o " + fileRoot;
+let runCmd        = "mpirun --oversubscribe -np 8 " + fileRoot;
+let compileRunCmd = [compileCmd, runCmd].join(" && ");
+
+async function afterExecute(results) {
+  document.getElementById('stdoutPre').textContent = results.stdout;
+  document.getElementById('stderrPre').textContent = results.stderr;
+}
+
+async function initialize() {
+  let editor = await MonacoEditorFileSource.create("editorDiv");
+  editor.setTextFromFile("mpiHello.c");
+
+  let job = await Job.create(JobType.MPI);
+  let command = new CommandWithFiles(job, compileRunCmd);
+  command.addFileSource(editor, fileName);
+  let trigger = new ButtonTrigger(command, afterExecute, "executeBtn");
+
+  document.getElementById("executeBtn").disabled = false;
+}
+
+initialize();
 </script>
 
 <div class="container">
