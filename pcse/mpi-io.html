@@ -1,0 +1,1365 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>MPI topic: File I/O</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+10.1 : <a href="mpi-io.html#Filehandling">File handling</a><br>
+10.2 : <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a><br>
+10.2.1 : <a href="mpi-io.html#Nonblockingreadwrite">Nonblocking read/write</a><br>
+10.2.2 : <a href="mpi-io.html#Individualfilepointers,contiguouswrites">Individual file pointers, contiguous writes</a><br>
+10.2.3 : <a href="mpi-io.html#Fileviews">File views</a><br>
+10.2.4 : <a href="mpi-io.html#Sharedfilepointers">Shared file pointers</a><br>
+10.3 : <a href="mpi-io.html#Fileinformation">File information</a><br>
+10.4 : <a href="mpi-io.html#Consistency">Consistency</a><br>
+10.5 : <a href="mpi-io.html#Constants">Constants</a><br>
+10.6 : <a href="mpi-io.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>10 MPI topic: File I/O</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+This chapter discusses the I/O support of MPI, which is intended
+to alleviate the problems inherent in parallel file access.
+Let us first explore the issues.
+This story partly depends on what sort of parallel
+computer are you running on.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+On networks of workstations each node will have a separate
+  drive with its own file system.
+<li>
+On many clusters there will be a
+  
+<i>shared file system</i>
+
+<!-- index -->
+  that acts as if every process can access every file.
+<li>
+Cluster nodes may or may not have a private file system.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Based on this, the following strategies are possible, even before
+we start talking about MPI I/O.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+One process can collect all data with 
+<tt>MPI_Gather</tt>
+  and write it out. There are at least three things wrong with this:
+  it uses network bandwidth for the gather, it may require a large
+  amount of memory on the root process, and centralized writing
+  is a bottlenectk.
+<li>
+Absent a shared file system, writing can be parallelized by letting
+  every process create a unique file and merge these after the run.
+  This makes the I/O symmetric, but collecting all the files is a bottleneck.
+<li>
+Even with a with a shared file system this approach is possible,
+  but it can put a lot of strain
+  on the file system, and the post-processing can be a significant task.
+<li>
+Using a shared file system,
+  there is nothing against every process opening the same existing file
+  for reading, and using an individual file pointer to get its unique
+  data.
+<li>
+\ldots~but having every process open the same file for output is
+  probably not a good idea. For instance, if two processes try to write
+  at the end of the file, you may need to synchronize them, and synchronize
+  the file system flushes.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+For these reasons, MPI has a number of routines that make it possible
+to read and write a single file from a large number of processes,
+giving each well-defined locations where to access the data.
+In fact, MPI-IO uses MPI
+<i>derived datatype</i>
+s for both the source data (that is, in memory)
+and target data (that is, on disk).
+Thus, in one call that is collective on a communicator
+each process can address data that is not contiguous in memory,
+and place it in locations that are not contiguous on disc.
+</p>
+
+<p name="switchToTextMode">
+There are dedicated libraries for file I/O, such as 
+<i>hdf5</i>
+,
+<i>netcdf</i>
+, or 
+<i>silo</i>
+. However, these often add
+header information to a file that may not be understandable to
+post-processing applications. With MPI I/O you are in complete control
+of what goes to the file. (A~useful tool for viewing your file is the
+unix utility~
+<tt>od</tt>
+.)
+</p>
+
+<!-- environment: taccnote start embedded generator -->
+<!-- environment block purpose: [[ environment=taccnote ]] -->
+<remark>
+<b>TACC note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+  Each node has a private <tt></tt> file system
+  (typically flash storage), to which
+  you can write files. Considerations:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Since these drives are separate from the shared file system,
+    you don't have to worry about stress on the file servers.
+<li>
+These temporary file systems are wiped after your job finishes,
+    so you have to do the post-processing in your job script.
+<li>
+The capacity of these local drives are fairly limited;
+    see the userguide for exact numbers.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</remark>
+<!-- environment: taccnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Filehandling">10.1</a> File handling</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Filehandling">File handling</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+MPI has its own file handle:
+<tt>MPI_File</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+You open a file with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_open" aria-expanded="false" aria-controls="MPI_File_open">
+        Routine reference: MPI_File_open
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_open" class="collapse">
+  <pre>
+Semantics:
+MPI_FILE_OPEN(comm, filename, amode, info, fh)
+IN comm: communicator (handle)
+IN filename: name of file to open (string)
+IN amode: file access mode (integer)
+IN info: info object (handle)
+OUT fh: new file handle (handle)
+
+C:
+int MPI_File_open
+    (MPI_Comm comm, char *filename, int amode,
+     MPI_Info info, MPI_File *fh)
+
+Fortran:
+MPI_FILE_OPEN(COMM, FILENAME, AMODE, INFO, FH, IERROR)
+CHARACTER*(*) FILENAME
+INTEGER COMM, AMODE, INFO, FH, IERROR
+
+Python:
+Open(type cls, Intracomm comm, filename,
+     int amode=MODE_RDONLY, Info info=INFO_NULL)
+</pre>
+</div>
+</div>
+<i>MPI_File_open</i>
+.
+This routine is collective, even if only certain processes will access
+the file with a read or write call.
+Similarly, 
+<tt>MPI_File_close</tt>
+ is collective.
+</p>
+
+<!-- environment: pythonnote start embedded generator -->
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  Note the slightly unusual syntax for opening a file:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+mpifile = MPI.File.Open(comm,filename,mode)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  Even though the file is
+  opened on a communicator, it is a class method for the 
+<tt>MPI.File</tt>
+
+  class, rather than for the communicator object. The latter is passed
+  in as an argument.
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+File access modes:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_MODE_RDONLY</tt>
+: read only,
+<li>
+<tt>MPI_MODE_RDWR</tt>
+: reading and writing,
+<li>
+<tt>MPI_MODE_WRONLY</tt>
+: write only,
+<li>
+<tt>MPI_MODE_CREATE</tt>
+: create the file if it does not exist,
+<li>
+<tt>MPI_MODE_EXCL</tt>
+: error if creating file that already exists,
+<li>
+<tt>MPI_MODE_DELETE_ON_CLOSE</tt>
+: delete file on close,
+<li>
+<tt>MPI_MODE_UNIQUE_OPEN</tt>
+: file will not be concurrently opened
+  elsewhere,
+<li>
+<tt>MPI_MODE_SEQUENTIAL</tt>
+: file will only be accessed sequentially,
+<li>
+<tt>MPI_MODE_APPEND</tt>
+: set initial position of all file pointers to end
+  of file.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+These modes can be added or bitwise-or'ed.
+</p>
+
+<p name="switchToTextMode">
+You can delete a file with 
+<tt>MPI_File_delete</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Buffers can be flushed with 
+<tt>MPI_File_sync</tt>
+, which is a collective call.
+</p>
+
+<h2><a id="Filereadingandwriting">10.2</a> File reading and writing</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a>
+</p>
+<p name="switchToTextMode">
+
+The basic file operations, in between the open and close calls, are
+the POSIX-like, noncollective, calls
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_seek" aria-expanded="false" aria-controls="MPI_File_seek">
+        Routine reference: MPI_File_seek
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_seek" class="collapse">
+  <pre>
+MPI_File_seek - Updates individual file pointers (noncollective)
+
+C:
+#include <mpi.h>
+int MPI_File_seek(MPI_File fh, MPI_Offset offset,int whence)
+
+Fortran 2008:
+USE mpi_f08
+MPI_File_seek(fh, offset, whence, ierror)
+    TYPE(MPI_File), INTENT(IN) :: fh
+    INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: offset
+    INTEGER, INTENT(IN) :: whence
+    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Fortran 90:
+USE MPI
+! or the older form: INCLUDE ’mpif.h’
+MPI_FILE_SEEK(FH, OFFSET, WHENCE, IERROR)
+    INTEGER    FH, WHENCE, IERROR
+    INTEGER(KIND=MPI_OFFSET_KIND)    OFFSET
+
+Input parameters:
+fh     : File handle (handle).
+offset : File offset (integer).
+whence : Update mode (integer).
+
+Output parameters:
+IERROR : Fortran only: Error status (integer)
+</pre>
+</div>
+</div>
+<i>MPI_File_seek</i>
+. The 
+<tt>whence</tt>
+ parameter can be:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_SEEK_SET</tt>
+ The pointer is set to offset.
+<li>
+<tt>MPI_SEEK_CUR</tt>
+ The pointer is set to the current
+    pointer position plus offset.
+<li>
+<tt>MPI_SEEK_END</tt>
+ The pointer is set to the end of
+    the file plus offset.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<li>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_write" aria-expanded="false" aria-controls="MPI_File_write">
+        Routine reference: MPI_File_write
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_write" class="collapse">
+  <pre>
+Synopsis:
+write at current file pointer
+MPI_File_write: non-collective
+MPI_File_write_all : collective
+
+C Syntax
+#include <mpi.h>
+int MPI_File_write
+int MPI_File_write_all(MPI_File fh, const void *buf,
+    int count, MPI_Datatype datatype,
+    MPI_Status *status)
+
+Input parameters:
+buf : Initial address of buffer (choice).
+count : Number of elements in buffer (integer).
+datatype : Data type of each buffer element (handle).
+
+Output parameters:
+status : Status object (status).
+IERROR : Fortran only: Error status (integer).
+
+USE mpi_f08
+MPI_File_write
+MPI_File_write_all(fh, buf, count, datatype, status, ierror)
+    TYPE(MPI_File), INTENT(IN) :: fh
+    TYPE(*), DIMENSION(..), INTENT(IN) :: buf
+    INTEGER, INTENT(IN) :: count
+    TYPE(MPI_Datatype), INTENT(IN) :: datatype
+    TYPE(MPI_Status) :: status
+    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+USE MPI
+! or the older form: INCLUDE ’mpif.h’
+MPI_FILE_WRITE(FH, BUF, COUNT,
+    DATATYPE, STATUS, IERROR)
+    <type>    BUF(*)
+    INTEGER    FH, COUNT, DATATYPE, STATUS(MPI_STATUS_SIZE), IERROR
+
+</pre>
+</div>
+</div>
+<i>MPI_File_write</i>
+. This routine writes the specified data
+  in the locations specified with the current file view.
+  The number of items written is returned in the 
+<tt>MPI_Status</tt>
+ argument;
+  all other fields of this argument are undefined.
+  It can not be used if the file
+  was opened with 
+<tt>MPI_MODE_SEQUENTIAL</tt>
+.
+<li>
+If all processes execute a write at the same logical time, it is
+  better to use the collective call
+<tt>MPI_File_write_all</tt>
+.
+<li>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_read" aria-expanded="false" aria-controls="MPI_File_read">
+        Routine reference: MPI_File_read
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_read" class="collapse">
+  <pre>
+Synopsis:
+Reads a file starting at the location specified by the
+individual file pointer (blocking, noncollective).
+
+C Syntax
+#include <mpi.h>
+int MPI_File_read(MPI_File fh, void *buf,
+    int count, MPI_Datatype datatype, MPI_Status *status)
+
+USE mpi_f08
+MPI_File_read(fh, buf, count, datatype, status, ierror)
+    TYPE(MPI_File), INTENT(IN) :: fh
+    TYPE(*), DIMENSION(..) :: buf
+    INTEGER, INTENT(IN) :: count
+    TYPE(MPI_Datatype), INTENT(IN) :: datatype
+    TYPE(MPI_Status) :: status
+    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+USE MPI
+! or the older form: INCLUDE ’mpif.h’
+MPI_FILE_READ(FH, BUF, COUNT,
+    DATATYPE, STATUS, IERROR)
+    <type>    BUF(*)
+    INTEGER    FH, COUNT, DATATYPE, STATUS(MPI_STATUS_SIZE),IERROR
+
+Input parameters:
+fh : File handle (handle).
+count : Number of elements in buffer (integer).
+datatype : Data type of each buffer element (handle).
+
+Output parameters:
+buf : Initial address of buffer (integer).
+status : Status object (status).
+IERROR : Fortran only: Error status (integer).
+</pre>
+</div>
+</div>
+<i>MPI_File_read</i>
+ This routine attempts to read the specified data
+  from the locations specified in the current file view.
+  The number of items read is returned in the 
+<tt>MPI_Status</tt>
+ argument;
+  all other fields of this argument are undefined.
+  It can not be used if the file
+  was opened with 
+<tt>MPI_MODE_SEQUENTIAL</tt>
+.
+<li>
+If all processes execute a read at the same logical time, it is
+  better to use the collective call
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_read_all" aria-expanded="false" aria-controls="MPI_File_read_all">
+        Routine reference: MPI_File_read_all
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_read_all" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_File_read_all</i>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+For thread safety it is good to combine seek and read/write operations:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_File_read_at</tt>
+: combine read and seek.
+  The collective variant is 
+<tt>MPI_File_read_at_all</tt>
+.
+<li>
+<tt>MPI_File_write_at</tt>
+: combine write and seekl
+  The collective variant is 
+<tt>MPI_File_write_at_all</tt>
+;
+  section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-io.html#Individualfilepointers,contiguouswrites">10.2.2</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Writing to and reading from a parallel file is rather similar to
+sending a receiving:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The process uses an elementary data type or a derived datatype
+  to describe what elements in an array go to file, or are read from
+  file.
+<li>
+In the simplest case, your read or write that data to the file using an
+  offset, or first having done a seek operation.
+<li>
+But you can also set a `file view' to describe explicitly what
+  elements in the file will be involved.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Nonblockingreadwrite">10.2.1</a> Nonblocking read/write</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a> > <a href="mpi-io.html#Nonblockingreadwrite">Nonblocking read/write</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Just like there are blocking and nonblocking sends, there are also
+nonblocking writes and reads:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_iwrite" aria-expanded="false" aria-controls="MPI_File_iwrite">
+        Routine reference: MPI_File_iwrite
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_iwrite" class="collapse">
+  <pre>
+Synopsis
+nonblocking write using individual file pointer
+MPI_File_iwrite: non-collective
+
+C syntax:
+#ifdef HAVE_MPI_GREQUEST
+#include "mpiu_greq.h"
+#endif
+int MPI_File_iwrite(MPI_File fh,
+    ROMIO_CONST void *buf, int count, MPI_Datatype datatype,
+    MPI_Request * request)
+
+Input parameters:
+fh  : file handle
+buf : Initial address of buffer (choice).
+count : Number of elements in buffer (integer).
+datatype : Data type of each buffer element (handle).
+
+Output parameters:
+request : request object (handle)
+status : Status object (status).
+IERROR : Fortran only: Error status (integer).
+</pre>
+</div>
+</div>
+<i>MPI_File_iwrite</i>
+,
+<tt>MPI_File_iread</tt>
+operations,
+and their collective versions
+<tt>MPI_File_iwrite_all</tt>
+,
+<tt>MPI_File_iread_all</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Also
+<tt>MPI_File_iwrite_at_all</tt>
+,
+<tt>MPI_File_iread_at_all</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+These routines output an 
+<tt>MPI_Request</tt>
+ object,
+which can then be tested with
+<tt>MPI_Wait</tt>
+ or 
+<tt>MPI_Test</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Nonblocking collective I/O functions
+much like other nonblocking collectives
+(section&nbsp;{sec:mpi3collect}):
+the request is satisfied if all processes finish the collective.
+</p>
+
+<p name="switchToTextMode">
+There are also 
+<i>split collective</i>
+ routines
+that function like nonblocking collective I/O, but with the request/wait mechanism:
+<tt>MPI_File_write_all_begin</tt>
+&nbsp;/
+<tt>MPI_File_write_all_end</tt>
+(and similarly
+<tt>MPI_File_read_all_begin</tt>
+&nbsp;/
+<tt>MPI_File_read_all_end</tt>
+)
+where the second routine blocks until the collective write/read
+has been concluded.
+</p>
+
+<p name="switchToTextMode">
+Also 
+<tt>MPI_File_iread_shared</tt>
+, 
+<tt>MPI_File_iwrite_shared</tt>
+.
+</p>
+
+<h3><a id="Individualfilepointers,contiguouswrites">10.2.2</a> Individual file pointers, contiguous writes</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a> > <a href="mpi-io.html#Individualfilepointers,contiguouswrites">Individual file pointers, contiguous writes</a>
+</p>
+
+<p name="switchToTextMode">
+
+After the collective open call, each process holds an
+<i>individual file pointer</i>
+<!-- index -->
+each process can individually position the pointer somewhere in the shared file.
+Let's explore this modality.
+</p>
+
+<p name="switchToTextMode">
+The simplest way of writing a data to file is much like a send call:
+a&nbsp;buffer is specified with the usual count/datatype specification,
+and a target location in the file is given.
+The routine 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_write_at" aria-expanded="false" aria-controls="MPI_File_write_at">
+        Routine reference: MPI_File_write_at
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_write_at" class="collapse">
+  <pre>
+MPI_File_write_at(fh,offset,buf,count,datatype)
+
+Semantics:
+Input Parameters
+fh : File handle (handle).
+offset : File offset (integer).
+buf : Initial address of buffer (choice).
+count : Number of elements in buffer (integer).
+datatype : Data type of each buffer element (handle).
+
+Output Parameters:
+status : Status object (status).
+
+C:
+int MPI_File_write_at
+   (MPI_File fh, MPI_Offset offset, const void *buf,
+    int count, MPI_Datatype datatype, MPI_Status *status)
+
+Fortran:
+MPI_FILE_WRITE_AT
+   (FH,  OFFSET,  BUF, COUNT, DATATYPE, STATUS,  IERROR)
+<type>    BUF(*)
+INTEGER :: FH, COUNT, DATATYPE, STATUS(MPI_STATUS_SIZE), IERROR
+INTEGER(KIND=MPI_OFFSET_KIND) :: OFFSET
+
+Python:
+MPI.File.Write_at(self, Offset offset, buf, Status status=None)
+</pre>
+</div>
+</div>
+<i>MPI_File_write_at</i>
+ gives this location
+in absolute terms with a parameter of type 
+<tt>MPI_Offset</tt>
+,
+which counts bytes.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+
+<p name="caption">
+FIGURE 10.1: Writing at an offset
+</p>
+<img src="graphics/write-at-offset.png" width=800></img>
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Create a buffer of length 
+<tt>nwords=3</tt>
+ on each process, and write
+  these buffers as a sequence to one file with 
+<tt>MPI_File_write_at</tt>
+.
+<!-- skeleton start: blockwrite -->
+<button id="runBtn">blockwrite</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: blockwrite -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+Instead of giving the position in the file explicitly, you can also
+use a 
+<tt>MPI_File_seek</tt>
+ call to position the file pointer,
+and write with 
+<tt>MPI_File_write</tt>
+ at the pointer location.
+The write call itself also
+<i>advances the file pointer</i>
+<!-- index -->
+so separate calls for writing contiguous elements
+need no seek calls with 
+<tt>MPI_SEEK_CUR</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Rewrite the code of exercise&nbsp;
+10.1
+ to
+  use a loop where each iteration
+  writes only one item to file.
+  Note that no explicit advance of the file pointer is needed.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Construct a file with the consecutive integers $0,&hellip;,WP$ where
+  $W$&nbsp;some integer, and $P$&nbsp;the number of processes. Each process&nbsp;$p$
+  writes the numbers $p,p+W,p+2W,&hellip;$. Use a loop where each iteration
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+writes a single number with 
+<tt>MPI_File_write</tt>
+, and
+<li>
+advanced the file pointer with 
+<tt>MPI_File_seek</tt>
+    with a 
+<tt>whence</tt>
+ parameter of
+<tt>MPI_SEEK_CUR</tt>
+.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Fileviews">10.2.3</a> File views</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a> > <a href="mpi-io.html#Fileviews">File views</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The previous mode of writing is enough for writing simple contiguous blocks in the file.
+However,
+you can also access noncontiguous areas in the file. For this you use
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_File_set_view" aria-expanded="false" aria-controls="MPI_File_set_view">
+        Routine reference: MPI_File_set_view
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_File_set_view" class="collapse">
+  <pre>
+Semantics:
+MPI_FILE_SET_VIEW(fh, disp, etype, filetype, datarep, info)
+INOUT fh: file handle (handle)
+IN disp: displacement (integer)
+IN etype: elementary datatype (handle)
+IN filetype: filetype (handle)
+IN datarep: data representation (string)
+IN info: info object (handle)
+
+C:
+int MPI_File_set_view
+   (MPI_File fh,
+    MPI_Offset disp, MPI_Datatype etype, MPI_Datatype filetype,
+    char *datarep, MPI_Info info)
+
+Fortran:
+MPI_FILE_SET_VIEW(FH, DISP, ETYPE, FILETYPE, DATAREP, INFO, IERROR)
+INTEGER FH, ETYPE, FILETYPE, INFO, IERROR
+CHARACTER*(*) DATAREP
+INTEGER(KIND=MPI_OFFSET_KIND) DISP
+
+Python:
+mpifile = MPI.File.Open( .... )
+mpifile.Set_view
+  (self,
+   Offset disp=0, Datatype etype=None, Datatype filetype=None,
+   datarep=None, Info info=INFO_NULL)
+</pre>
+</div>
+</div>
+<i>MPI_File_set_view</i>
+.
+This call is collective, even if not all processes access the file.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The 
+<tt>disp</tt>
+ displacement parameters is measured in bytes. It
+  can differ between processes. On sequential files such as tapes or
+  network streams it does not make sense to set a displacement; for
+  those the 
+<tt>MPI_DISPLACEMENT_CURRENT</tt>
+ value can be
+  used.
+<li>
+The 
+<tt>etype</tt>
+ describes the data type of the file, it needs to
+  be the same on all processes.
+<li>
+The 
+<tt>filetype</tt>
+ describes how this process sees the file, so it
+  can differ between processes.
+<li>
+The 
+<tt>datarep</tt>
+ string can have the following values:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>native</tt>
+: data on disk is represented in exactly the same
+    format as in memory;
+<li>
+
+<tt>internal</tt>
+: data on disk is represented in whatever internal
+    format is used by the MPI implementation;
+<li>
+
+<tt>external</tt>
+: data on disk is represented using XDR portable
+    data formats.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<li>
+The 
+<tt>info</tt>
+ parameter is an 
+<tt>MPI_Info</tt>
+ object,
+  or 
+<tt>MPI_INFO_NULL</tt>
+. See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Fileinformation">15.1.1.3</a>
+ for more.
+  (See 
+<i>T3PIO</i>
+&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/bibliography.html#t3pio-git">[t3pio-git]</a>
+ for a tool that
+  assists in setting this object.)
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+
+<p name="caption">
+FIGURE 10.2: Writing at a view
+</p>
+<img src="graphics/write-at-view.png" width=800></img>
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+<!-- skeleton start: viewwrite -->
+<button id="runBtn">viewwrite</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: viewwrite -->
+  Write a file in the same way as in exercise&nbsp;
+10.1
+,
+  but now use 
+<tt>MPI_File_write</tt>
+ and use 
+<tt>MPI_File_set_view</tt>
+ to set
+  a view that determines where the data is written.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+You can get very creative effects by setting the view to a derived
+datatype.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+
+<p name="caption">
+FIGURE 10.3: Writing at a derived type
+</p>
+<img src="graphics/write-at-derived.png" width=800></img>
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: fortrannote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=fortrannote ]] -->
+<remark>
+<b>Fortran note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
+  In Fortran you have to assure that the displacement parameter is of
+  `kind' 
+<tt>MPI_OFFSET_KIND</tt>
+. In particular, you can not
+  specify a literal zero&nbsp;`0' as the displacement; use
+<tt>0_MPI_OFFSET_KIND</tt>
+ instead.
+</p name="remark">
+</remark>
+<!-- environment: fortrannote end embedded generator -->
+<p name="switchToTextMode">
+{Offset literals}
+</p>
+
+<p name="switchToTextMode">
+More:
+<tt>MPI_File_set_size</tt>
+<tt>MPI_File_get_size</tt>
+<tt>MPI_File_preallocate</tt>
+<tt>MPI_File_get_view</tt>
+</p>
+
+<h3><a id="Sharedfilepointers">10.2.4</a> Shared file pointers</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a> > <a href="mpi-io.html#Sharedfilepointers">Shared file pointers</a>
+</p>
+<p name="switchToTextMode">
+
+It is possible to have a file pointer that is shared (and therefore identical)
+between all processes of the communicator that was used to open the file.
+This file pointer is set with 
+<tt>MPI_File_seek_shared</tt>
+.
+For reading and writing there are then two sets of routines:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Individual accesses are done with 
+<tt>MPI_File_read_shared</tt>
+  and 
+<tt>MPI_File_write_shared</tt>
+.
+  Nonblocking variants are 
+<tt>MPI_File_iread_shared</tt>
+  and 
+<tt>MPI_File_iwrite_shared</tt>
+.
+<li>
+Collective accesse are done with 
+<tt>MPI_File_read_ordered</tt>
+  and 
+<tt>MPI_File_write_ordered</tt>
+, which execute the operations
+  in order ascending by rank.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Shared file pointers require that the same view is used on all processes.
+Also, these operations are less efficient because of the need to maintain the
+shared pointer.
+</p>
+
+<h2><a id="Fileinformation">10.3</a> File information</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Fileinformation">File information</a>
+</p>
+
+<p name="switchToTextMode">
+
+<tt>File_set_info</tt>
+<tt>File_get_info</tt>
+</p>
+
+<h2><a id="Consistency">10.4</a> Consistency</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Consistency">Consistency</a>
+</p>
+<p name="switchToTextMode">
+
+It is possible for one process to read data previously writte by another process.
+For this it is of course necessary to impose a temporal order,
+for instance by using 
+<tt>MPI_Barrier</tt>
+,
+or using a zero-byte send from the writing to the reading process.
+</p>
+
+<p name="switchToTextMode">
+However, the file also needs to be declared
+<i>atomic</i>
+<!-- index -->
+:
+<tt>MPI_File_set_atomicity</tt>
+.
+</p>
+
+<h2><a id="Constants">10.5</a> Constants</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Constants">Constants</a>
+</p>
+<p name="switchToTextMode">
+
+<tt>MPI_SEEK_SET</tt>
+ used to be called 
+<tt>SEEK_SET</tt>
+which gave conflicts with the C++ library. This had to be circumvented
+with
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+make CPPFLAGS="-DMPICH_IGNORE_CXX_SEEK -DMPICH_SKIP_MPICXX"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and such.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+\newpage
+<h2><a id="Reviewquestions">10.6</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Reviewquestions">Review questions</a>
+</p>
+</p>
+
+<!-- environment: tacc start embedded generator -->
+<!-- environment block purpose: [[ environment=tacc ]] -->
+<tacc>
+
+<p name="tacc">
+<!-- TranslatingLineGenerator tacc ['tacc'] -->
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+    T/F?
+    After your 
+<i>SLURM</i>
+ job ends, you can copy
+    from the login node
+    the files you've written to 
+ <tt>\tmp</tt> .
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+
+</tacc>
+<!-- environment: tacc end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  T/F?
+  File views (
+<tt>MPI_File_set_view</tt>
+) are intended to
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+write MPI derived types to file; without them you can only write
+    contiguous buffers;
+<li>
+prevent collisions in collective writes; they are not needed for
+    individual writes.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  The sequence 
+<tt>MPI_File_seek_shared</tt>
+, 
+<tt>MPI_File_read_shared</tt>
+  can be replaced by 
+<tt>MPI_File_seek</tt>
+, 
+<tt>MPI_File_read</tt>
+  if you make what changes?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

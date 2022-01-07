@@ -1,0 +1,4305 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Unix intro</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+22.1 : <a href="unix.html#Filesandsuch">Files and such</a><br>
+22.1.1 : <a href="unix.html#Lookingatfiles">Looking at files</a><br>
+22.1.1.1 : <a href="unix.html#<tt>ls<tt>"><tt>ls</tt></a><br>
+22.1.1.2 : <a href="unix.html#<tt>cat<tt>"><tt>cat</tt></a><br>
+22.1.1.3 : <a href="unix.html#<tt>man<tt>"><tt>man</tt></a><br>
+22.1.1.4 : <a href="unix.html#<tt>touch<tt>"><tt>touch</tt></a><br>
+22.1.1.5 : <a href="unix.html#\texttt{cp,mv,rm}">\texttt{cp, mv, rm}</a><br>
+22.1.1.6 : <a href="unix.html#\texttt{head,tail}">\texttt{head, tail}</a><br>
+22.1.2 : <a href="unix.html#Directories">Directories</a><br>
+22.1.3 : <a href="unix.html#Permissions">Permissions</a><br>
+22.1.4 : <a href="unix.html#Wildcards">Wildcards</a><br>
+22.2 : <a href="unix.html#Textsearchingandregularexpressions">Text searching and regular expressions</a><br>
+22.2.1 : <a href="unix.html#Cuttinguplineswith<tt>cut<tt>">Cutting up lines with <tt>cut</tt></a><br>
+22.3 : <a href="unix.html#Otherusefulcommands:<tt>tar<tt>">Other useful commands: <tt>tar</tt></a><br>
+22.4 : <a href="unix.html#Commandexecution">Command execution</a><br>
+22.4.1 : <a href="unix.html#Searchpaths">Search paths</a><br>
+22.4.2 : <a href="unix.html#Commandsequencing">Command sequencing</a><br>
+22.4.2.1 : <a href="unix.html#Simplesequencing">Simple sequencing</a><br>
+22.4.2.2 : <a href="unix.html#Pipelining">Pipelining</a><br>
+22.4.2.3 : <a href="unix.html#Backquoting">Backquoting</a><br>
+22.4.2.4 : <a href="unix.html#Groupinginasubshell">Grouping in a subshell</a><br>
+22.4.3 : <a href="unix.html#Exitstatus">Exit status</a><br>
+22.4.4 : <a href="unix.html#Processesandjobs">Processes and jobs</a><br>
+22.4.5 : <a href="unix.html#Shellcustomization">Shell customization</a><br>
+22.5 : <a href="unix.html#InputoutputRedirection">Input/output Redirection</a><br>
+22.5.1 : <a href="unix.html#Inputredirection">Input redirection</a><br>
+22.5.2 : <a href="unix.html#Standardfiles">Standard files</a><br>
+22.5.3 : <a href="unix.html#Outputredirection">Output redirection</a><br>
+22.6 : <a href="unix.html#Shellenvironmentvariables">Shell environment variables</a><br>
+22.6.1 : <a href="unix.html#Useofshellvariables">Use of shell variables</a><br>
+22.6.2 : <a href="unix.html#Exportingvariables">Exporting variables</a><br>
+22.7 : <a href="unix.html#Controlstructures">Control structures</a><br>
+22.7.1 : <a href="unix.html#Conditionals">Conditionals</a><br>
+22.7.2 : <a href="unix.html#Looping">Looping</a><br>
+22.8 : <a href="unix.html#Scripting">Scripting</a><br>
+22.8.1 : <a href="unix.html#Howtoexecutescripts">How to execute scripts</a><br>
+22.8.2 : <a href="unix.html#Scriptarguments">Script arguments</a><br>
+22.9 : <a href="unix.html#Expansion">Expansion</a><br>
+22.9.1 : <a href="unix.html#Arithmeticexpansion">Arithmetic expansion</a><br>
+22.10 : <a href="unix.html#Startupfiles">Startup files</a><br>
+22.11 : <a href="unix.html#Shellinteraction">Shell interaction</a><br>
+22.12 : <a href="unix.html#Thesystemandotherusers">The system and other users</a><br>
+22.12.1 : <a href="unix.html#Groups">Groups</a><br>
+22.12.2 : <a href="unix.html#Thesuperuser">The super user</a><br>
+22.13 : <a href="unix.html#Othersystems:<tt>ssh<tt>and<tt>scp<tt>">Other systems: <tt>ssh</tt> and <tt>scp</tt></a><br>
+22.14 : <a href="unix.html#The<tt>sed<tt>and<tt>awk<tt>tools">The <tt>sed</tt> and <tt>awk</tt> tools</a><br>
+22.14.1 : <a href="unix.html#Streameditingwith<tt>sed<tt>">Stream editing with <tt>sed</tt></a><br>
+22.14.2 : <a href="unix.html#\ttawk">\tt awk</a><br>
+22.15 : <a href="unix.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>22 Unix intro</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+Unix is an 
+<i>OS</i>
+, that is, a layer of software
+between the user or a user program and the hardware. It takes care of
+files and screen output, and it makes sure that many processes can exist
+side by side on one system. However, it is not immediately visible to
+the user.
+Most of the time that you use Unix, you are typing commands which are
+executed by an interpreter called the 
+<i>shell</i>
+. The shell
+makes the actual 
+<span title="acronym" ><i>OS</i></span>
+ calls. There are a few possible Unix shells
+available, but in this tutorial we will assume that you are using the
+<i>sh</i>
+ or 
+<i>bash</i>
+ shell, although many commands are
+common to the various shells in existence.
+</p>
+
+<p name="switchToTextMode">
+Most of this tutorial will work on any Unix-like platform,
+however, there is not just one Unix:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Traditionally there are a few major flavors of Unix: ATT and BSD.
+  Apple has Darwin which is close to BSD; IBM and HP have their own
+  versions of Unix, and Linux is yet another variant. The differences between
+  these are deep down and if you are taking this tutorial you probably
+  won't see them for quite a while.
+<li>
+Within Linux there are various 
+<i>Linux distributions</i>
+  such as 
+<i>Red Hat</i>
+ or 
+<i>Ubuntu</i>
+. These mainly differ
+  in the organization of system files and again you probably need not worry
+  about them.
+<li>
+As mentioned just now, there are different shells, and they do
+  differ considerably. Here you will learn the 
+<i>bash</i>
+  shell, which is an improved version of the old 
+<i>sh</i>
+ shell.
+   For a variety of reasons, 
+<tt>bash</tt>
+ is to be preferred over the
+<i>csh</i>
+ or 
+<i>tcsh</i>
+ shell.  Other shells are the
+<i>ksh</i>
+ and 
+<i>zsh</i>
+, which is itself an improvement
+  over the 
+<tt>bash</tt>
+ shell.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: comment start embedded generator -->
+</p>
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Filesandsuch">22.1</a> Files and such</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+In this section you will learn about the Unix file system, which
+consists of 
+<i>directories</i>
+ that store 
+<i>files</i>
+. You
+will learn about 
+<i>executable</i>
+ files and commands for
+displaying data files.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Lookingatfiles">22.1.1</a> Looking at files</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+In this section you will learn commands for displaying file contents.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+  command</td><td>function</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+  
+<tt>ls</tt>
+ </td><td> list files or directories</td></tr>
+<tr><td>
+  
+<tt>touch</tt>
+ </td><td> create new/empty file or update existing file</td></tr>
+<tr><td>
+ <tt>cat </td><td>gt; filename</tt>  </td><td> enter text into file</td></tr>
+<tr><td>
+  
+<tt>cp</tt>
+ </td><td> copy files</td></tr>
+<tr><td>
+  
+<tt>mv</tt>
+ </td><td> rename files</td></tr>
+<tr><td>
+  
+<tt>rm</tt>
+ </td><td> remove files</td></tr>
+<tr><td>
+  
+<tt>file</tt>
+ </td><td> report the type of file</td></tr>
+<tr><td>
+  
+<tt>cat filename</tt>
+ </td><td> display file</td></tr>
+<tr><td>
+  
+<tt>head,tail</tt>
+ </td><td> display part of a file</td></tr>
+<tr><td>
+  
+<tt>less,more</tt>
+ </td><td> incrementally display a file</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="<tt>ls<tt>">22.1.1.1</a> <tt>ls</tt></h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a> > <a href="unix.html#<tt>ls<tt>"><tt>ls</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Without any argument, the 
+<tt>ls</tt>
+ command gives you a
+listing of files that are in your present location.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Type 
+<tt>ls</tt>
+. Does anything show up?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  If there are files in your directory, they will be 
+<tt>l</tt>
+i
+<tt>s</tt>
+ted;
+  if there are none, no output will be given. This is standard Unix
+  behavior: no output does not mean that something went wrong, it
+  only means that there is nothing to report.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  If the 
+<tt>ls</tt>
+ command shows that there are files, do
+  
+<tt>ls name</tt>
+ on one of those.
+  By using an option, for instance 
+<tt>ls -s name</tt>
+
+  you can get more information about 
+<tt>name</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: caution start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator caution ['caution'] -->
+  If you mistype a name, or specify a name of a
+  non-existing file, you'll get an error message.
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>ls</tt>
+ command can give you all sorts of information.
+In addition to the above 
+<tt>ls -s</tt>
+ for the size, there is
+
+<tt>ls -l</tt>
+ for the `long' listing.
+It shows (things we will get to later such as) ownership and permissions,
+as well as the size and creation date.
+</p>
+
+<!-- environment: remark start embedded generator -->
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  There are several dates associated with a file, corresponding to
+  changes in content, changes in permissions, and access of any
+  sort. The 
+<tt>stat</tt>
+ command gives all of them.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="<tt>cat<tt>">22.1.1.2</a> <tt>cat</tt></h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a> > <a href="unix.html#<tt>cat<tt>"><tt>cat</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>cat</tt>
+ command (short for `concatenate')
+is often used to display files, but it can also be
+used to create some simple content.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Type 
+<tt>cat &gt; newfilename</tt>
+ (where you can pick any filename) and
+  type some text. Conclude with 
+<tt>Control-d</tt>
+ on a line by
+  itself: press the 
+<tt>Control</tt>
+ key and hold it while you
+  press the 
+<tt>d</tt>
+ key.  Now use 
+<tt>cat</tt>
+ to view the
+  contents of that file: 
+<tt>cat newfilename</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  In the first use of 
+<tt>cat</tt>
+, text was appended
+  from the terminal to a file; in the second the file was cat'ed to
+  the terminal output. You should see on your screen precisely what
+  you typed into the file.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+  Be sure to type 
+<tt>Control-d</tt>
+ as the first thing on the last line of input. If you
+    really get stuck, 
+<tt>Control-c</tt>
+ will usually get you out. Try this:
+    start creating a file with 
+<tt>cat &gt; filename</tt>
+ and hit 
+<tt>Control-c</tt>
+ in
+    the middle of a line. What are the contents of your file?
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  Instead of 
+<tt>Control-d</tt>
+ you will often see the notation&nbsp;
+<tt>^D</tt>
+.
+  The capital letter is for historic reasons: you use the control key
+  and the lowercase letter.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="<tt>man<tt>">22.1.1.3</a> <tt>man</tt></h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a> > <a href="unix.html#<tt>man<tt>"><tt>man</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The primary (though not always the most easily understood) source for unix commands
+is the 
+<tt>man</tt>
+ command, for `manual'.
+The descriptions available this way are referred to as the 
+<i>manual page</i>
+s.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Read the man page of the 
+<tt>ls</tt>
+ command:
+  
+<tt>man ls</tt>
+.
+  Find out the size and the time&nbsp;/ date of the last change
+  to some files, for instance the file you just created.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  Did you find the 
+<tt>ls -s</tt>
+ and 
+<tt>ls -l</tt>
+ options? The first one
+  lists the size of each file, usually in kilobytes, the other gives
+  all sorts of information about a file, including things you will
+  learn about later.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>man</tt>
+ command
+    puts you in a mode where you can view long text documents. This
+    viewer is common on Unix systems (it is available as the 
+<tt>more</tt>
+ or
+<tt>less</tt>
+ system command), so memorize the following ways of navigating: Use
+    the space bar to go forward and the 
+<tt>u</tt>
+ key to go back up. Use
+    
+<tt>g</tt>
+ to go to the beginning fo the text, and 
+<tt>G</tt>
+ for the end. Use
+    
+<tt>q</tt>
+ to exit the viewer. If you really get stuck, 
+<tt>Control-c</tt>
+ will
+    get you out.
+</p>
+
+<!-- environment: remark start embedded generator -->
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  If you already know what command you're looking for, you can use man
+  to get online information about it. If you forget the name of a
+  command, 
+<tt>man</tt>
+&nbsp;
+<tt>-k keyword</tt>
+ can help you find it.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="<tt>touch<tt>">22.1.1.4</a> <tt>touch</tt></h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a> > <a href="unix.html#<tt>touch<tt>"><tt>touch</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>touch</tt>
+ command creates an empty file, or updates the timestamp of
+a file if it already exists. Use 
+<tt>ls -l</tt>
+ to confirm this behavior.
+</p>
+
+<h4><a id="\texttt{cp,mv,rm}">22.1.1.5</a> \texttt{cp, mv, rm}</h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a> > <a href="unix.html#\texttt{cp,mv,rm}">\texttt{cp, mv, rm}</a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<tt>cp</tt>
+ can be used for copying a file (or directories,
+see below): 
+<tt>cp file1 file2</tt>
+ makes a copy of 
+<tt>file1</tt>
+ and names it
+
+<tt>file2</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Use 
+<tt>cp file1 file2</tt>
+ to copy a file. Confirm that the two files
+  have the same contents. If you change the original, does anything
+  happen to the copy?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  You should see that the copy does not change if the original changes
+  or is deleted.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+  If 
+<tt>file2</tt>
+ already exists, you
+  will get an error message.
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+A file can be renamed with 
+<tt>mv</tt>
+, for `move'.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Rename a file. What happens if the target name already exists?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+Files are deleted with 
+<tt>rm</tt>
+. This command is dangerous: there is no
+undo.
+</p>
+
+<h4><a id="\texttt{head,tail}">22.1.1.6</a> \texttt{head, tail}</h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Lookingatfiles">Looking at files</a> > <a href="unix.html#\texttt{head,tail}">\texttt{head, tail}</a>
+</p>
+<p name="switchToTextMode">
+
+There are more commands for displaying a file, parts of a file, or
+information about a file.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Do 
+<tt>ls /usr/share/words</tt>
+ or 
+<tt>ls /usr/share/dict/words</tt>
+ to
+  confirm that a file with words exists on your system. Now experiment
+  with the commands 
+<tt>head</tt>
+, 
+<tt>tail</tt>
+, 
+<tt>more</tt>
+, and 
+<tt>wc</tt>
+ using
+  that file.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+<tt>head</tt>
+ displays the first couple of lines of a file,
+<tt>tail</tt>
+ the last, and 
+<tt>more</tt>
+ uses the
+  same viewer that is used for man pages. Read the man pages for these
+  commands and experiment with increasing and decreasing the amount of
+  output.  The 
+<tt>wc</tt>
+ (`word count') command reports the
+  number of words, characters, and lines in a file.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Another useful command is 
+<tt>file</tt>
+: it tells you what
+type of file you are dealing with.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Do 
+<tt>file foo</tt>
+ for various `foo': a text file, a directory, or the
+  
+<tt>/bin/ls</tt>
+ command.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  Some of the information may not be intelligible to you, but the
+  words to look out for are `text', `directory', or `executable'.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+At this point it is advisable to learn to use a text
+<i>editor</i>
+, such as 
+<i>emacs</i>
+ or&nbsp;
+<i>vi</i>
+.
+</p>
+
+<h3><a id="Directories">22.1.2</a> Directories</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Directories">Directories</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  Here you will learn about the Unix directory tree, how to manipulate
+  it and how to move around in it.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+  command</td><td>function</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+  
+<tt>ls</tt>
+ </td><td> list the contents of directories</td></tr>
+<tr><td>
+  
+<tt>mkdir</tt>
+ </td><td> make new directory</td></tr>
+<tr><td>
+  
+<tt>cd</tt>
+ </td><td> change directory</td></tr>
+<tr><td>
+  
+<tt>pwd</tt>
+ </td><td> display present working directory</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+A unix file system is a tree of directories, where a directory is a
+container for files or more directories. We will display directories
+as follows:
+</p>
+
+<!-- environment: comment start embedded generator -->
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+\dirdisplay{.1 /\DTcomment{The root of the directory tree}.
+.2 bin\DTcomment{Binary programs}. .2 home\DTcomment{Location of
+    users directories}. }
+</p>
+
+<p name="switchToTextMode">
+The root of the Unix directory tree is indicated with a slash. Do
+
+<tt>ls /</tt>
+ to see what the files and directories there are in the
+root. Note that the root is not the location where you start when you
+reboot your personal machine, or when you log in to a server.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  The command to find out your current working directory is
+<tt>pwd</tt>
+. Your home directory is your working directory
+  immediately when you log in. Find out your home directory.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  You will typically see something like 
+<tt>/home/yourname</tt>
+ or
+  
+<tt>/Users/yourname</tt>
+. This is system dependent.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Do 
+<tt>ls</tt>
+ to see the contents of the working directory. In the
+displays in this section, directory names will be followed by a
+slash:&nbsp;
+<tt>dir/</tt>
+ but this character is not part of their name.  You can
+get this output by using 
+<tt>ls -F</tt>
+, and you can tell your shell to
+use this output consistently by stating 
+<tt>alias ls=ls -F</tt>
+ at the start of your
+session. Example:
+</p>
+
+<p name="switchToTextMode">
+\dirdisplay{.1 /home/you/. .2 adirectory/. .2 afile. }
+</p>
+
+<p name="switchToTextMode">
+The command for making a new directory is 
+<tt>mkdir</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Make a new directory with 
+<tt>mkdir</tt>
+&nbsp;
+<tt>newdir</tt>
+ and view
+  the current directory with 
+<tt>ls</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  You should see this structure:
+    \dirdisplay{.1 /home/you/. .2 newdir/\DTcomment{the new directory}. }
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+The command for going into another directory, that is, making it your
+working directory, is 
+<tt>cd</tt>
+ (`change directory'). It can be used in
+the following ways:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>cd</tt>
+ Without any arguments, 
+<tt>cd</tt>
+ takes you to your home directory.
+<li>
+
+<tt>cd &lt;absolute path&gt;</tt>
+ An absolute path starts at the root of
+  the directory tree, that is, starts with&nbsp;
+<tt>/</tt>
+. The 
+<tt>cd</tt>
+ command
+  takes you to that location.
+<li>
+
+<tt>cd &lt;relative path&gt;</tt>
+ A relative path is one that does not
+  start at the root. This form of the 
+<tt>cd</tt>
+ command takes you to
+  
+<tt>&lt;yourcurrentdir&gt;/&lt;relative path&gt;</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Do 
+<tt>cd newdir</tt>
+ and find out where you are in the directory tree
+  with 
+<tt>pwd</tt>
+.  Confirm with 
+<tt>ls</tt>
+ that the directory is empty.  How
+  would you get to this location using an absolute path?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  
+<tt>pwd</tt>
+ should tell you 
+<tt>/home/you/newdir</tt>
+, and 
+<tt>ls</tt>
+ then has no
+  output, meaning there is nothing to list.  The absolute path is
+  
+<tt>/home/you/newdir</tt>
+.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Let's quickly create a file in this directory: 
+<tt>touch</tt>
+  
+<tt>onefile</tt>
+, and another directory: 
+<tt>mkdir otherdir</tt>
+.  Do 
+<tt>ls</tt>
+
+  and confirm that there are a new file and directory.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  You should now have: \dirdisplay{.1 /home/you/. .2
+    newdir/\DTcomment{you are here}.  .3 onefile. .3 otherdir/. }
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>ls</tt>
+ command has a very useful option: with 
+<tt>ls -a</tt>
+ you see
+your regular files and hidden files, which have a name that starts
+with a dot. Doing 
+<tt>ls -a</tt>
+ in your new directory should tell you that
+there are the following files:
+</p>
+
+<p name="switchToTextMode">
+\dirdisplay{.1 /home/you/. .2 newdir/\DTcomment{you are here}.
+.3 .. .3 ... .3 onefile. .3 otherdir/. }
+</p>
+
+<p name="switchToTextMode">
+The single dot is the
+current directory, and the double dot is the directory one level
+back.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Predict where you will be after 
+<tt>cd ./otherdir/..</tt>
+  and check to
+  see if you were right.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  The single dot sends you to the current directory, so that does not
+  change anything. The 
+<tt>otherdir</tt>
+ part makes that subdirectory your
+  current working directory. Finally, 
+<tt>..</tt>
+ goes one level back. In
+  other words, this command puts your right back where you started.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Since your home directory is a special place, there are shortcuts for
+
+<tt>cd</tt>
+'ing to it: 
+<tt>cd</tt>
+ without arguments, 
+<tt>cd &nbsp;</tt>
+, and 
+<tt>cd \$HOME</tt>
+
+  all get you back to your home.
+</p>
+
+<p name="switchToTextMode">
+Go to your home directory, and from there do 
+<tt>ls newdir</tt>
+ to check
+the contents of the first directory you created, without having to go
+there.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What does 
+<tt>ls ..</tt>
+ do?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  Recall that 
+<tt>..</tt>
+ denotes the directory one level up in the tree:
+  you should see your own home directory, plus the directories of any
+  other users.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Can you use 
+<tt>ls</tt>
+ to see the contents of someone else's home
+  directory? In the previous exercise you saw whether other users
+  exist on your system. If so, do 
+<tt>ls ../thatotheruser</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  If this is your private computer, you can probably view the contents
+  of the other user's directory. If this is a university computer or
+  so, the other directory may very well be protected --&nbsp;permissions
+  are discussed in the next section&nbsp;-- and
+  you get 
+<tt>ls: ../otheruser: Permission denied</tt>
+.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Make an attempt to move into someone else's home directory with
+
+<tt>cd</tt>
+. Does it work?
+</p>
+
+<p name="switchToTextMode">
+You can make copies of a directory with 
+<tt>cp</tt>
+, but you need to add a
+flag to indicate that you recursively copy the contents: \n{cp
+  -r}. Make another directory 
+<tt>somedir</tt>
+ in your home so that you have
+</p>
+
+<p name="switchToTextMode">
+\dirdisplay{.1 /home/you/. .2 newdir/\DTcomment{you have been working
+    in this one}.
+.2 somedir/\DTcomment{you just created this one}. }
+</p>
+
+<p name="switchToTextMode">
+What is the difference between
+
+<tt>cp -r newdir somedir</tt>
+
+and
+
+<tt>cp -r newdir thirddir</tt>
+
+where 
+<tt>thirddir</tt>
+ is not an
+existing directory name?
+</p>
+
+<h3><a id="Permissions">22.1.3</a> Permissions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Permissions">Permissions</a>
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn about how to give various users on
+  your system permission to do (or not to do) various things with your
+  files.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+Unix files, including directories,
+have permissions, indicating `who can do what with this
+file'. Actions that can be performed on a file fall into three
+categories:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+reading 
+<tt>r</tt>
+: any access to a file (displaying, getting information
+  on it) that does not change the file;
+<li>
+writing 
+<tt>w</tt>
+: access to a file that changes its content, or even its
+  metadata such as `date modified';
+<li>
+executing 
+<tt>x</tt>
+: if the file is executable, to run it; if it is a
+  directory, to enter it.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+The people who can potentially access a file are divided into three
+classes too:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the user 
+<tt>u</tt>
+: the person owning the file;
+<li>
+the group 
+<tt>g</tt>
+: a group of users to which the owner belongs;
+<li>
+other 
+<tt>o</tt>
+: everyone else.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+These nine permissions are rendered in sequence
+\[
+\begin{array}{|c|c|c|}
+  \hline user&group&other\\ \hline rwx&rwx&rwx \\ \hline
+\end{array}
+\]
+For instance
+
+<tt>rw-r--r--</tt>
+ means that the owner can read and write a file, the owner's
+group and everyone else can only read.
+</p>
+
+<p name="switchToTextMode">
+Permissions are also rendered
+numerically in groups of three bits, by letting
+$\mathtt{r}=4$, $\mathtt{w}=2$, $\mathtt{x}=1$:
+\[
+\begin{array}{|c|}
+  \hline rwx\\ \hline 421 \\ \hline
+\end{array}
+\]
+Common codes are $7=\mathtt{rwx}$ and $6=\mathtt{rw}$. You will find
+many files that have permissions $755$ which stands for an executable
+that everyone can run, but only the owner can change, or $644$ which
+stands for a data file that everyone can see but again only the owner
+can alter. You can set permissions by the 
+<tt>chmod</tt>
+ command:
+<!-- environment: verbatim start embedded generator -->
+</p>
+  chmod &lt;permissions&gt; file         # just one file
+  chmod -R &lt;permissions&gt; directory # directory, recursively
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Examples:
+<!-- environment: verbatim start embedded generator -->
+</p>
+  chmod 766 file  # set to rwxrw-rw-
+  chmod g+w file  # give group write permission
+  chmod g=rx file # set group permissions
+  chod o-w  file  # take away write permission from others
+  chmod o=  file  # take away all permissions from others.
+  chmod g+r,o-x file # give group read permission
+                     # remove other execute permission
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The man page gives all options.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Make a file 
+<tt>foo</tt>
+ and do 
+<tt>chmod u-r foo</tt>
+. Can you now inspect
+  its contents? Make the file readable again, this time using a
+  numeric code. Now make the file readable to your classmates. Check
+  by having one of them read the contents.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  1.&nbsp;A&nbsp;file is only accessible by others if the surrounding folder is
+  readable. Can you figure out how to do this? 2.&nbsp;When you've made the
+  file `unreadable' by yourself, you can still 
+<tt>ls</tt>
+ it, but not
+  
+<tt>cat</tt>
+ it: that will give a `permission denied' message.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Make a file 
+<tt>com</tt>
+ with the following contents:
+<!-- environment: verbatim start embedded generator -->
+</p>
+#!/bin/sh
+echo "Hello world!"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This is a legitimate shell script. What happens when you type
+
+<tt>./com</tt>
+? Can you make the script executable?
+</p>
+
+<p name="switchToTextMode">
+In the three permission categories it is clear who `you' and `others'
+refer to. How about `group'? We'll go into that in section&nbsp;
+22.12
+.
+</p>
+
+<!-- environment: remark start embedded generator -->
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  There are more obscure permissions. For instance the
+<i>setuid</i>
+ bit declares that the program should run with the
+  permissions of the creator, rather than the user executing it. This
+  is useful for system utilities such 
+<tt>passwd</tt>
+ or 
+<tt>mkdir</tt>
+, which
+  alter the password file and the directory structure, for which
+<i>root privileges</i>
+ are needed. Thanks to the setuid
+  bit, a user can run these programs, which are then so designed that
+  a user can only make changes to their own password entry, and their
+  own directories, respectively. The setuid bit is set with
+<tt>chmod</tt>
+: 
+<tt>chmod 4ugo file</tt>
+.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Wildcards">22.1.4</a> Wildcards</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Filesandsuch">Files and such</a> > <a href="unix.html#Wildcards">Wildcards</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+You already saw that 
+<tt>ls filename</tt>
+ gives you information about that
+one file, and 
+<tt>ls</tt>
+ gives you all files in the current directory. To
+see files with certain conditions on their names, the
+<i>wildcard</i>
+ mechanism exists. The following wildcards exist:
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  \toprule
+ <tt>*</tt> </td><td> any number of characters</td></tr>
+<tr><td>
+ <tt>?</tt> </td><td> any character.</td></tr>
+<tr><td>
+  \bottomrule
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+Example:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% ls
+s       sk      ski     skiing  skill
+%% ls ski*
+ski     skiing  skill
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The second option lists all files whose name start with
+
+<tt>ski</tt>
+, followed by any number of other characters'; below you will
+see that in different contexts 
+<tt>ski*</tt>
+ means `
+<tt>sk</tt>
+ followed by any
+number of 
+<tt>i</tt>
+ characters'. Confusing, but that's the way it is.
+</p>
+
+<h2><a id="Textsearchingandregularexpressions">22.2</a> Text searching and regular expressions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Textsearchingandregularexpressions">Text searching and regular expressions</a>
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn how to search for text in files.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+For this section you need at least one file that contains some amount
+of text. You can for instance get random text from
+
+<a href=http://www.lipsum.com/feed/html>http://www.lipsum.com/feed/html</a>
+.
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>grep</tt>
+ command can be used to search for a text expression in a
+file.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Search for the letter 
+<tt>q</tt>
+ in your text file with \n{grep q
+    yourfile} and search for it in all files in your directory with
+  
+<tt>grep q *</tt>
+. Try some other searches.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  In the first case, you get a listing of all lines that contain
+  a&nbsp;
+<tt>q</tt>
+; in the second case, 
+<tt>grep</tt>
+ also reports what file name
+  the match was found in: 
+<tt>qfile:this line has q in it</tt>
+.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+  If the string you are looking for does not occur, 
+<tt>grep</tt>
+ will
+    simply not output anything. Remember that this is standard behavior
+    for Unix commands if there is nothing to report.
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+In addition to searching for literal strings, you can look for more
+general expressions.
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+ <tt>^</tt> </td><td>the beginning of the line</td></tr>
+<tr><td>
+ <tt>$</tt> </td><td>the end of the line</td></tr>
+<tr><td>
+ <tt>.</tt> </td><td>any character</td></tr>
+<tr><td>
+ <tt>*</tt> </td><td>any number of repetitions </td></tr>
+<tr><td>
+ <tt>[xyz]</tt> </td><td>any of the characters \n{xyz}</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+This looks like the wildcard mechanism you just saw
+(section&nbsp;
+22.1.4
+) but it's subtly different. Compare
+the example above with:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% cat s
+sk
+ski
+skill
+skiing
+%% grep "ski*" s
+sk
+ski
+skill
+skiing
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+In the second case you search for a string consisting of 
+<tt>sk</tt>
+ and
+any number of 
+<tt>i</tt>
+ characters, including zero of them.
+</p>
+
+<p name="switchToTextMode">
+Some more examples: you can find
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+All lines that contain the letter `q' with 
+ <tt>grep q yourfile</tt> ;
+<li>
+All lines that start with an&nbsp;`a' with 
+ <tt>grep "^a" yourfile</tt> 
+  (if your search string contains special characters, it is a good
+  idea to use quote marks to enclose it);
+<li>
+All lines that end with a digit with 
+ <tt>grep "[0-9]$" yourfile</tt> .
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Construct the search strings for finding
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+lines that start with an uppercase character, and
+<li>
+lines that contain exactly one character.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  For the first, use the range characters 
+<tt>[]</tt>
+, for the second use
+  the period to match any character.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Add a few lines 
+<tt>x = 1</tt>
+, \n{x {} = 2}, \n{x {} {} = 3} (that is,
+  have different numbers of spaces between 
+<tt>x</tt>
+ and the equals sign)
+  to your test file, and make 
+<tt>grep</tt>
+ commands to search for all
+  assignments to&nbsp;
+<tt>x</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+The characters in the table above have special meanings. If you want
+to search that actual character, you have to 
+<i>escape</i>
+ it.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Make a test file that has both 
+<tt>abc</tt>
+ and 
+<tt>a.c</tt>
+ in it, on
+  separate lines.
+  Try the commands 
+<tt>grep "a.c" file</tt>
+, 
+<tt>grep a\\.c file</tt>
+, 
+<tt>grep "a\\.c" file.</tt>
+
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  You will see that the period needs to be escaped, and the search
+    string needs to be quoted. In the absence of either, you will see
+    that 
+<tt>grep</tt>
+ also finds the 
+<tt>abc</tt>
+ string.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Cuttinguplineswith<tt>cut<tt>">22.2.1</a> Cutting up lines with <tt>cut</tt></h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Textsearchingandregularexpressions">Text searching and regular expressions</a> > <a href="unix.html#Cuttinguplineswith<tt>cut<tt>">Cutting up lines with <tt>cut</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Another tool for editing lines is 
+<tt>cut</tt>
+, which will cut up a line
+and display certain parts of it. For instance,
+<!-- environment: verbatim start embedded generator -->
+</p>
+cut -c 2-5 myfile
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+will display the characters in position 2--5 of every line of
+
+<tt>myfile</tt>
+. Make a test file and verify this example.
+</p>
+
+<p name="switchToTextMode">
+Maybe more useful, you can give 
+<tt>cut</tt>
+ a delimiter character and have
+it split a line on occurrences of that delimiter. For instance, your system
+will mostly likely have a file 
+<tt>/etc/passwd</tt>
+ that contains user
+information\footnote{This is traditionally the case; on Mac OS
+  information about users is kept elsewhere and this file only
+  contains system services.}, with every line consisting of fields
+separated by colons. For instance:
+<!-- environment: verbatim start embedded generator -->
+</p>
+daemon:*:1:1:System Services:/var/root:/usr/bin/false
+nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false
+root:*:0:0:System Administrator:/var/root:/bin/sh
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The seventh and last field is the login shell of the user;
+
+<tt>/bin/false</tt>
+ indicates that the user is unable to log in.
+</p>
+
+<p name="switchToTextMode">
+You can display users and their login shells with:
+<!-- environment: verbatim start embedded generator -->
+</p>
+cut -d ":" -f 1,7 /etc/passwd
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This tells 
+<tt>cut</tt>
+ to use the colon as delimiter, and to print fields
+1&nbsp;and&nbsp;7.
+</p>
+
+<h2><a id="Otherusefulcommands:<tt>tar<tt>">22.3</a> Other useful commands: <tt>tar</tt></h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Otherusefulcommands:<tt>tar<tt>">Other useful commands: <tt>tar</tt></a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<tt>tar</tt>
+ command stands for `tape archive',
+that is, it was originally meant to package files on a tape.
+(The `archive' part derives from the 
+<tt>ar</tt>
+ command.)
+These days, it's used to package files together for distribution
+on web sites and such: if you want to publish a library of hundreds of files
+this bundles them into a single file.
+</p>
+
+<p name="switchToTextMode">
+The two most common options are for
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+creating a tar file:
+<!-- environment: verbatim start embedded generator -->
+</p>
+tar fc package.tar directory_with_stuff
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+pronounced `tar file create', and
+<li>
+unpacking a tar file:
+<!-- environment: verbatim start embedded generator -->
+</p>
+tar fx package.tar
+# this creates the directory that was packaged
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+pronounced `tar file extract'.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+Text files can often be compressed to a large extent, so
+adding the 
+<tt>z</tt>
+ compressiong for 
+<tt>gzip</tt>
+is a good idea:
+<!-- environment: verbatim start embedded generator -->
+</p>
+tar fcz package.tar.gz directory_with_stuff
+tar fx package.tar.gz
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Naming the `gzipped' file 
+<tt>package.tgz</tt>
+
+is also common.
+</p>
+
+<h2><a id="Commandexecution">22.4</a> Command execution</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a>
+</p>
+<p name="switchToTextMode">
+
+<h3><a id="Searchpaths">22.4.1</a> Search paths</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Searchpaths">Search paths</a>
+</p>
+
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn how Unix determines what to do when
+  you type a command name.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+If you type a command such as 
+<tt>ls</tt>
+, the shell does not just rely on
+a list of commands: it will actually go searching for a program by the
+name 
+<tt>ls</tt>
+. This means that you can have multiple different commands
+with the same name, and which one gets executed depends on which one
+is found first.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What you may think of as `Unix commands' are often just executable
+  files in a system directory. Do 
+<tt>which</tt>
+&nbsp;
+<tt>ls</tt>
+, and do
+  an 
+<tt>ls -l</tt>
+ on the result.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  The location of 
+<tt>ls</tt>
+ is something like 
+<tt>/bin/ls</tt>
+. If you
+    
+<tt>ls</tt>
+ that, you will see that it is probably owned by root. Its
+    executable bits are probably set for all users.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+The locations where unix searches for commands is the
+<i>search path</i>
+,
+which is stored in the 
+<i>environment variable</i>
+ (for more
+details see below) 
+<tt>PATH</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Do 
+<tt>echo \$PATH</tt>
+. Can you find the location of 
+<tt>cd</tt>
+?  Are there
+  other commands in the same location? Is the current directory
+  `
+<tt>.</tt>
+' in the path? If not, do 
+<tt>export PATH=".:\$PATH"</tt>
+. Now
+  create an executable file 
+<tt>cd</tt>
+ in the current director (see above
+  for the basics), and do 
+<tt>cd</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  The path will be a list of colon-separated directories,\\ for
+  instance 
+<tt>/usr/bin:/usr/local/bin:/usr/X11R6/bin</tt>
+. If the working
+  directory is in the path, it will probably be at the end:
+  
+<tt>/usr/X11R6/bin:.</tt>
+  but most likely it will not be there. If you
+  put `
+<tt>.</tt>
+' at the start of the path, unix will find the local
+  
+<tt>cd</tt>
+ command before the system one.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Some people consider having the working directory in the path a
+security risk. If your directory is writable, someone could put a
+malicious script named 
+<tt>cd</tt>
+ (or any other system command) in your
+directory, and you would execute it unwittingly.
+</p>
+
+<p name="switchToTextMode">
+It is possible to define your own commands as aliases of existing
+commands.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Do 
+<tt>alias chdir=cd</tt>
+ and convince yourself that now 
+<tt>chdir</tt>
+ works
+  just like 
+<tt>cd</tt>
+. Do 
+<tt>alias rm='rm -i'</tt>
+; look up the meaning of
+  this in the man pages. Some people find this alias a good idea; can
+  you see why?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  The 
+<tt>-i</tt>
+ `interactive' option for 
+<tt>rm</tt>
+ makes the command ask for
+  confirmation before each delete. Since unix does not have a trashcan
+  that needs to be emptied explicitly (as on Windows or the Mac OS),
+  this can be a good idea.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Commandsequencing">22.4.2</a> Command sequencing</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Commandsequencing">Command sequencing</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+There are various ways of having multiple commands on a single
+commandline.
+</p>
+
+<h4><a id="Simplesequencing">22.4.2.1</a> Simple sequencing</h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Commandsequencing">Command sequencing</a> > <a href="unix.html#Simplesequencing">Simple sequencing</a>
+</p>
+<p name="switchToTextMode">
+
+First of all, you can type
+<!-- environment: verbatim start embedded generator -->
+</p>
+command1 ; command2
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This is convenient if you repeat the same two commands a number of
+times: you only need to up-arrow once to repeat them both.
+</p>
+
+<p name="switchToTextMode">
+There is a problem: if you type
+<!-- environment: verbatim start embedded generator -->
+</p>
+cc -o myprog myprog.c ; ./myprog
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and the compilation fails, the program will still be executed,
+using an old version of the executable if that exists. This is very
+confusing.
+</p>
+
+<p name="switchToTextMode">
+A better way is:
+<!-- environment: verbatim start embedded generator -->
+</p>
+cc -o myprog myprog.c && ./myprog
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+which only executes the second command if the first one was
+successful.
+</p>
+
+<h4><a id="Pipelining">22.4.2.2</a> Pipelining</h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Commandsequencing">Command sequencing</a> > <a href="unix.html#Pipelining">Pipelining</a>
+</p>
+<p name="switchToTextMode">
+
+Instead of taking input from a file, or sending output to a file, it
+is possible to connect two commands together, so that the second takes
+the output of the first as input. The syntax for this is
+ <tt>cmdone | cmdtwo</tt> ; this is called a pipeline. For instance,
+ <tt>grep a yourfile | grep b</tt>  finds all lines that contains both an
+
+<tt>a</tt>
+ and a&nbsp;
+<tt>b</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Construct a pipeline that counts how many lines there are in your
+  file that contain the string 
+<tt>th</tt>
+. Use the 
+<tt>wc</tt>
+ command (see
+  above) to do the counting.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Backquoting">22.4.2.3</a> Backquoting</h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Commandsequencing">Command sequencing</a> > <a href="unix.html#Backquoting">Backquoting</a>
+</p>
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+There are a few more ways to combine commands. Suppose you want to
+present the result of 
+<tt>wc</tt>
+ a bit nicely. Type the following command
+<!-- environment: verbatim start embedded generator -->
+</p>
+echo The line count is wc -l foo
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+where 
+<tt>foo</tt>
+ is the name of an existing file. The way to
+get the actual line count echoed is by the 
+<i>backquote</i>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+echo The line count is `wc -l foo`
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Anything in between backquotes is executed before the rest of the
+command line is evaluated.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  The way 
+<tt>wc</tt>
+ is used here, it prints the
+  file name. Can you find a way to prevent that from happening?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+There is another mechanism for
+out-of-order evaluation:
+<!-- environment: verbatim start embedded generator -->
+</p>
+echo "There are $( cat Makefile | wc -l ) lines"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This mechanism makes it possible to nest commands,
+but for compatibility and legacy purposes backquotes
+may still be preferable when nesting is not neeeded.
+</p>
+
+<h4><a id="Groupinginasubshell">22.4.2.4</a> Grouping in a subshell</h4>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Commandsequencing">Command sequencing</a> > <a href="unix.html#Groupinginasubshell">Grouping in a subshell</a>
+</p>
+<p name="switchToTextMode">
+
+Suppose you want to apply output redirection to a couple of commands
+in a row:
+<!-- environment: verbatim start embedded generator -->
+</p>
+  configure ; make ; make install &gt; installation.log 2&gt;&1
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This only catches the last command. You could for instance group the
+three commands in a subshell and catch the output of that:
+<!-- environment: verbatim start embedded generator -->
+</p>
+  ( configure ; make ; make install ) &gt; installation.log 2&gt;&1
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Exitstatus">22.4.3</a> Exit status</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Exitstatus">Exit status</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Commands can fail. If you type a single command on the command line,
+you see the error, and you act accordingly when you type the next
+command. When that failing command happens in a script, you have to
+tell the script how to act accordingly. For this, you use the
+<i>exit status</i>
+ of the command: this is a value (zero for
+success, nonzero otherwise) that is stored in an internal variable,
+and that you can access with 
+ <tt>$?</tt> .
+</p>
+
+<p name="switchToTextMode">
+Example. Suppose we have a directory that is not writable
+<!-- environment: verbatim start embedded generator -->
+</p>
+[testing] ls -ld nowrite/
+dr-xr-xr-x  2 eijkhout  506  68 May 19 12:32 nowrite//
+[testing] cd nowrite/
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and write try to create a file there:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[nowrite] cat ../newfile
+#!/bin/bash
+touch $1
+echo "Created file: $1"
+[nowrite] newfile myfile
+bash: newfile: command not found
+[nowrite] ../newfile myfile
+touch: myfile: Permission denied
+Created file: myfile
+[nowrite] ls
+[nowrite]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The script reports that the file was created even though it wasn't.
+</p>
+
+<p name="switchToTextMode">
+Improved script:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[nowrite] cat ../betterfile
+#!/bin/bash
+touch $1
+if [ $? -eq 0 ] ; then
+    echo "Created file: $1"
+else
+    echo "Problem creating file: $1"
+fi
+
+
+[nowrite] ../betterfile myfile
+touch: myfile: Permission denied
+Problem creating file: myfile
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<h3><a id="Processesandjobs">22.4.4</a> Processes and jobs</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Processesandjobs">Processes and jobs</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+  
+<tt>ps</tt>
+</td><td>list (all) processes</td></tr>
+<tr><td>
+  
+<tt>kill</tt>
+</td><td>kill a process</td></tr>
+<tr><td>
+ <tt>CTRL-c</tt> </td><td>kill the foreground job</td></tr>
+<tr><td>
+ <tt>CTRL-z</tt> </td><td>suspect the foreground job</td></tr>
+<tr><td>
+  
+<tt>jobs</tt>
+</td><td>give the status of all jobs</td></tr>
+<tr><td>
+  
+<tt>fg</tt>
+</td><td>bring the last suspended job to the foreground</td></tr>
+<tr><td>
+ <tt>fg %3</tt> </td><td>bring a specific job to the foreground</td></tr>
+<tr><td>
+  
+<tt>bg</tt>
+</td><td>run the last suspended job in the background</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+The Unix operating system can run many programs at the same time, by
+rotating through
+the list and giving each only a  fraction of a second to run each time.
+The command 
+<tt>ps</tt>
+ can tell you everything that is currently running.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Type 
+<tt>ps</tt>
+. How many programs are currently running? By default
+  
+<tt>ps</tt>
+ gives you only programs that you explicitly started. Do \n{ps
+    guwax} for a detailed list of everything that is running. How many
+  programs are running? How many belong to the root user, how many to
+  you?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  To count the programs belonging to a user, pipe the 
+<tt>ps</tt>
+ command
+  through an appropriate 
+<tt>grep</tt>
+, which can then be piped to 
+<tt>wc</tt>
+.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+In this long listing of 
+<tt>ps</tt>
+, the second column contains the
+<i>process numbers</i>
+<!-- index -->
+.
+Sometimes it is useful to have those: if a program misbehaves you can
+<tt>kill</tt>
+ it with
+<!-- environment: verbatim start embedded generator -->
+</p>
+kill 123456
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+where 
+<tt>12345</tt>
+ is the process number.
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>cut</tt>
+ command
+explained above can
+cut certain position from a line: type 
+<tt>ps guwax | cut -c 10-14</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+To get dynamic information about all running processes, use the
+
+<tt>top</tt>
+ command. Read the man page to find out how to sort the output
+by CPU usage.
+</p>
+
+<p name="switchToTextMode">
+Processes that are started in a shell are known as
+<i>jobs</i>
+<i>job (unix)</i>
+.
+In addition to the process number, they have a job number.
+We will now explore manipulating jobs.
+</p>
+
+<p name="switchToTextMode">
+When you type a command and hit return, that command becomes, for
+the duration of its run, the 
+  process}. Everything else that is running at the same time is a
+<i>background process</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Make an executable file 
+<tt>hello</tt>
+ with the following contents:
+<!-- environment: verbatim start embedded generator -->
+</p>
+#!/bin/sh
+while [ 1 ] ; do
+  sleep 2
+  date
+done
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and type 
+<tt>./hello</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Type 
+<tt>Control-z</tt>
+. This suspends the foreground process. It will
+  give you a number like 
+<tt>[1]</tt>
+ or 
+<tt>[2]</tt>
+ indicating that it is the
+  first or second program that has been suspended or put in the
+  background. Now type 
+<tt>bg</tt>
+ to put this process in the
+  background. Confirm that there is no foreground process by hitting
+  return, and doing an 
+<tt>ls</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  After you put a process in the background, the terminal is available
+  again to accept foreground commands. If you hit return, you should
+  see the command prompt. However, the background process still keeps
+  generating output.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Type 
+<tt>jobs</tt>
+ to see the processes in the current session. If the
+  process you just put in the background was number&nbsp;1,
+  type 
+<tt>fg  \%1</tt>
+. Confirm that it is a foreground process again.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  If a shell is executing a program in the foreground, it will not
+  accept command input, so hitting return should only produce blank
+  lines.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  When you have made the 
+<tt>hello</tt>
+ script a foreground
+    process again, you can kill it with 
+<tt>Control-c</tt>
+. Try this. Start
+    the script up again, this time as 
+<tt>./hello \&</tt>
+ which immediately
+    puts it in the background. You should also get output along the
+    lines of 
+<tt>[1] 12345</tt>
+ which tells you that it is the first job you
+    put in the background, and that 
+<tt>12345</tt>
+ is its process ID. Kill
+    the script with 
+<tt>kill \%1</tt>
+. Start it up again, and kill it by
+    using the process number.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  The command 
+<tt>kill 12345</tt>
+ using the process number is usually
+  enough to kill a running program. Sometimes it is necessary to use
+  
+<tt>kill -9 12345</tt>
+.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Shellcustomization">22.4.5</a> Shell customization</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Commandexecution">Command execution</a> > <a href="unix.html#Shellcustomization">Shell customization</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Above it was mentioned that 
+<tt>ls -F</tt>
+ is an easy way to see which
+files are regular, executable, or directories; by typing \n{alias
+  ls='ls -F'} the 
+<tt>ls</tt>
+ command will automatically expanded to \n{ls
+  -F} every time it is invoked. If you would like this behavior in
+every login session, you can add the 
+<tt>alias</tt>
+ command to your
+
+<tt>.profile</tt>
+ file. Other shells than 
+<tt>sh</tt>
+/
+<tt>bash</tt>
+ have other files for such
+customizations.
+</p>
+
+<h2><a id="InputoutputRedirection">22.5</a> Input/output Redirection</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#InputoutputRedirection">Input/output Redirection</a>
+</p>
+
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn how to feed one command into another,
+  and how to connect commands to input and output files.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+So far, the unix commands you have used have taken their input from
+your keyboard, or from a file named on the command line; their output
+went to your screen. There are other possibilities for providing input
+from a file, or for storing the output in a file.
+</p>
+
+<h3><a id="Inputredirection">22.5.1</a> Input redirection</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#InputoutputRedirection">Input/output Redirection</a> > <a href="unix.html#Inputredirection">Input redirection</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+The 
+<tt>grep</tt>
+ command had two arguments, the second being a file
+name. You can also write 
+<tt>grep string &lt; yourfile</tt>
+, where the
+less-than sign means that the input will come from the named file,
+
+<tt>yourfile</tt>
+. This is known as 
+<i>input redirection</i>
+.
+</p>
+
+<h3><a id="Standardfiles">22.5.2</a> Standard files</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#InputoutputRedirection">Input/output Redirection</a> > <a href="unix.html#Standardfiles">Standard files</a>
+</p>
+<p name="switchToTextMode">
+
+Unix has three standard files that handle input and output:
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  \toprule
+  Standard file</td><td>Purpose</td></tr>
+<tr><td>
+  \midrule
+  
+<tt>stdin</tt>
+</td><td> is the file that provides input for processes.</td></tr>
+<tr><td>
+  
+<tt>stdout</tt>
+</td><td> is the file where the output of a process is  written.</td></tr>
+<tr><td>
+  
+<tt>stderr</tt>
+</td><td> is the file where error output is written.</td></tr>
+<tr><td>
+  \bottomrule
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+In an interactive session, all three files are connected to the user
+terminal. Using input or output redirection then means that the input
+is taken or the output sent to a different file than the terminal.
+</p>
+
+<h3><a id="Outputredirection">22.5.3</a> Output redirection</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#InputoutputRedirection">Input/output Redirection</a> > <a href="unix.html#Outputredirection">Output redirection</a>
+</p>
+<p name="switchToTextMode">
+
+Just as with the input, you can redirect the output of your program.
+In the simplest case,
+
+<tt>grep string yourfile &gt; outfile</tt>
+
+will take what
+normally goes to the terminal, and 
+<i>redirect</i>
+
+the output to 
+<tt>outfile</tt>
+. The output
+file is created if it didn't already exist, otherwise it is
+overwritten. (To append, use 
+<tt>grep text yourfile &gt;&gt; outfile</tt>
+.)
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Take one of the grep commands from the previous section, and send
+  its output to a file. Check that the contents of the file are
+  identical to what appeared on your screen before. Search for a
+  string that does not appear in the file and send the output to a
+  file. What does this mean for the output file?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  Searching for a string that does not occur in a file gives no
+  terminal output. If you redirect the output of this 
+<tt>grep</tt>
+ to a
+  file, it gives a zero size file. Check this with 
+<tt>ls</tt>
+ and 
+<tt>wc</tt>
+.
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+Sometimes you want to run a program, but ignore the output.
+For that, you can redirect your output to the system
+<i>null device</i>
+: 
+<tt>/dev/null</tt>
+.
+<!-- environment: verbatim start embedded generator -->
+</p>
+yourprogram &gt;/dev/null
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Here are some useful idioms:
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  \toprule
+  Idiom</td><td>Meaning</td></tr>
+<tr><td>
+  \midrule
+  
+<tt>program 2</td><td>gt;/dev/null</tt>
+</td><td>send only errors to the null device</td></tr>
+<tr><td>
+  
+<tt>program </td><td>gt;/dev/null 2</td><td>gt;</td><td>1</tt>
+</td><td>send output to dev-null, and errors to output</td></tr>
+<tr><td>
+  </td><td>Note the counterintuitive sequence of specifications!</td></tr>
+<tr><td>
+  
+<tt>program 2</td><td>gt;</td><td>1 | less</tt>
+</td><td> send output and errors to 
+<tt>less</tt>
+</td></tr>
+<tr><td>
+  \bottomrule
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h2><a id="Shellenvironmentvariables">22.6</a> Shell environment variables</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Shellenvironmentvariables">Shell environment variables</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+Above you encountered 
+<tt>PATH</tt>
+, which is an example of an
+shell, or environment, variable. These are variables that are known to the shell
+and that can be used by all programs run by the shell.
+While 
+<tt>PATH</tt>
+ is a built-in variable, you can also define your own
+variables, and use those in shell scripting.
+</p>
+
+<p name="switchToTextMode">
+Shell variables are roughly divided in the following categories:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Variables that are specific to the shell, such as 
+<tt>HOME</tt>
+ or 
+<tt>PATH</tt>
+.
+<li>
+Variables that are specific to some program, such as 
+<tt>TEXINPUTS</tt>
+ for TeX/LaTeX.
+<li>
+Variables that you define yourself; see next.
+<li>
+Variables that are defined by control structures such as 
+<tt>for</tt>
+;
+  see below.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+You can see the
+full list of all variables known to the shell by typing 
+<tt>env</tt>
+.
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  This does not include variables you define yourself, unless you 
+<tt>export</tt>
+ them;
+  see below.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Check on the value of the 
+<tt>PATH</tt>
+ variable by typing
+    
+<tt>echo \$PATH</tt>
+. Also find the value of 
+<tt>PATH</tt>
+ by piping 
+<tt>env</tt>
+
+    through 
+<tt>grep</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+We start by exploring the use of this dollar sign in relation to shell variables.
+</p>
+
+<h3><a id="Useofshellvariables">22.6.1</a> Use of shell variables</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Shellenvironmentvariables">Shell environment variables</a> > <a href="unix.html#Useofshellvariables">Use of shell variables</a>
+</p>
+<p name="switchToTextMode">
+
+You can get the value of a shell variable by prefixing it with
+a dollar sign.
+Type the following and inspect the output:
+<!-- environment: verbatim start embedded generator -->
+</p>
+echo x
+echo $x
+x=5
+echo x
+echo $x
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+You see that the shell treats everything as a string, unless you explicitly tell it
+to take the value of a variable, by putting a dollar in front of the name.
+A&nbsp;variable that has not been previously defined will print as a blank string.
+</p>
+
+<p name="switchToTextMode">
+Shell variables can be set in a number of ways. The simplest
+is by an assignment as in other programming languages.
+</p>
+
+<p name="switchToTextMode">
+When you do the next exercise,
+it is good to bear in mind that the shell is a text based language.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Type 
+<tt>a=5</tt>
+ on the commandline. Check on its value with the 
+<tt>echo</tt>
+ command.
+</p>
+
+<p name="switchToTextMode">
+  Define the variable 
+<tt>b</tt>
+ to another integer. Check on its value.
+</p>
+
+<p name="switchToTextMode">
+  Now explore the values of 
+<tt>a+b</tt>
+ and 
+<tt>$a+$b</tt>
+, both by 
+<tt>echo</tt>
+'ing them,
+  or by first assigning them.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+  The shell does not perform integer addition here: instead you get a string
+  with a plus-sign in it.
+  (You will see how to do arithmetic on variables in section&nbsp;
+22.9.1
+.)
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+  Beware not to have space
+    around the equals sign; also be sure to use the dollar sign to print
+    the value.
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Exportingvariables">22.6.2</a> Exporting variables</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Shellenvironmentvariables">Shell environment variables</a> > <a href="unix.html#Exportingvariables">Exporting variables</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+A variable set this way will be known to all subsequent commands
+you issue in this shell, but not to commands in new shells you start up.
+For that you need the 
+<tt>export</tt>
+ command.
+Reproduce the following session (the square brackets form the command prompt):
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] a=20
+[] echo $a
+20
+[] /bin/bash
+[] echo $a
+
+
+[] exit
+exit
+[] export a=21
+[] /bin/bash
+[] echo $a
+21
+[] exit
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+You can also temporarily set a variable. Replay this scenario:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Find an environment variable that does not have a value:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo $b
+
+
+[]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Write a short shell script to print this variable:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] cat &gt; echob
+#!/bin/bash
+echo $b
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and of course make it executable: 
+<tt>chmod +x echob</tt>
+.
+<li>
+Now call the script, preceding it with a setting of the variable&nbsp;
+<tt>b</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] b=5 ./echob
+5
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The syntax where you set the value, as a prefix without using a separate
+command, sets the value just for that one command.
+<li>
+Show that the variable is still undefined:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo $b
+
+
+[]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+That is, you defined the variable just for the execution of a single command.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+In  section&nbsp;
+22.7
+ you will see that the 
+<tt>for</tt>
+ construct
+also defines a variable; section&nbsp;
+22.8.1
+shows some more built-in variables that apply in shell scripts.
+</p>
+
+<p name="switchToTextMode">
+If you want to un-set an environment variable,
+there is the 
+<tt>unset</tt>
+ command.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Controlstructures">22.7</a> Control structures</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Controlstructures">Control structures</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Like any good programming system, the shell has some control
+structures. Their syntax takes a bit of getting used to. (Different
+shells have different syntax; in this tutorial we only discuss the
+bash shell.
+</p>
+
+<h3><a id="Conditionals">22.7.1</a> Conditionals</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Controlstructures">Control structures</a> > <a href="unix.html#Conditionals">Conditionals</a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<i>conditional</i>
+ of the bash shell is predictably called
+<tt>if</tt>
+, and it can be written over several
+lines:
+<!-- environment: verbatim start embedded generator -->
+</p>
+if [ $PATH = "" ] ; then
+  echo "Error: path is empty"
+fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+or on a single line:
+<!-- environment: verbatim start embedded generator -->
+</p>
+if [ `wc -l file` -gt 100 ] ; then echo "file too long" ; fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+(The backquote is explained in section&nbsp;
+22.4.2.3
+.)
+There are a number of tests defined, for instance 
+<tt>-f somefile</tt>
+
+tests for the existence of a file. Change your script so that it will
+report 
+<tt>-1</tt>
+ if the file does not exist.
+</p>
+
+<p name="switchToTextMode">
+The syntax of this is finicky:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>if</tt>
+ and 
+<tt>elif</tt>
+ are followed by a
+  conditional, followed by a semicolon.
+<li>
+The brackets of the conditional need to have spaces surrounding
+  them.
+<li>
+There is no semicolon after 
+<tt>then</tt>
+ of 
+<tt>else</tt>
+:
+  they are immediately followed by some command.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Bash conditionals have an 
+<tt>elif</tt>
+ keyword.
+  Can you predict the error you get from this:
+<!-- environment: verbatim start embedded generator -->
+</p>
+if [ something ] ; then
+  foo
+else if [ something_else ] ; then
+  bar
+fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Code it out and see if you were right.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Looping">22.7.2</a> Looping</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Controlstructures">Control structures</a> > <a href="unix.html#Looping">Looping</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In addition to conditionals,
+the shell has loops. A&nbsp;
+<tt>for</tt>
+ loop looks like
+<!-- environment: verbatim start embedded generator -->
+</p>
+for var in listofitems ; do
+  something with $var
+done
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This does the following:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+for each item in 
+<tt>listofitems</tt>
+, the variable 
+<tt>var</tt>
+ is set to the
+  item, and
+<li>
+the loop body is executed.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+As a simple example:
+<!-- environment: verbatim start embedded generator -->
+</p>
+for x in a b c ; do echo $x ; done
+a
+b
+c
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+In a more meaningful example,
+here is how you would make backups of all your&nbsp;
+<tt>.c</tt>
+
+files:
+<!-- environment: verbatim start embedded generator -->
+</p>
+for cfile in *.c ; do
+  cp $cfile $cfile.bak
+done
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Shell variables can be manipulated in a number of ways.
+Execute the following commands to see that you can remove trailing
+characters from a variable:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] a=b.c
+[] echo ${a%.c}
+b
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+(See the section&nbsp;
+22.9
+ on expansion.)
+With this as a hint, write a loop that renames all your 
+<tt>.c</tt>
+ files
+to&nbsp;
+<tt>.x</tt>
+ files.
+</p>
+
+<p name="switchToTextMode">
+The above construct loops over words, such as the output of
+
+<tt>ls</tt>
+. To do a numeric loop, use the command 
+<tt>seq</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[shell:474] seq 1 5
+1
+2
+3
+4
+5
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Looping over a sequence of numbers then typically looks like
+<!-- environment: verbatim start embedded generator -->
+</p>
+for i in `seq 1 ${HOWMANY}` ; do echo $i ; done
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Note the 
+<i>backtick</i>
+, which is necessary to have the 
+<tt>seq</tt>
+
+command executed before evaluating the loop.
+</p>
+
+<h2><a id="Scripting">22.8</a> Scripting</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Scripting">Scripting</a>
+</p>
+
+<p name="switchToTextMode">
+
+The unix shells are also programming environments. You will learn more
+about this aspect of unix in this section.
+</p>
+
+<h3><a id="Howtoexecutescripts">22.8.1</a> How to execute scripts</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Scripting">Scripting</a> > <a href="unix.html#Howtoexecutescripts">How to execute scripts</a>
+</p>
+
+<p name="switchToTextMode">
+
+It is possible to write programs of unix shell commands. First you
+need to know how to put a program in a file and have it be
+executed. Make a file 
+<tt>script1</tt>
+ containing the following two lines:
+<!-- environment: verbatim start embedded generator -->
+</p>
+#!/bin/bash
+echo "hello world"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and type 
+<tt>./script1</tt>
+ on the command line. Result?
+Make the file executable and try again.
+</p>
+
+<p name="switchToTextMode">
+In order write scripts that you want to invoke from anywhere, people
+typically put them in a directory 
+<tt>bin</tt>
+ in their home directory.
+You would then add this directory to your 
+<i>search path</i>
+,
+contained in 
+<tt>PATH</tt>
+; see section&nbsp;
+22.4.1
+.
+</p>
+
+<h3><a id="Scriptarguments">22.8.2</a> Script arguments</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Scripting">Scripting</a> > <a href="unix.html#Scriptarguments">Script arguments</a>
+</p>
+<p name="switchToTextMode">
+
+You can invoke a shell script with options and arguments:
+<!-- environment: verbatim start embedded generator -->
+</p>
+./my_script -a file1 -t -x file2 file3
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+You will now learn how to incorporate this functionality in your scripts.
+</p>
+
+<p name="switchToTextMode">
+First of all, all commandline arguments and options are available
+as variables 
+ <tt>$1</tt> ,
+ <tt>$2</tt>  et cetera in the script, and
+the number of command line arguments is available as 
+ <tt>$#</tt> :
+<!-- environment: verbatim start embedded generator -->
+</p>
+#!/bin/bash
+
+
+echo "The first argument is $1"
+echo "There were $# arguments in all"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Formally:
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+  variable</td><td>meaning</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+ <tt>$#</tt> </td><td>number of arguments</td></tr>
+<tr><td>
+ <tt>$0</tt> </td><td>the name of the script</td></tr>
+<tr><td>
+ <tt>$1,$2,...</tt> </td><td>the arguments</td></tr>
+<tr><td>
+ <tt>$*,$@</tt> </td><td>the list of all arguments</td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Write a script that takes as input a file name argument, and reports how many
+  lines are in that file.
+</p>
+
+<p name="switchToTextMode">
+  Edit your script to test whether the file has less than 10 lines
+  (use the 
+<tt>foo -lt bar</tt>
+ test), and if it does, 
+<tt>cat</tt>
+ the
+  file. Hint: you need to use backquotes inside the test.
+</p>
+
+<p name="switchToTextMode">
+  Add a
+  test to your script so that it will give a helpful message if you call
+  it without any arguments.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+The standard way to parse argument is using the 
+<tt>shift</tt>
+command, which pops the first argument off the list of arguments.
+Parsing the arguments in sequence then involves looking at 
+ <tt>$1</tt> ,
+shifting, and looking at the new 
+ <tt>$1</tt> .
+\snippetwithoutput{argumentshift}{shell}{arguments}
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Write a script 
+<tt>say.sh</tt>
+ that prints its text argument. However, if you invoke it with
+<!-- environment: verbatim start embedded generator -->
+</p>
+./say.sh -n 7 "Hello world"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  it should be print it as many times as you indicated. Using the
+  option 
+<tt>-u</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+./say.sh -u -n 7 "Goodbye cruel world"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  should print the message in uppercase. Make sure that the order of
+  the arguments does not matter, and give an error message for any
+  unrecognized option.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+The variables 
+ <tt>$@</tt>  and 
+ <tt>$*</tt>  have a different behavior with
+respect to double quotes. Let's say we evaluate
+ <tt>myscript "1 2" 3</tt> , then
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Using 
+ <tt>$*</tt>  is the list of arguments after removing quotes:
+ <tt>myscript 1 2 3</tt> .
+<li>
+Using
+ <tt>"$*"</tt>  is the list of arguments, with quotes removed, in quotes:
+ <tt>myscript "1 2 3"</tt> .
+<li>
+Using
+ <tt>"$@"</tt>  preserved quotes:
+ <tt>myscript "1 2" 3</tt> .
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Expansion">22.9</a> Expansion</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Expansion">Expansion</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+The shell performs various kinds of expansion on a command line, that
+is, replacing part of the commandline with different text.
+</p>
+
+<p name="switchToTextMode">
+Brace expansion:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo a{b,cc,ddd}e
+abe acce addde
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This can for instance be used to delete all extension of some base
+file name:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] rm tmp.{c,s,o}  # delete tmp.c tmp.s tmp.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Tilde expansion gives your own, or someone else's home directory:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo &nbsp;
+/share/home/00434/eijkhout
+[] echo &nbsp;eijkhout
+/share/home/00434/eijkhout
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Parameter expansion gives the value of shell variables:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] x=5
+[] echo $x
+5
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Undefined variables do not give an error message:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo $y
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+There are many variations on parameter expansion. Above you already
+saw that you can strip trailing characters:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] a=b.c
+[] echo ${a%.c}
+b
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Here is how you can deal with undefined variables:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo ${y:-0}
+0
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: comment start embedded generator -->
+</p>
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+The backquote mechanism (section&nbsp;
+22.4.2.3
+ above)
+is known as command substitution. It allows you to evaluate part
+of a command and use it as input for another. For example,
+if you want to ask what type of file the command 
+<tt>ls</tt>
+ is, do
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] file `which ls`
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This first evaluates 
+<tt>which ls</tt>
+, giving 
+<tt>/bin/ls</tt>
+, and then
+evaluates 
+<tt>file /bin/ls</tt>
+. As another example, here
+we backquote a whole pipeline, and do a test on the result:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] echo 123 &gt; w
+[] cat w
+123
+[] wc -c w
+       4 w
+[] if [ `cat w | wc -c` -eq 4 ] ; then echo four ; fi
+four
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Arithmeticexpansion">22.9.1</a> Arithmetic expansion</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Expansion">Expansion</a> > <a href="unix.html#Arithmeticexpansion">Arithmetic expansion</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Unix shell programming is very much oriented towards text manipulation, but it
+is possible to do arithmetic.
+Arithmetic substitution tells the shell to treat the expansion of a
+parameter as a number:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] x=1
+[] echo $((x*2))
+2
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Integer ranges can be used as follows:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[] for i in {1..10} ; do echo $i ; done
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Startupfiles">22.10</a> Startup files</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Startupfiles">Startup files</a>
+</p>
+<!-- index -->
+<!-- index -->
+|see{shell, startup files}
+}
+<!-- index -->
+|see{shell, startup files}
+}
+</p>
+
+<p name="switchToTextMode">
+In this tutorial you have seen several mechanisms for customizing
+the behavior of your shell. For instance, by setting the 
+<tt>PATH</tt>
+
+variable you can extend the locations where the shell looks for executables.
+Other environment variables (section&nbsp;
+22.6
+) you can
+introduce for your own purposes. Many of these customizations will
+need to apply to every sessions, so you can have
+<i>shell startup files</i>
+</p>
+
+<p name="switchToTextMode">
+Popular things to do in a startup file are defining 
+<tt>alias</tt>
+es:
+<!-- environment: verbatim start embedded generator -->
+</p>
+alias grep='grep -i'
+alias ls='ls -F'
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and setting a custom commandline 
+<i>prompt</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Unfortunately, there are several startup files, and which one gets read
+is a complicated functions of circumstances. Here is a good common sense
+guideline\footnote{Many thanks to Robert McLay for figuring this out.}:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Have a 
+<tt>.profile</tt>
+ that does nothing but read the 
+<tt>.bashrc</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+# &nbsp;/.profile
+if [ -f &nbsp;/.bashrc ]; then
+    source &nbsp;/.bashrc
+fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Your 
+<tt>.bashrc</tt>
+ does the actual customizations:
+<!-- environment: verbatim start embedded generator -->
+</p>
+# &nbsp;/.bashrc
+# make sure your path is updated
+if [ -z "$MYPATH" ]; then
+  export MYPATH=1
+  export PATH=$HOME/bin:$PATH
+fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h2><a id="Shellinteraction">22.11</a> Shell interaction</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Shellinteraction">Shell interaction</a>
+</p>
+<p name="switchToTextMode">
+
+Interactive use of Unix, in contrast to script writing
+(section&nbsp;
+22.8
+), is a complicated conversation between
+the user and the shell. You, the user, type a line, hit return, and
+the shell tries to interpret it. There are several cases.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Your line contains one full command, such as 
+<tt>ls foo</tt>
+: the
+  shell will execute this command.
+<li>
+You can put more than one command on a line, separated by
+  semicolons: 
+<tt>mkdir foo; cd foo</tt>
+. The shell will execute these
+  commands in sequence.
+<li>
+Your input line is not a full command, for instance \n{while [
+    1]}. The shell will recognize that there is more to come, and use
+  a different prompt to show you that it is waiting for the remainder
+  of the command.
+<li>
+Your input line would be a legitimate command, but you want to
+  type more on a second line. In that case you can end your input line
+  with a backslash character, and the shell will recognize that it
+  needs to hold off on executing your command. In effect, the
+  backslash will hide (
+<i>escape</i>
+) the return.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+When the shell has collected a command line to execute, by using one or
+more of your input line or only part of one, as described just now, it
+will apply expansion to the command line
+(section&nbsp;
+22.9
+). It will then interpret the
+commandline as a command and arguments, and proceed to invoke that
+command with the arguments as found.
+</p>
+
+<p name="switchToTextMode">
+There are some subtleties here. If you type 
+<tt>ls *.c</tt>
+, then the shell
+will recognize the wildcard character and expand it to a command line,
+for instance 
+<tt>ls foo.c bar.c</tt>
+. Then it will invoke the 
+<tt>ls</tt>
+
+command with the argument list 
+<tt>foo.c bar.c</tt>
+. Note that 
+<tt>ls</tt>
+ does
+not receive 
+<tt>*.c</tt>
+ as argument! In cases where you do want the unix
+command to receive an argument with a wildcard, you need to escape it
+so that the shell will not expand it. For instance, \n{find . -name
+  \\*.c} will make the shell invoke 
+<tt>find</tt>
+ with arguments \n{. -name
+  *.c}.
+</p>
+
+<h2><a id="Thesystemandotherusers">22.12</a> The system and other users</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Thesystemandotherusers">The system and other users</a>
+</p>
+
+<p name="switchToTextMode">
+
+Unix is a multi-user operating system. Thus, even if you use it
+on your own personal machine, you are a user with an 
+<i>account</i>
+
+<!-- index -->
+and you may occasionally
+have to type in your username and password.
+</p>
+
+<p name="switchToTextMode">
+If you are on your personal machine, you may be the only user logged
+in. On university machines or other servers, there will often be other
+users. Here are some commands relating to them.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+[
+<tt>whoami</tt>
+] show your login name.
+<li>
+[
+<tt>who</tt>
+] show the other users currently logged in.
+<li>
+[
+<tt>finger</tt>
+ {\tt otheruser}] get information about another user;
+  you can specify a user's login name here, or their real name,
+  or other identifying information the system knows about.
+<li>
+[
+<tt>top</tt>
+] which processes are running on the system; use
+  
+<tt>top -u</tt>
+ to get this sorted the amount of cpu time they are
+  currently taking. (On Linux, try also the 
+<tt>vmstat</tt>
+ command.)
+<li>
+[
+<tt>uptime</tt>
+] how long has it been since your last reboot?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Groups">22.12.1</a> Groups</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Thesystemandotherusers">The system and other users</a> > <a href="unix.html#Groups">Groups</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In section&nbsp;
+22.1.3
+ you saw that there is a
+permissions category for `group'. This allows you to open up files to
+your close collaborators, while leaving them protected from the wide
+world.
+</p>
+
+<p name="switchToTextMode">
+When your account is created, your system administrator will have
+assigned you to one or more groups. (If you admin your own machine,
+you'll be in some default group; read on for adding yourself to more groups.)
+</p>
+
+<p name="switchToTextMode">
+The command 
+<tt>groups</tt>
+tells you all the groups you are in, and 
+<tt>ls -l</tt>
+ tells you
+what group a file belongs to. Analogous to 
+<tt>chmod</tt>
+,
+you can use 
+<tt>chgrp</tt>
+ to change the group to
+which a file belongs, to share it with a user who is also in that group.
+</p>
+
+<p name="switchToTextMode">
+Creating a new group, or
+adding a user to a group needs system privileges.
+To create a group:
+<!-- environment: verbatim start embedded generator -->
+</p>
+sudo groupadd new_group_name
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+To add a user to a group:
+<!-- environment: verbatim start embedded generator -->
+</p>
+sudo usermod -a -G thegroup theuser
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Thesuperuser">22.12.2</a> The super user</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Thesystemandotherusers">The system and other users</a> > <a href="unix.html#Thesuperuser">The super user</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Even if you own your machine, there are good reasons to work as much
+as possible from a regular user account, and use
+<i>root privileges</i>
+ only when strictly needed.
+(The root account is also known as the 
+<i>super user</i>
+.)
+If you have root privileges, you can also use that to `become another
+user' and do things with their privileges, with the
+<tt>sudo</tt>
+ (`superuser do') command.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+To execute a command as another user:
+<!-- environment: verbatim start embedded generator -->
+</p>
+sudo -u otheruser command arguments
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+To execute a command as the root user:
+<!-- environment: verbatim start embedded generator -->
+</p>
+sudo command arguments
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Become another user:
+<!-- environment: verbatim start embedded generator -->
+</p>
+sudo su - otheruser
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Become the 
+<i>super user</i>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+sudo su -
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Othersystems:<tt>ssh<tt>and<tt>scp<tt>">22.13</a> Other systems: <tt>ssh</tt> and <tt>scp</tt></h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Othersystems:<tt>ssh<tt>and<tt>scp<tt>">Other systems: <tt>ssh</tt> and <tt>scp</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+No man is an island, and no computer is either. Sometimes you want to
+use one computer, for instance your laptop, to connect to another, for
+instance a supercomputer.
+</p>
+
+<p name="switchToTextMode">
+If you are already on a Unix computer, you can log into another with
+the `secure shell' command&nbsp;
+<tt>ssh</tt>
+, a&nbsp;more secure variant
+of the old `remote shell' command&nbsp;
+<tt>rsh</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+ssh yourname@othermachine.otheruniversity.edu
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+where the 
+<tt>yourname</tt>
+ can be omitted if you have the same name on
+both machines.
+</p>
+
+<p name="switchToTextMode">
+To only copy a file from one machine to another you can use the
+`secure copy' 
+<tt>scp</tt>
+, a&nbsp;secure variant of `remote
+copy'&nbsp;
+<tt>rcp</tt>
+. The 
+<tt>scp</tt>
+ command is much like 
+<tt>cp</tt>
+ in syntax,
+except that the source or destination can have a machine prefix.
+</p>
+
+<p name="switchToTextMode">
+To copy a file from the current machine to
+another, type:
+<!-- environment: verbatim start embedded generator -->
+</p>
+scp localfile yourname@othercomputer:otherdirectory
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+where 
+<tt>yourname</tt>
+ can again be omitted, and 
+<tt>otherdirectory</tt>
+ can be
+an absolute path, or a path relative to your home directory:
+<!-- environment: verbatim start embedded generator -->
+</p>
+# absolute path:
+scp localfile yourname@othercomputer:/share/
+# path relative to your home directory:
+scp localfile yourname@othercomputer:mysubdirectory
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Leaving the destination path empty puts the file in the remote home directory:
+<!-- environment: verbatim start embedded generator -->
+</p>
+scp localfile yourname@othercomputer:
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Note the colon at the end of this command: if you leave it out you get
+a local file with an `at' in the name.
+</p>
+
+<p name="switchToTextMode">
+You can also copy a file from the remote machine. For instance, to
+copy a file, preserving the name:
+<!-- environment: verbatim start embedded generator -->
+</p>
+scp yourname@othercomputer:otherdirectory/otherfile .
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="The<tt>sed<tt>and<tt>awk<tt>tools">22.14</a> The <tt>sed</tt> and <tt>awk</tt> tools</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#The<tt>sed<tt>and<tt>awk<tt>tools">The <tt>sed</tt> and <tt>awk</tt> tools</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Apart from fairly small utilities such as 
+<tt>tr</tt>
+ and 
+<tt>cut</tt>
+, Unix
+has some more powerful tools. In this section you will see two tools for
+line-by-line transformations on text files. Of course this tutorial
+merely touches on the depth of these tools; for more information
+see&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#AWK:awk,OReilly:sedawk">[AWK:awk,OReilly:sedawk]</a>
+.
+</p>
+
+<h3><a id="Streameditingwith<tt>sed<tt>">22.14.1</a> Stream editing with <tt>sed</tt></h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#The<tt>sed<tt>and<tt>awk<tt>tools">The <tt>sed</tt> and <tt>awk</tt> tools</a> > <a href="unix.html#Streameditingwith<tt>sed<tt>">Stream editing with <tt>sed</tt></a>
+</p>
+<p name="switchToTextMode">
+
+Unix has various tools for processing text files on a line-by-line
+basis.
+The stream editor 
+<tt>sed</tt>
+ is one example. If you have used the
+
+<tt>vi</tt>
+ editor, you are probably used to a syntax like
+ <tt>s/foo/bar/</tt>  for making changes.
+With 
+<tt>sed</tt>
+, you can do this on the commandline.
+For instance
+<!-- environment: verbatim start embedded generator -->
+</p>
+sed 's/foo/bar/' myfile &gt; mynewfile
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+will apply the substitute command 
+<tt>s/foo/bar/</tt>
+ to every line of
+
+<tt>myfile</tt>
+. The output is shown on your screen so you should capture
+it in a new file; see section&nbsp;
+22.5
+ for more on output
+<i>redirection</i>
+.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+If you have more than one edit, you can specify them with
+<!-- environment: verbatim start embedded generator -->
+</p>
+sed -e 's/one/two/' -e 's/three/four/'
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+If an edit needs to be done only on certain lines, you can
+  specify that by prefixing the edit with the match string. For instance
+<!-- environment: verbatim start embedded generator -->
+</p>
+sed '/^a/s/b/c/'
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+only applies the edit on lines that start with an&nbsp;
+<tt>a</tt>
+. (See
+section&nbsp;
+22.2
+ for regular expressions.)
+<li>
+Traditionally, 
+<tt>sed</tt>
+ could only function in a stream, so
+  the output file always had to be different from the input. The GNU
+  version, which is standard on Linux systems, has a flag 
+<tt>-i</tt>
+ which
+  edits `in place':
+<!-- environment: verbatim start embedded generator -->
+</p>
+sed -e 's/ab/cd/' -e 's/ef/gh/' -i thefile
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="\ttawk">22.14.2</a> \tt awk</h3>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#The<tt>sed<tt>and<tt>awk<tt>tools">The <tt>sed</tt> and <tt>awk</tt> tools</a> > <a href="unix.html#\ttawk">\tt awk</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>awk</tt>
+ utility also operates on each line, but it can be
+described as having a memory. An awk program consists of a sequence of
+pairs, where each pair consists of a match string and an action. The
+simplest awk program is
+<!-- environment: verbatim start embedded generator -->
+</p>
+cat somefile | awk '{ print }'
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+where the match string is omitted, meaning that all lines match, and
+the action is to print the line. Awk breaks each line into fields
+separated by whitespace. A&nbsp;common application of awk is to print a
+certain field:
+<!-- environment: verbatim start embedded generator -->
+</p>
+awk '{print $2}' file
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+prints the second field of each line.
+</p>
+
+<p name="switchToTextMode">
+Suppose you want to print all subroutines in a Fortran program; this
+can be accomplished with
+<!-- environment: verbatim start embedded generator -->
+</p>
+awk '/subroutine/ {print}' yourfile.f
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Build a command pipeline that prints of each subroutine header only
+  the subroutine name. For this you first use 
+<tt>sed</tt>
+ to replace the
+  parentheses by spaces, then 
+<tt>awk</tt>
+ to print the subroutine name
+  field.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+Awk has variables with which it can remember things. For instance,
+instead of just printing the second field of every line, you can make
+a list of them and print that later:
+<!-- environment: verbatim start embedded generator -->
+</p>
+cat myfile | awk 'BEGIN {v="Fields:"} {v=v " " $2} END {print v}'
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+As another example of the use of variables, here is how you would
+print all lines in between a 
+<tt>BEGIN</tt>
+ and 
+<tt>END</tt>
+ line:
+<!-- environment: verbatim start embedded generator -->
+</p>
+cat myfile | awk '/END/ {p=0} p==1 {print} /BEGIN/ {p=1} '
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  The placement of the match with 
+<tt>BEGIN</tt>
+ and 
+<tt>END</tt>
+ may seem
+  strange. Rearrange the awk program, test it out, and explain the
+  results you get.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Reviewquestions">22.15</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="unix.html">unix</a> > <a href="unix.html#Reviewquestions">Review questions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+\begin{istc}
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+    Devise a pipeline that counts how many users are logged onto
+    the system, whose name starts with a vowel and ends with a
+    consonant.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+\end{istc}
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Pretend that you're a professor writing a script for homework
+  submission: if a student invokes this script it copies the student
+  file to some standard location.
+<!-- environment: verbatim start embedded generator -->
+</p>
+submit_homework myfile.txt
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  For simplicity, we simulate this by making a directory
+  
+<tt>submissions</tt>
+ and two different files 
+<tt>student1.txt</tt>
+ and
+  
+<tt>student2.txt</tt>
+. After
+<!-- environment: verbatim start embedded generator -->
+</p>
+submit_homework student1.txt
+submit_homework student2.txt
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  there should be copies of both files in the 
+<tt>submissions</tt>
+
+  directory. Start by writing a simple script; it should give a
+  helpful message if you use it the wrong way.
+</p>
+
+<p name="switchToTextMode">
+  Try to detect if a student is cheating. Explore the
+<tt>diff</tt>
+ command to see if the submitted file is
+  identical to something already submitted:
+  loop over all submitted files and
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+First print out all differences.
+<li>
+Count the differences.
+<li>
+Test if this count is zero.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+  Now refine your test by catching if the cheating student randomly
+  inserted some spaces.
+</p>
+
+<p name="switchToTextMode">
+  For a harder test: try to detect whether the cheating student
+  inserted newlines. This can not be done with 
+<tt>diff</tt>
+, but you could
+  try 
+<tt>tr</tt>
+ to remove the newlines.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

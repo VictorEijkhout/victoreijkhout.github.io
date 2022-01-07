@@ -1,0 +1,112 @@
+/******* General Styles ********/
+body {
+	font-family: Helvetica, sans-serif;
+	font-size: 14px;
+	color: #000000;
+  padding: 20px 75px 20px 75px;
+}
+
+/******* Cover Element ********/
+
+.bookcover {
+  float: right;
+  border: 1px solid #ffffff;
+}
+
+
+/******* Headings ********/
+
+h1 {
+  font-family: Helvetica, sans-serif;
+  font-size: 41px;
+  font-style: normal;
+  color: #3e3e3e;
+  padding-top: 65px;
+  line-height: 44px;
+
+}
+
+h2 {
+  font-family: Helvetica, sans-serif;
+  font-size: 29px;
+  font-style: normal;
+  line-height: 29px;
+  padding-top: 25px;
+  color: #3e3e3e;
+  text-transform: capitalize;
+}
+
+h3{
+  font-family: Helvetica, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  line-height: 21px;
+  color: #3e3e3e;
+  text-transform: capitalize;
+
+}
+
+ h4, h5, h6 {
+  font-family: Helvetica, sans-serif;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 18px
+  color: #3e3e3e; 
+  text-transform: capitalize;
+
+}
+/******* Link Styles ********/
+/* unvisited link */
+a:link {
+    color: #6e6e6e;
+    text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+    color: #6e6e6e;
+    text-decoration: none;
+  }
+
+/* mouse over link */
+a:hover {
+    color: #6e6e6e;
+    text-decoration: underline;
+  
+  }
+
+/* selected link */
+a:active {
+    color: #6e6e6e;
+    text-decoration: none;
+  }
+
+/******* Banner Dimensions ********/
+
+.banner{
+background-color: #039;
+
+}
+
+/******* Table Styling ********/
+
+th{
+	font-weight: bolder;
+	background-color: #003399;
+	color: #ffffff;
+
+}
+/******* Horizontal Rule ********/
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 2px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+/* tab { margin-left: 30px; } */
+/* tabtab { margin-left: 60px; } */
+/* tabtabtab { margin-left: 90px; } */

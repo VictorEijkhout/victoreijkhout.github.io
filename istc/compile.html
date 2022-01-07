@@ -1,0 +1,1236 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Compilers and libraries</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+23.1 : <a href="compile.html#Filetypesinprogramming">File types in programming</a><br>
+23.1.1 : <a href="compile.html#Introductiontofiletypes">Introduction to file types</a><br>
+23.1.2 : <a href="compile.html#About`text'files">About `text' files</a><br>
+23.1.3 : <a href="compile.html#Sourceversusprogram">Source versus program</a><br>
+23.1.4 : <a href="compile.html#Binaryfiles">Binary files</a><br>
+23.2 : <a href="compile.html#Simplecompilation">Simple compilation</a><br>
+23.2.1 : <a href="compile.html#Compilers">Compilers</a><br>
+23.2.2 : <a href="compile.html#Compileasinglefile">Compile a single file</a><br>
+23.2.3 : <a href="compile.html#Multiplefiles:compileandlink">Multiple files: compile and link</a><br>
+23.2.4 : <a href="compile.html#Lookingintobinaryfiles:<tt>nm<tt>">Looking into binary files: <tt>nm</tt></a><br>
+23.2.5 : <a href="compile.html#Compileroptionsandoptimizations">Compiler options and optimizations</a><br>
+23.2.5.1 : <a href="compile.html#Symboltableinclusion">Symbol table inclusion</a><br>
+23.2.5.2 : <a href="compile.html#Optimizationlevel">Optimization level</a><br>
+23.3 : <a href="compile.html#Libraries">Libraries</a><br>
+23.3.1 : <a href="compile.html#Staticlibraries">Static libraries</a><br>
+23.3.2 : <a href="compile.html#Sharedlibraries">Shared libraries</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>23 Compilers and libraries</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<h2><a id="Filetypesinprogramming">23.1</a> File types in programming</h2>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Filetypesinprogramming">File types in programming</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will be introduced to the different types of
+  files that you encounter while programming.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Introductiontofiletypes">23.1.1</a> Introduction to file types</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Filetypesinprogramming">File types in programming</a> > <a href="compile.html#Introductiontofiletypes">Introduction to file types</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Your file system has many files, and for purposes of programming
+we can roughly divide them into `text file', which are readable to you,
+and `binary files', which are not meaningfully readable to you,
+but which make sense to the computer.
+</p>
+
+<p name="switchToTextMode">
+The unix command 
+<tt>file</tt>
+ can tell you what type
+of file you are dealing with.
+<!-- environment: verbatim start embedded generator -->
+</p>
+$$ file README.txt
+README.txt: ASCII text
+$$ mkdir mydir
+$$ file mydir
+mydir: directory
+$$ which ls
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+This command can also tell you about binary files.
+Here the output differs by operating system.
+<!-- environment: verbatim start embedded generator -->
+</p>
+$$ which ls
+/bin/ls
+
+
+# on a Mac laptop:
+$$ file /bin/ls
+/bin/ls: Mach-O 64-bit x86_64 executable
+
+
+# on a Linux box
+$$ file /bin/ls
+/bin/ls: ELF 64-bit LSB executable, x86-64
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Apply the 
+<tt>file</tt>
+ command to sources for different programming
+  language. Can you find out how 
+<tt>file</tt>
+ figures things out?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+In figure&nbsp;
+23.1
+ you find a brief summary of file types.
+We will now discuss them in more detail.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+    </td></tr>
+<tr><td>
+    Text files</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    Source</td><td>Program text that you write</td></tr>
+<tr><td>
+    Header</td><td>also written by you, but not really program text.</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    Binary files</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    Object file</td><td>The compiled result of a single source file</td></tr>
+<tr><td>
+    Library</td><td>Multiple object files bundled together</td></tr>
+<tr><td>
+    Executable</td><td>Binary file that can be invoked as a command</td></tr>
+<tr><td>
+    Data files</td><td>Written and read by a program</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="caption">
+FIGURE 23.1: Different types of files
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="About`text'files">23.1.2</a> About `text' files</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Filetypesinprogramming">File types in programming</a> > <a href="compile.html#About`text'files">About `text' files</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Readable files are sometimes called 
+<i>text file</i>
+s;
+but this is not a concept with a hard definition.
+One not-perfect definition is that text files are 
+<i>ascii</i>
+ files,
+meaning files where every byte uses `7-bit ascii': the first bit of every
+byte is&nbsp;zero.
+</p>
+
+<p name="switchToTextMode">
+This definition is incomplete, since modern programming languages
+can often use 
+<i>unicode</i>
+, at least in character strings.
+(For a tutorial on ascii and unicode, see chapter&nbsp;6
+of&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Eijkhout:TeXscience">[Eijkhout:TeXscience]</a>
+.)
+</p>
+
+<h3><a id="Sourceversusprogram">23.1.3</a> Source versus program</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Filetypesinprogramming">File types in programming</a> > <a href="compile.html#Sourceversusprogram">Source versus program</a>
+</p>
+<p name="switchToTextMode">
+
+There are two types of programming languages:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+In an 
+<i>interpreted language</i>
+ you write
+  human-readable source code and you execute it directly: the computer
+  translates your source line by line as it encounters it.
+<li>
+In a 
+<i>compiled language</i>
+ your code whole source
+  is first compiled to a program, which you then execute.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+Examples of interpreted languages are 
+<i>Python</i>
+,
+<i>Matlab</i>
+, 
+<i>Basic</i>
+, 
+<i>Lisp</i>
+.
+Interpreted languages have some advantages: often you can write them
+in an interactive environment that allows you to test code very
+quickly. They also allow you to construct code dynamically, during
+runtime. However, all this flexibility comes at a price: if a source
+line is executed twice, it is translated twice. In the context of this
+book, then, we will focus on compiled languages, using 
+<i>C</i>
+and 
+<i>Fortran</i>
+ as prototypical examples.
+</p>
+
+<p name="switchToTextMode">
+So now you have
+a distinction between the readable source code, and the
+unreadable, but executable, program code. In this tutorial you will
+learn about the translation process from the one to the other. The
+program doing this translation is known as a 
+<i>compiler</i>
+.
+This tutorial will be a `user manual' for compilers, as it were; what
+goes on inside a compiler is a different branch of computer science.
+</p>
+
+<h3><a id="Binaryfiles">23.1.4</a> Binary files</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Filetypesinprogramming">File types in programming</a> > <a href="compile.html#Binaryfiles">Binary files</a>
+</p>
+<p name="switchToTextMode">
+
+Binary files fall in two categories:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+executable code,
+<li>
+data
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Data files can be really anything: they are typically output from
+a program, and their format is often specific to that program,
+although there are some standards, such as 
+<i>hdf5</i>
+.
+You get a binary data file if you write out the exact bytes
+of certain integers or floating point numbers,
+rather than a readable representation of that number.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Why don't programs write their results to file in readable form?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: enrichment start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enrichment ['enrichment'] -->
+  How do you write/read a binary file in C and Fortran?
+  Use the function 
+<tt>hexdump</tt>
+ to make sense
+  of the binary file.
+  Can you generate the file from Fortran, and read it from&nbsp;C?
+  (Answer: yes, but it's not quite straightforward.)
+  What does this tell you about binary data?
+</p>
+
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+</enrichment>
+<!-- environment: enrichment end embedded generator -->
+<p name="switchToTextMode">
+
+In this tutorial you will mostly be concerned with executable binary files.
+We then distinguish between:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+program files, which are executable by themselves;
+<li>
+object files, which are like bit of programs; and
+<li>
+library files, which combine object files, but are not executable.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Object files come from the fact that your source is often spread over multiple
+source files, and these can be compiled separately.
+In this way, an 
+<i>object file</i>
+, is
+a piece of an executable: by itself it does nothing, but
+it can be combined with other object files to form an executable.
+</p>
+
+<p name="switchToTextMode">
+If you have a collection of object files that you need for more than
+one program, it is usually a good idea to make a
+<i>library</i>
+  form an executable. Often, libraries are written by an expert and
+  contain code for specialized purposes such as linear algebra
+  manipulations. Libraries are important enough that they can be
+  commercial, to be bought if you need expert code for a certain purpose.
+</p>
+
+<p name="switchToTextMode">
+You will now learn how these types of files are created and used.
+</p>
+
+<h2><a id="Simplecompilation">23.2</a> Simple compilation</h2>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn about executables and object files.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Compilers">23.2.1</a> Compilers</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Compilers">Compilers</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Your main tool for turning source into a program is the
+<i>compiler</i>
+. Compilers are specific to a language: you
+use a different compiler for C than for Fortran.
+You can also have two compilers for the same language, but from
+different `vendors'. For instance, while many people use the open
+source 
+<i>gcc</i>
+ or 
+<i>clang</i>
+ compiler families,
+companies like 
+<i>Intel</i>
+
+<!-- index -->
+ and
+<i>IBM</i>
+<!-- index -->
+ offer compilers that may give more
+efficient code on their processors.
+</p>
+
+<h3><a id="Compileasinglefile">23.2.2</a> Compile a single file</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Compileasinglefile">Compile a single file</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/compilelink1.png" width=800></img>
+<p name="caption">
+FIGURE 23.2: Compiling a single source file
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+Let's start with a simple program that has the whole source in one
+file.
+</p>
+
+<p name="switchToTextMode">
+File: compile/c/hello.c
+</p>
+
+<p name="switchToTextMode">
+Compile this program with your favorite compiler; we will use 
+<tt>gcc</tt>
+
+in this tutorial, but substitute your own as desired.
+<!-- environment: taccnote start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+  On TACC clusters, the Intel compiler 
+<tt>icc</tt>
+ is preferred.
+</p name="remark">
+</remark>
+<!-- environment: taccnote end embedded generator -->
+<p name="switchToTextMode">
+As a result of
+the compilation, a file 
+<tt>a.out</tt>
+ is created, which is the executable.
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% gcc hello.c
+%% ./a.out
+hello world
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+You can get a more sensible program name with the 
+<tt>-o</tt>
+ option:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% gcc -o helloprog hello.c
+%% ./helloprog
+hello world
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This process is illustrated in figure&nbsp;
+23.2
+.
+</p>
+
+<h3><a id="Multiplefiles:compileandlink">23.2.3</a> Multiple files: compile and link</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Multiplefiles:compileandlink">Multiple files: compile and link</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/compilelink2.png" width=800></img>
+<p name="caption">
+FIGURE 23.3: Compiling a program from multiple source files
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+Now we move on to a program that is in more than one source file.
+</p>
+
+<!-- environment: multicols start embedded generator -->
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+  Main program: 
+<tt>fooprog.c</tt>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#foomain" aria-expanded="false" aria-controls="foomain">
+        C Code: foomain
+      </button>
+    </h5>
+  </div>
+  <div id="foomain" class="collapse">
+  <pre>
+// fooprog.c
+extern void bar(char*);
+
+int main() {
+  bar("hello world\n");
+  return 0;
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+  Subprogram: 
+<tt>foosub.c</tt>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#foosub" aria-expanded="false" aria-controls="foosub">
+        C Code: foosub
+      </button>
+    </h5>
+  </div>
+  <div id="foosub" class="collapse">
+  <pre>
+// foosub.c
+void bar(char *s) {
+  printf("%s",s);
+  return;
+}
+</pre>
+</div>
+</div>
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+As before, you can make the program with one command.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#makeoneprogram" aria-expanded="false" aria-controls="makeoneprogram">
+        Text: makeoneprogram
+      </button>
+    </h5>
+  </div>
+  <div id="makeoneprogram" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+However, you can also do it in steps, compiling each file separately
+and then linking them together.
+This is illustrated in figure&nbsp;
+23.3
+.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#makeseparatecompile" aria-expanded="false" aria-controls="makeseparatecompile">
+        Text: makeseparatecompile
+      </button>
+    </h5>
+  </div>
+  <div id="makeseparatecompile" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+The 
+<tt>-c</tt>
+ option tells the compiler to compile the source file,
+giving an 
+<i>object file</i>
+. The third command then acts as the
+<i>linker</i>
+, tieing together the object files into an
+executable. (With programs that are spread over several files there is
+always the danger of editing a subroutine definition and then
+forgetting to update all the places it is used. See the `make'
+tutorial, section&nbsp;
+tut:gnumake
+, for a way of dealing with this.)
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+</p>
+
+<p name="switchToTextMode">
+  Exercise for separate compilation. Structure:
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+  Main program: 
+<tt>fooprog.c</tt>
+
+  \strippedinput{code/compile/}{fooprog.c}
+</p>
+
+<p name="switchToTextMode">
+  Subprogram: 
+<tt>foosub.c</tt>
+
+  \strippedinput{code/compile}{foosub.c}
+  Add a second subroutine in a second file.
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Compile in one:
+<!-- environment: verbatim start embedded generator -->
+</p>
+icc -o program fooprog.c foosub.c
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Compile in steps:
+<!-- environment: verbatim start embedded generator -->
+</p>
+icc -c fooprog.c
+icc -c foosub.c
+icc -o program fooprog.o foosub.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+What files are being produced each time?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Can you write a shell script to automate this?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Lookingintobinaryfiles:<tt>nm<tt>">23.2.4</a> Looking into binary files: <tt>nm</tt></h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Lookingintobinaryfiles:<tt>nm<tt>">Looking into binary files: <tt>nm</tt></a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Most of a binary file consists of the same instructions that you
+coded in C or Fortran, just in machine language, which
+is much harder to understand.
+Fortunately, you don't need to look at machine language often.
+What often interests you about object files is what functions are
+defined in it, and what functions are used in it.
+</p>
+
+<p name="switchToTextMode">
+For this, we use the 
+<tt>nm</tt>
+ command.
+</p>
+
+<p name="switchToTextMode">
+Each object file defines some routine names, and uses some others that
+are undefined in it, but that will be defined in other object files or
+system libraries. Use the 
+<tt>nm</tt>
+ command to display
+this:
+<!-- environment: verbatim start embedded generator -->
+</p>
+[c:264] nm foosub.o
+0000000000000000 T _bar
+                 U _printf
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Lines with 
+<tt>T</tt>
+ indicate routines that are defined; lines with 
+<tt>U</tt>
+
+indicate routines that are used but not define in this file. In this
+case, 
+<tt>printf</tt>
+ is a system routine that will be supplied in the
+linker stage.
+</p>
+
+<p name="switchToTextMode">
+Sometimes you will come across 
+<i>stripped binary</i>
+ file,
+and 
+<tt>nm</tt>
+ will report 
+<tt>No symbols</tt>
+.
+In that case 
+<tt>nm -D</tt>
+ may help, which displays `dynamic symbols'.
+</p>
+
+<h3><a id="Compileroptionsandoptimizations">23.2.5</a> Compiler options and optimizations</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Compileroptionsandoptimizations">Compiler options and optimizations</a>
+</p>
+<p name="switchToTextMode">
+
+Above you already saw some 
+<i>compiler options</i>
+:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Specifying 
+<tt>-c</tt>
+ tells the compiler to only compile, and not do
+  the linking stage; you would do this in case of separate
+  compilation.
+<li>
+The option 
+<tt>-o</tt>
+ gives you the opportunity to specify the name
+  of the output file; without it, the default name of an executable is
+<tt>a.out</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+There are many other options, some of them a 
+<i>de facto</i>
+ standard,
+and others specific to certain compilers.
+</p>
+
+<h4><a id="Symboltableinclusion">23.2.5.1</a> Symbol table inclusion</h4>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Compileroptionsandoptimizations">Compiler options and optimizations</a> > <a href="compile.html#Symboltableinclusion">Symbol table inclusion</a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<tt>-g</tt>
+ option tells the compiler to include the 
+  table} in the binary.  This allows you to use an interactive
+debugger (section&nbsp;
+tut:debug
+) since it relates machine
+instructions to lines of code, and machine addresses to variable
+names.
+</p>
+
+<h4><a id="Optimizationlevel">23.2.5.2</a> Optimization level</h4>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Simplecompilation">Simple compilation</a> > <a href="compile.html#Compileroptionsandoptimizations">Compiler options and optimizations</a> > <a href="compile.html#Optimizationlevel">Optimization level</a>
+</p>
+<p name="switchToTextMode">
+
+Compilers can apply various levels of
+<i>optimization</i>
+<!-- index -->
+ to your code. The
+typical optimization levels are specified as 
+<tt>-O0</tt>
+ `minus-oh-zero',
+
+<tt>-O1</tt>
+, 
+<tt>-O2</tt>
+, 
+<tt>-O3</tt>
+. Higher levels will typically give faster
+execution, as the compiler does increasingly sophisticated analysis on
+your code.
+</p>
+
+<p name="switchToTextMode">
+The following is a fairly standard set of options:
+<!-- environment: verbatim start embedded generator -->
+</p>
+icc -g -O2 -c myfile.c
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+As an example, let's look at 
+<i>Given's rotations</i>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#givensfun" aria-expanded="false" aria-controls="givensfun">
+        C Code: givensfun
+      </button>
+    </h5>
+  </div>
+  <div id="givensfun" class="collapse">
+  <pre>
+// rotate.c
+void rotate(double *x,double *y,double alpha) {
+  double x0 = *x, y0 = *y;
+  *x = cos(alpha) * x0 - sin(alpha) * y0;
+  *y = sin(alpha) * x0 + cos(alpha) * y0;
+  return;
+}
+</pre>
+</div>
+</div>
+Run with optimization level 0,1,2,3 we get:
+<!-- environment: verbatim start embedded generator -->
+</p>
+Done after 8.649492e-02
+Done after 2.650118e-02
+Done after 5.869865e-04
+Done after 6.787777e-04
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  From level zero to one we get (depending on the run) an improvement
+  of $2\times$ to $3\times$. Can you find an obvious factor of two?
+</p>
+
+<p name="switchToTextMode">
+  Use the optimization report facility of your compiler to see what
+  other optimizations are applied. One of them is a good lesson in
+  benchmark design!
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+Many compilers can generate a report of what optimizations they perform.
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  compiler</td><td>reporting option</td></tr>
+<tr><td>
+  clang</td><td> 
+<tt>-Rpass=.*</tt>
+</td></tr>
+<tr><td>
+  gcc</td><td>   
+<tt>-fopt-info</tt>
+</td></tr>
+<tr><td>
+  intel</td><td> 
+<tt>-qopt-report</tt>
+</td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+Generally, optimizations leave the semantics of your code
+intact. (Makes kinda sense, not?)  However, at higher levels,
+usually level&nbsp;3, the compiler is
+at liberty to make transformations that are not legal
+according to the language standard, but that in the majority of cases
+will still give the right outcome. For instance, the C&nbsp;language
+specifies that arithmetic operations are evaluated left-to-right.
+Rearranging arithmetic expressions is usually safe, but not always.
+Be careful when applying higher optimization levels!
+</p>
+
+<h2><a id="Libraries">23.3</a> Libraries</h2>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Libraries">Libraries</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn about libraries.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/compilelink3.png" width=800></img>
+<p name="caption">
+FIGURE 23.4: Compiling a single source file
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+If you have written some subprograms, and you want to share them with
+other people (perhaps by selling them), then handing over individual
+object files is inconvenient. Instead, the solution is to combine them
+into a library.
+</p>
+
+<h3><a id="Staticlibraries">23.3.1</a> Static libraries</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Libraries">Libraries</a> > <a href="compile.html#Staticlibraries">Static libraries</a>
+</p>
+<p name="switchToTextMode">
+
+First we look at
+<i>static libraries</i>
+<!-- index -->
+<!-- index -->
+,
+for
+which the 
+<i>archive utility</i>
+ 
+<tt>ar</tt>
+ is used. A&nbsp;static library
+is linked into your executable, becoming part of it. This may lead to
+large executables; you will learn about shared libraries
+next, which do not suffer from this problem.
+</p>
+
+<p name="switchToTextMode">
+The use of a library to build a program is illustrated
+in figure&nbsp;
+23.4
+.
+</p>
+
+<p name="switchToTextMode">
+Create a directory to contain your library (depending on what your
+library is for this can be a
+system directory such as 
+<tt>/usr/bin</tt>
+), and create the library file
+there.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#staticprogram" aria-expanded="false" aria-controls="staticprogram">
+        Text: staticprogram
+      </button>
+    </h5>
+  </div>
+  <div id="staticprogram" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+The 
+<tt>nm</tt>
+ command tells you what's in the library, just
+like it did with object files, but now it also tells you what object
+files are in the library:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% nm ../lib/libfoo.a
+
+
+../lib/libfoo.a(foosub.o):
+00000000 T _bar
+         U _printf
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+The library can be linked into your executable by explicitly giving
+its name, or by specifying a library path:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#staticprogram" aria-expanded="false" aria-controls="staticprogram">
+        Text: staticprogram
+      </button>
+    </h5>
+  </div>
+  <div id="staticprogram" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<h3><a id="Sharedlibraries">23.3.2</a> Shared libraries</h3>
+<p name=crumbs>
+crumb trail:  > <a href="compile.html">compile</a> > <a href="compile.html#Libraries">Libraries</a> > <a href="compile.html#Sharedlibraries">Shared libraries</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Although they are somewhat more complicated to use,
+<i>shared libraries</i>
+<!-- index -->
+<!-- index -->
+have several advantages. For
+instance, since they are not linked into the executable but only
+loaded at runtime, they lead to (much) smaller executables. They are
+not created with 
+<tt>ar</tt>
+, but through the compiler. For instance:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#makedynamiclib" aria-expanded="false" aria-controls="makedynamiclib">
+        Text: makedynamiclib
+      </button>
+    </h5>
+  </div>
+  <div id="makedynamiclib" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+You can again use 
+<tt>nm</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% nm ../lib/libfoo.so
+
+
+../lib/libfoo.so(single module):
+00000fc4 t __dyld_func_lookup
+00000000 t __mh_dylib_header
+00000fd2 T _bar
+         U _printf
+00001000 d dyld__mach_header
+00000fb0 t dyld_stub_binding_helper
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Shared libraries are not actually linked into the executable;
+instead, the executable needs the information where the library
+is to be found at execution time. One way to do this is with
+
+<tt>LD_LIBRARY_PATH</tt>
+:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#dynamicprogram" aria-expanded="false" aria-controls="dynamicprogram">
+        Text: dynamicprogram
+      </button>
+    </h5>
+  </div>
+  <div id="dynamicprogram" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Another solution is to have the path be included in the executable:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% gcc -o foo fooprog.o -L../lib -Wl,-rpath,`pwd`/../lib -lfoo
+%% ./foo
+hello world
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The link line now contains the library path twice:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+once with the 
+<tt>-L</tt>
+ directive so that the linker can resolve
+  all references, and
+<li>
+once with the linker directive 
+ <tt>-Wl,-rpath,`pwd`/../lib</tt>  which
+  stores the path into the executable so that it can be found at runtime.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+Use the command 
+<tt>ldd</tt>
+ to get information about what shared libraries
+your executable uses. (On Mac OS&nbsp;X, use 
+<tt>otool -L</tt>
+ instead.)
+</p>
+
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

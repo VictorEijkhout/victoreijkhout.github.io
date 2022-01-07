@@ -1,0 +1,1154 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Machine learning</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+12.1 : <a href="learning.html#Neuralnetworks">Neural networks</a><br>
+12.1.1 : <a href="learning.html#Singledatapoint">Single datapoint</a><br>
+12.1.2 : <a href="learning.html#Activationfunctions">Activation functions</a><br>
+12.1.3 : <a href="learning.html#Multi-dimensionaloutput">Multi-dimensional output</a><br>
+12.1.4 : <a href="learning.html#Convolutions">Convolutions</a><br>
+12.2 : <a href="learning.html#Deeplearningnetworks">Deep learning networks</a><br>
+12.2.1 : <a href="learning.html#Classification">Classification</a><br>
+12.2.2 : <a href="learning.html#Errorminimization">Error minimization</a><br>
+12.2.3 : <a href="learning.html#Coefficientscomputation">Coefficients computation</a><br>
+12.2.4 : <a href="learning.html#Algorithm">Algorithm</a><br>
+12.3 : <a href="learning.html#Computationalaspects">Computational aspects</a><br>
+12.3.1 : <a href="learning.html#Weightmatrixproduct">Weight matrix product</a><br>
+12.3.2 : <a href="learning.html#Parallelismintheweightmatrixproduct">Parallelism in the weight matrix product</a><br>
+12.3.3 : <a href="learning.html#Weightsupdate">Weights update</a><br>
+12.3.4 : <a href="learning.html#Pipelining">Pipelining</a><br>
+12.3.5 : <a href="learning.html#Convolutions">Convolutions</a><br>
+12.3.6 : <a href="learning.html#Sparsematrices">Sparse matrices</a><br>
+12.3.7 : <a href="learning.html#Hardwaresupport">Hardware support</a><br>
+12.3.8 : <a href="learning.html#Reducedprecision">Reduced precision</a><br>
+12.4 : <a href="learning.html#Stuff">Stuff</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>12 Machine learning</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+
+<span title="acronym" ><i>ML</i></span>
+ is a collective name for a number of techniques that
+approach problems we might consider `intelligent', such as image
+recognition. In the abstract, such problems are mappings from a vector
+space of 
+<i>feature</i>
+s, such as pixel values in an image, to
+another vector space of outcomes. In the case of image recognition of
+letters, this final space could be 26-dimensional, and a maximum value
+in the second component would indicate that a `B' was recognized.
+</p>
+
+<p name="switchToTextMode">
+The essential characteristic of 
+<span title="acronym" ><i>ML</i></span>
+ techniques is that
+this mapping is described by a --~usually large~-- number of internal
+parameters, and that these parameters are gradually refined. The
+learning aspect here is that refining the parameters happens by
+comparing an input to both its predicted output based on current
+parameters, and the intended output.
+</p>
+
+<h2><a id="Neuralnetworks">12.1</a> Neural networks</h2>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Neuralnetworks">Neural networks</a>
+</p>
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+The most popular form of 
+<span title="acronym" ><i>ML</i></span>
+ these days is 
+<span title="acronym" ><i>DL</i></span>
+, or
+<i>neural networks</i>
+.
+A~neural net, or a deep learning network, is a function that computes
+a numerical output, given a (typically multi-dimensional) input point.
+Assuming that this output is normalized to the interval~$[0,1]$, we
+can use a neural net as a classification tool by introducing a threshold
+on the output.
+</p>
+
+<p name="switchToTextMode">
+Why `neural'?
+</p>
+
+<p name="switchToTextMode">
+A neuron, in a living body, is a cell that `fires', that is, gives off
+a voltage spike, if it receives certain inputs. In 
+<span title="acronym" ><i>ML</i></span>
+ we abstract
+this to a 
+<i>perceptron</i>
+: a~function that outputs a value
+depending on certain inputs. To be specific, the output value is often
+a linear function of the inputs, with the result
+limited to the range~$(0,1)$.
+</p>
+
+<h3><a id="Singledatapoint">12.1.1</a> Single datapoint</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Neuralnetworks">Neural networks</a> > <a href="learning.html#Singledatapoint">Single datapoint</a>
+</p>
+<p name="switchToTextMode">
+
+In its simplest form we have an input, characterized by a vector of
+<i>feature~s</i>
+$\bar x$, and a scalar output~$y$.  We can
+compute $y$ as a linear function of~$\bar x$ by using a vector of
+<i>weights</i>
+ of the same size, and a scalar
+<i>bias</i>
+~$b$:
+\[
+  y = \bar w \bar x +b. 
+\]
+</p>
+
+<h3><a id="Activationfunctions">12.1.2</a> Activation functions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Neuralnetworks">Neural networks</a> > <a href="learning.html#Activationfunctions">Activation functions</a>
+</p>
+<p name="switchToTextMode">
+
+To have some scale invariance, we introduce
+a function~$\sigma$ known as the
+<i>activation function</i>
+ that maps $\bbR\rightarrow(0,1)$,
+and we actually compute the scalar output~$y$ as:
+<!-- environment: equation start embedded generator -->
+</p>
+  \bbR\owns y = \sigma( \bar w^t\bar x+b ).
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="switchToTextMode">
+
+One popular choice for a 
+<i>sigmoid</i>
+ function is
+\[
+ \sigma(z) = \frac{1}{1+e^{-z}}. 
+\]
+This has the interesting property that
+\[
+ \sigma'(x) = \sigma(x)(1-\sigma(x)) 
+\]
+so computing both the function value and the derivative
+is not much more expensive than computing only the function value.
+</p>
+
+<p name="switchToTextMode">
+For vector-valued outputs we apply the sigmoid function
+in a pointwise manner:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#netsigmoid" aria-expanded="false" aria-controls="netsigmoid">
+        C++ Code: netsigmoid
+      </button>
+    </h5>
+  </div>
+  <div id="netsigmoid" class="collapse">
+  <pre>
+// funcs.cpp
+template &lt;typename V&gt;
+void sigmoid_io(const V &m, V &a) {
+    a.vals.assign(m.vals.begin(),m.vals.end());
+    for (int i = 0; i &lt; m.r * m.c; i++) {
+        // a.vals[i]*=(a.vals[i]&gt;0); // values will be 0 if negative, and equal to themselves if positive
+        a.vals[i] = 1 / (1 + exp(-a.vals[i]));
+    }
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+Other activation functions are $y=\tanh(x)$ or
+`ReLU'  (Rectified Linear Unit)
+\[
+ f(x) = \max(0,x). 
+\]
+In other places (such as the final layer of a 
+<span title="acronym" ><i>DL</i></span>
+ network)
+a 
+<i>softmax</i>
+ function may be more appropriate.
+</p>
+
+<p name="switchToTextMode">
+
+<h3><a id="Multi-dimensionaloutput">12.1.3</a> Multi-dimensional output</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Neuralnetworks">Neural networks</a> > <a href="learning.html#Multi-dimensionaloutput">Multi-dimensional output</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+It is rare that a single layer, defined by $\bar w,\bar b$
+can achieve all that we ask of a neural net.
+Typically we use the output of one layer as the input for a next layer.
+This means that instead of a scalar&nbsp;$y$ we compute a multi-dimensional
+vector&nbsp;$\bar y$.
+</p>
+
+<p name="switchToTextMode">
+Now we have weights and a bias for each component of the output, so
+\[
+ \bbR^n\owns \bar y = \sigma( W\bar x + \bar b ) 
+\]
+where $W$ is now a matrix.
+</p>
+
+<p name="switchToTextMode">
+A few observations:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+  As indicated above, the output vector typically has fewer components
+  than the input, so the matrix is not square, in particular not
+  invertible.
+<li>
+The sigmoid function makes the total mapping non-linear.
+<li>
+Neural nets typically have multiple layers, each of which is a
+  mapping of the form $x\rightarrow y$ as above.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Convolutions">12.1.4</a> Convolutions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Neuralnetworks">Neural networks</a> > <a href="learning.html#Convolutions">Convolutions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The above discussion of applying weights considered the inputs
+as a set of features without further structure.
+However, in applications such as image recognition,
+where the input vector is an image,
+there is a structure to be acknowledged.
+Linearizing the input vector puts pixels close together
+in the input vector if they are close horizontally,
+but not vertically.
+</p>
+
+<p name="switchToTextMode">
+Thus we are motivated to find a weights matrix that reflects this locality.
+We do this by introducing
+<i>kernels</i>
+<!-- index -->
+:
+a&nbsp;small `stencil' that is applied at various points of the image.
+(See section&nbsp;
+4.2.4
+ for a discussion of
+stencils in the context of 
+<span title="acronym" ><i>PDEs</i></span>
+.)
+Such a kernel is typically a small square matrix,
+and applying it is done by taking the inner product of the
+stencil values and the image values.
+(This is an inexact use of the term convolution from signal processing.)
+</p>
+
+<p name="switchToTextMode">
+Examples: 
+<a href=https://aishack.in/tutorials/image-convolution-examples/>https://aishack.in/tutorials/image-convolution-examples/</a>
+.
+</p>
+
+<h2><a id="Deeplearningnetworks">12.2</a> Deep learning networks</h2>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Deeplearningnetworks">Deep learning networks</a>
+</p>
+<p name="switchToTextMode">
+
+We will now present a full neural network.
+This presentation follows&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Higham:sirevDL">[Higham:sirevDL]</a>
+.
+</p>
+
+<p name="switchToTextMode">
+Use a network with $L \geq 1$ layers,
+where layer $\ell=1$ is the input layer,
+and layer $\ell=L$ is the output layer.
+</p>
+
+<p name="switchToTextMode">
+\newcommand\supell{^{(\ell)}}
+\newcommand\supellp{^{(\ell+1)}}
+\newcommand\supellm{^{(\ell-1)}}
+\newcommand\calN{{\cal N}}
+</p>
+
+<p name="switchToTextMode">
+For $\ell=1,&hellip;,L$, layer&nbsp;$\ell$ compute
+<!-- environment: equation start embedded generator -->
+</p>
+\begin{array}{rl}
+    z\supell &=W\supell a\supell + b\supell \\
+    y\supell &= \sigma\bigl( y\supell \bigr) \\
+\end{array}
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="switchToTextMode">
+where $a^{(1)}$ is the input and $z^{(L+1)}$ is the final output.
+</p>
+
+<p name="switchToTextMode">
+We write this compactly as
+<!-- environment: equation start embedded generator -->
+</p>
+  y^{(L)} = {\cal N\_{ \{W\supell\}\_\ell,\{ b\supell \}\_ell }}\bigl( a^{(1)} \bigr)
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="switchToTextMode">
+where we will usually omit the dependence of the net on the $W\supell,b\supell$ sets.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#netforward" aria-expanded="false" aria-controls="netforward">
+        C++ Code: netforward
+      </button>
+    </h5>
+  </div>
+  <div id="netforward" class="collapse">
+  <pre>
+// net.cpp
+void Net::feedForward(const VectorBatch &input) {
+    this-&gt;layers.front().forward(input); // Forwarding the input
+
+    for (unsigned i = 1; i &lt; layers.size(); i++) {
+        this-&gt;layers.at(i).forward(this-&gt;layers.at(i - 1).activated_batch);
+    }
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#layerforward" aria-expanded="false" aria-controls="layerforward">
+        C++ Code: layerforward
+      </button>
+    </h5>
+  </div>
+  <div id="layerforward" class="collapse">
+  <pre>
+// layer.cpp
+void Layer::forward(const VectorBatch &prevVals) {
+
+	VectorBatch output( prevVals.r, weights.c, 0 );
+    prevVals.v2mp( weights, output );
+	output.addh(biases); // Add the bias
+    activated_batch = output;
+    apply_activation&lt;VectorBatch&gt;.at(activation)(output, activated_batch);
+}
+</pre>
+</div>
+</div>
+</p>
+
+<h3><a id="Classification">12.2.1</a> Classification</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Deeplearningnetworks">Deep learning networks</a> > <a href="learning.html#Classification">Classification</a>
+</p>
+<p name="switchToTextMode">
+
+In the above description both the input&nbsp;$x$ and output&nbsp;$y$ are vector-valued.
+There are also cases where a different type of output is desired.
+For instance, suppose we want to characterize bitmap images of digits;
+in that case the output should be an integer&nbsp;$0\cdots 9$.
+</p>
+
+<p name="switchToTextMode">
+We accomodate this by letting the output&nbsp;$y$ be in $\bbR^{10}$,
+and we say that the network recognizes the digit&nbsp;5
+if $y_5$ is sufficiently larger than the other output components.
+In this manner we keep the whole story still real-valued.
+</p>
+
+<h3><a id="Errorminimization">12.2.2</a> Error minimization</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Deeplearningnetworks">Deep learning networks</a> > <a href="learning.html#Errorminimization">Error minimization</a>
+</p>
+<p name="switchToTextMode">
+
+Often we have data points&nbsp;$\{x_i\}_{i=1,N}$ with known outputs&nbsp;$y_i$,
+and we want to make the network predict reproduce this mapping
+as well as possible.
+Formally,
+we seek to minimize the cost, or error:
+\[
+ C=\frac{1}{N} L(\calN(x_i),y_i) 
+\]
+over all choices&nbsp;${ \{W\},\{b\} }$.
+(Usually we do not spell out explicitly that this cost is a function of all $W^{[\ell]}$
+weight matrices and $b^{[\ell]}$&nbsp;biases.)
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#netloss" aria-expanded="false" aria-controls="netloss">
+        C++ Code: netloss
+      </button>
+    </h5>
+  </div>
+  <div id="netloss" class="collapse">
+  <pre>
+float Net::calculateLoss(Dataset &testSplit) {
+    testSplit.stack();
+    feedForward(testSplit.dataBatch);
+    const VectorBatch &result = output_mat();
+
+    float loss = 0.0;
+    for (int vec=0; vec&lt;result.batch_size(); vec++) { // iterate over all items
+      const auto& one_result = result.get_vector(vec);
+      const auto& one_label  = testSplit.labelBatch.get_vector(vec);
+      assert( one_result.size()==one_label.size() );
+      for (int i=0; i&lt;one_result.size(); i++) // Calculate loss of result
+	loss += lossFunction( one_label[i], one_result[i] );
+    }
+    loss = -loss / (float) result.batch_size();
+
+    return loss;
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Minimizing the cost means to choose
+weights&nbsp;$\{W\supell\}_\ell$
+and biases&nbsp;$\{b\supell\}_\ell$ such that for each&nbsp;$x$:
+<!-- environment: equation start embedded generator -->
+</p>
+  \left[ \{W\supell\}\_\ell,\{b\supell\}\_\ell \right]
+  = \argmin\_{ \{W\},\{b\} } L ( \calN \_{ \{W\},\{b\} }( x ),y )
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="switchToTextMode">
+where $L(\calN (x),y)$ is a 
+<i>loss function</i>
+describing the distance between the computed output&nbsp;$\calN (x)$
+and the intended output&nbsp;$y$.
+</p>
+
+<p name="switchToTextMode">
+We find this minimum using 
+<i>gradient descent</i>
+:
+\[
+ w\leftarrow w+\Delta w, \qquad b\leftarrow b+\Delta b
+\]
+where
+\[
+ \Delta W = \frac{\partial L}{\partial W\supell_{ij}} 
+\]
+which is a complicated expression that we will now give without derivation.
+</p>
+
+<h3><a id="Coefficientscomputation">12.2.3</a> Coefficients computation</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Deeplearningnetworks">Deep learning networks</a> > <a href="learning.html#Coefficientscomputation">Coefficients computation</a>
+</p>
+<p name="switchToTextMode">
+
+We are interested in partial derivatives of the cost wrt the various weights,
+biases, and computed quantities. For this it's convenient
+to introduce a short-hand:
+<!-- environment: equation start embedded generator -->
+</p>
+  \delta^{[\ell]}\_i = \frac{ \partial C}{\partial z^{[\ell]}\_i}
+  \qquad \hbox{for $1\leq i\leq n\_\ell$ and $1\leq \ell&lt; L$}.
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="switchToTextMode">
+
+Now applying the chain rule
+(for full derivation see the paper quoted above)
+we get,
+using $x\circ y$ for the pointwise
+(or 
+<i>Hadamard</i>
+
+<!-- index -->
+)
+vector-vector product $\{ x_iy_i \}$:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+at the last level:
+\[
+ \delta^{[L-1]} = \sigma'\bigl( z^{[L-1]} \bigr) \circ \bigl( a^{[L]}-y \bigr)  
+\]
+<li>
+recursively for the earlier levels:
+\[
+ \delta^{[\ell]} = \sigma'\bigl( z^{[\ell]} \bigr) \circ
+  \bigl( W^{[\ell +1]^t} \delta^{[\ell+1]} \bigr) 
+\]
+<li>
+sensitivity wrt the biases:
+\[
+ \frac{\partial C}{\partial b^{[\ell]}_i} = \delta^{[\ell]}_i 
+\]
+<li>
+sensitivity wrt the weights:
+\[
+ \frac{\partial C}{\partial w^{[\ell]}_{ik}} = \delta^{[\ell]}_i a^{[\ell-1]}_k 
+\]
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Using the special form 
+\[
+ \sigma(x)=\frac{1}{1+e^{-x}} 
+\]
+gives 
+\[
+ \sigma'(x) = \sigma(x)(1-\sigma(x)).
+\]
+</p>
+
+<h3><a id="Algorithm">12.2.4</a> Algorithm</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Deeplearningnetworks">Deep learning networks</a> > <a href="learning.html#Algorithm">Algorithm</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<p name="switchToTextMode">
+  \def\header#1{\multicolumn{3}{l}{ \kern-20pt \hbox{#1}}}
+<!-- environment: equation start embedded generator -->
+</p>
+\begin{array}{lll}
+      \header{Input layer $\ell=1$ starts with:}\\
+      a\supell=x&\textrm{network input}&n\_{ell}\times b\\
+      %\multicolumn{3}{l}{ \hbox{For layers $\ell=1,&hellip;,L$} }\\
+      \header{For layers $\ell=1,&hellip;,L$}\\
+      a\supell&\textrm{layer input}&n\_\ell\times b\\
+      W\supell&\textrm{weights}&n\_{\ell+1}\times n\_\ell\\
+      b\supell&\textrm{biases}&n\_{\ell+1}\times b\\
+      z\supell \leftarrow W\supell a\supell + b\supell
+      &\textrm{biased product}&n\_{\ell+1}\times b\\
+      a\supellp=y\supell\leftarrow \sigma\bigl( z\supell \bigr)
+      &\textrm{activated product}&n\_{\ell+1}\times b\\
+      \header{The final output:}\\
+      %\multicolumn{3}{l}{ \hbox{The final output:} }\\
+      y=a^{(L+1)}=z^{(L)}&&n\_{L+1}\times b\\
+      \header{For layers $\ell=L,L-1,&hellip;,1$}\\
+      %\multicolumn{3}{l}{ \hbox{For layers $\ell=L,L-1,&hellip;,1$} }\\
+      D\supellp \leftarrow \diag\bigl( \sigma'(z\supell) \bigr)
+      &&n\_{\ell+1}\times n\_{\ell+1}\\
+      \delta\supell \leftarrow
+\begin{cases}
+        D^{L+1}\bigl( a^{L+1}-y \bigr)\\
+        D\supellp {W\supellp}^t \delta\supellp&\ell&lt;L
+\end{cases}
+      &&n\_{\ell+1}\times b\\
+      \Delta W\supell \leftarrow \delta\supell {a\supellm}^t
+      &\textrm{weights update}&n\_{\ell+1}\times n\_\ell\\
+      w\supell \leftarrow w\supell - \Delta W\supell
+      &&\\
+      \Delta b\supell \equiv \delta\supell
+      &\textrm{bias update}&n\_{\ell+1}\times b\\
+\end{array}
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="caption">
+FIGURE 12.1: Deep Learning forward/backward passes
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+We now present the full algorithm in figure&nbsp;
+12.1
+.
+Our network has layers $\ell=1,&hellip;,L$,
+where the parameter $n_\ell$ denotes the input size of layer&nbsp;$\ell$.
+</p>
+
+<p name="switchToTextMode">
+Layer&nbsp;$1$ has input&nbsp;$x$,
+and layer&nbsp;$L$ has output&nbsp;$y$.
+Anticipating the use of minibatches,
+we let $x,y$ denote a group of inputs/output
+of size&nbsp;$b$,
+so their sizes are $n_1\times b$ and $n_{L+1}\times b$
+respectively.
+</p>
+
+<h2><a id="Computationalaspects">12.3</a> Computational aspects</h2>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a>
+</p>
+<p name="switchToTextMode">
+
+In this section we will discuss high-performance computing aspects of 
+<span title="acronym" ><i>DL</i></span>
+.
+In a scalar sense, we argue for the the presence of the matrix-matrix product,
+which can be executed at high efficiency.
+</p>
+
+<p name="switchToTextMode">
+We will also discuss parallelism, focusing on
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Data parallelism, where the basic strategy is to split up the dataset;
+<li>
+Model parallelism, where the basic strategy is to split up the model parameters; and
+<li>
+Pipelining, where instructions can be executed in other orderings than in the naive model.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Weightmatrixproduct">12.3.1</a> Weight matrix product</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Weightmatrixproduct">Weight matrix product</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Both in applying the net, the forward pass,
+and in learning, the backward pass,
+we perform 
+<i>matrix times vector product</i>
+s
+with the weights matrix.
+This operation does not have much cache reuse,
+and will therefore not have high performance; section&nbsp;
+1.7.11
+.
+</p>
+
+<p name="switchToTextMode">
+On the other hand, if we bundle a number of datapoints
+--&nbsp;this is sometimes called a 
+<i>mini-batch</i>
+&nbsp;--
+and operate on them jointly, our basic operation becomes the
+<i>matrix times matrix product</i>
+,
+which is capable of much higher performance; section&nbsp;
+1.6.1.2
+.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/layershape.png" width=800></img>
+<p name="caption">
+FIGURE 12.2: Shapes of arrays in a single layer
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+We picture this in figure&nbsp;
+12.2
+:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the input batch and output batch consist of the same number of vectors;
+<li>
+the weight matrix $W$ has a number of rows equal to the output size,
+  and a number of columns equal to the input size.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+This importance of the 
+<tt>gemm</tt>
+ kernel
+(sections 
+1.6.1
+ and&nbsp;
+6.4.1
+)
+has led people
+to develop dedicated hardware for it.
+</p>
+
+<p name="switchToTextMode">
+Another approach would be to use a special form for the weights matrix.
+In&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Liao2019CompressingDN">[Liao2019CompressingDN]</a>
+ approximation
+by a 
+<i>Toeplitz matrix</i>
+ is investigated.
+This has both advantages in space savings,
+and in that the product can be done through an 
+<i>FFT</i>
+.
+</p>
+
+<h3><a id="Parallelismintheweightmatrixproduct">12.3.2</a> Parallelism in the weight matrix product</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Parallelismintheweightmatrixproduct">Parallelism in the weight matrix product</a>
+</p>
+<p name="switchToTextMode">
+
+We can now consider the efficient computation of&nbsp;$\calN (x)$.
+We already remarked that matrix-matrix multiplication
+is an important kernel, but apart from that we can use
+parallel processing.
+Figure&nbsp;
+12.3
+ gives two parallelization strategies.
+</p>
+
+<p name="switchToTextMode">
+In the first one, batches are divided over processes
+(or equivalently, multiple processes are working on
+independent batches simultaneously);
+We refer to this as 
+<i>data parallelism</i>
+.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<p name="switchToTextMode">
+  \hbox to \hsize{
+<img src="graphics/layershapepar.png" width=800></img>
+    \hfil
+<img src="graphics/layershapecross.png" width=800></img>
+  }
+<p name="caption">
+FIGURE 12.3: Partitioning strategies for parallel layer evaluation
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Consider this scenario in a shared memory context. In this code:
+<!-- environment: quote start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator quote ['quote'] -->
+<!-- environment: tabbing start embedded generator -->
+</p>
+<p style="margin-left: 40px">
+<!-- TranslatingLineGenerator tabbing ['tabbing'] --><br>
+<p name="switchToTextMode"><br>
+      for $b=1,&hellip;,\mathrm{batchsize}$<br>
+      \&gt; for $i=1,&hellip;,\mathrm{outsize}$<br>
+      \&gt; \&gt; $y_{i,b} \leftarrow \sum_j W_{i,j}\cdot x_{j,b}$<br>
+</p>
+<!-- environment: tabbing end embedded generator -->
+</quote>
+<!-- environment: quote end embedded generator -->
+<p name="switchToTextMode">
+  assume that each thread computes part of the $1,&hellip;,\mathrm{batchsize}$ range.
+</p>
+
+<p name="switchToTextMode">
+  Translate this to your favorite programming language.
+  Do you store the input/output vectors by rows or columns? Why?
+  What are the implications of either choice?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Now consider the data parallelism in a distributed memory context,
+  with each process working on a slice (block column) of the batches.
+  Do you see an immediate problem?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+There is a second strategy,
+referred to as 
+<i>model parallelism</i>
+,
+where the model parameters,
+that is, the weights and biases, are distributed.
+As you can see in figure&nbsp;
+12.3
+,
+this immediately implies that output vectors
+of the layer are computed distributely.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Outline the algorithm of this second partitioning in a distributed memory context.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+The choice between these strategies depends on whether the model is large,
+and the weight matrices need to be split up,
+or whether the number of inputs is large.
+Of course, a combination of these can also be made,
+where both the model and batches are distributed.
+</p>
+
+<h3><a id="Weightsupdate">12.3.3</a> Weights update</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Weightsupdate">Weights update</a>
+</p>
+<p name="switchToTextMode">
+
+The calculation of the weights update
+\[
+ \Delta W\supell \leftarrow \delta\supell {a\supellm}^t 
+\]
+is an 
+<i>outer product</i>
+ of rank&nbsp;$b$.
+It takes two vectors, and computes a low-rank matrix from them.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Discuss the amount of (potential) data reuse in this operation,
+  depending on the relation between $n_\ell$ and&nbsp;$b$.
+  Assume $n_{\ell+1}\approx n_\ell$ for simplicity.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Discuss the structure of the data movement involved,
+  in both of the partitioning strategies of figure&nbsp;
+12.3
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+Apart from these aspects,
+this operation becomes even more interesting
+when we consider processing mini-batches in parallel.
+In that case every batch independently computes an update,
+and we need to average them.
+Under the assumption that each process compute a full&nbsp;$\Delta W$,
+this becomes an 
+<i>all-reduce</i>
+
+<!-- index -->
+.
+This application of `HPC techniques' was developed
+into the 
+<i>Horovod</i>
+software&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Gibiansky:baidu-allreduce,sergeev2018horovod,horovod-ai">[Gibiansky:baidu-allreduce,sergeev2018horovod,horovod-ai]</a>
+.
+In one example, considerable speedup was shown on a configuration involving
+40&nbsp;
+<span title="acronym" ><i>GPUs</i></span>
+.
+</p>
+
+<p name="switchToTextMode">
+Another option would be delaying updates,
+or performing them asynchronously.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Discuss implementing delayed or asynchronous updates in MPI.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Pipelining">12.3.4</a> Pipelining</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Pipelining">Pipelining</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+A final type of parallelism can be achieved by applying pipelining over the layers.
+Sketch how this can improve the efficiency of the training stage.
+</p>
+
+<h3><a id="Convolutions">12.3.5</a> Convolutions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Convolutions">Convolutions</a>
+</p>
+<p name="switchToTextMode">
+
+Applying a convolution is equivalent to multiplying by a 
+<i>Toeplitz matrix</i>
+.
+This has a lower complexity than a fully general matrix-matrix multiplication.
+</p>
+
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Liao:DLtoeplitz">[Liao:DLtoeplitz]</a>
+<p name="switchToTextMode">
+
+<h3><a id="Sparsematrices">12.3.6</a> Sparse matrices</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Sparsematrices">Sparse matrices</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The weights matrix can be sparsified by ignoring small entries.
+This makes the
+<i>sparse matrix times dense matrix</i>
+<!-- index -->
+product the dominant operation&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Gale:SparseDL-sc20">[Gale:SparseDL-sc20]</a>
+.
+</p>
+
+<h3><a id="Hardwaresupport">12.3.7</a> Hardware support</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Hardwaresupport">Hardware support</a>
+</p>
+<p name="switchToTextMode">
+
+From the above, we conclude the importance of the 
+<tt>gemm</tt>
+computational kernel.
+Dedicating a regular CPU exclusively to this purpose
+is a considerable waste of silicon and power.
+At the very least, using 
+<span title="acronym" ><i>GPUs</i></span>
+ is an energy-efficient solution.
+</p>
+
+<p name="switchToTextMode">
+However, even more efficiency can be attained by using special purpose hardware.
+Here is an overview:
+
+<a href=https://blog.inten.to/hardware-for-deep-learning-part-4-asic-96a542fe6a81>https://blog.inten.to/hardware-for-deep-learning-part-4-asic-96a542fe6a81</a>
+
+In a way, these special purpose processors are a re-incarnation of
+<i>systolic array</i>
+s.
+</p>
+
+<h3><a id="Reducedprecision">12.3.8</a> Reduced precision</h3>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Computationalaspects">Computational aspects</a> > <a href="learning.html#Reducedprecision">Reduced precision</a>
+</p>
+
+<p name="switchToTextMode">
+
+See section&nbsp;
+3.7.4.2
+.
+</p>
+
+<h2><a id="Stuff">12.4</a> Stuff</h2>
+<p name=crumbs>
+crumb trail:  > <a href="learning.html">learning</a> > <a href="learning.html#Stuff">Stuff</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: quotation start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator quotation ['quotation'] -->
+  \textsl{Universal Approximation Theorem}%
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+  Let $\varphi(\cdot)$ be a nonconstant,bounded, and
+  monotonically-increasing continuous function. Let $I_m$ denote the
+  $m$-dimensional unit hypercube $[0,1]^m$. The space
+  of continuous functions on $I_m$ is denoted by
+  $C(I_m)$. Then, given any function $f\in C(I_m)$
+  and $\varepsilon&gt;0$, there exists an integer
+  $N$, real constants $v_i,b_i\in\mathbb{R}$ and
+  real vectors $w_i \in \mathbb{R}^m$, where
+  $i=1,\cdots,N$, such that we may define:
+\[
+  F( x ) =
+  \sum_{i=1}^{N} v_i \varphi \left( w_i^T x + b_i\right)
+\]
+  as an approximate realization of the function $f$ where
+  $f$ is independent of $\varphi$; that is,
+\[
+  | F( x ) - f ( x ) | &lt; \varepsilon
+\]
+  for all $x\in I_m$. In other words, functions of the form
+  $F(x)$ are dense in $C(I_m)$.
+</p name="quotation">
+</quotation>
+<!-- environment: quotation end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: quotation start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator quotation ['quotation'] -->
+  Can a NN approximate multiplication?
+</p>
+
+<p name="switchToTextMode">
+  
+<a href=https://stats.stackexchange.com/questions/217703/can-deep-neural-network-approximate-multiplication-function-without-normalizatio>https://stats.stackexchange.com/questions/217703/can-deep-neural-network-approximate-multiplication-function-without-normalizatio</a>
+
+</p>
+
+<p name="switchToTextMode">
+  Traditional neural network consists of linear maps and Lipschitiz activation function. As a composition of Lischitz continuous functions, neural network is also Lipschitz continuous, but multiplication is not Lipschitz continuous. This means that neural network cannot approximate multiplication when one of the x or y goes too large.
+</p name="quotation">
+</quotation>
+<!-- environment: quotation end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

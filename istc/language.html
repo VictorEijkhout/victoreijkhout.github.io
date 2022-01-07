@@ -1,0 +1,763 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>C/Fortran interoperability</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+31.1 : <a href="language.html#CFortraninteroperability">C/Fortran interoperability</a><br>
+31.1.1 : <a href="language.html#Linkerconventions">Linker conventions</a><br>
+31.1.2 : <a href="language.html#Complexnumbers">Complex numbers</a><br>
+31.1.3 : <a href="language.html#CbindingsinFortran2003">C bindings in Fortran 2003</a><br>
+31.2 : <a href="language.html#CC++linking">C/C++ linking</a><br>
+31.3 : <a href="language.html#Strings">Strings</a><br>
+31.4 : <a href="language.html#Subprogramarguments">Subprogram arguments</a><br>
+31.5 : <a href="language.html#Inputoutput">Input/output</a><br>
+31.6 : <a href="language.html#PythoncallingCcode">Python calling C code</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>31 C/Fortran interoperability</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+Most of the time, a program is written is written in a single
+language, but in some circumstances it is necessary or desirable to
+mix sources in more than one language for a single executable. One
+such case is when a library is written in one language, but used by a
+program in another. In such a case, the library writer will probably
+have made it easy for you to use the library; this section is for the
+case that you find yourself in the place of the library writer. We
+will focus on the common case of 
+<i>interoperability</i>
+ between C/C++ and
+Fortran.
+</p>
+
+<p name="switchToTextMode">
+This issue is complicated by the fact that both languages have
+been around for a long time, and various recent language standards
+have introduced mechanisms to facilitate interoperability.
+However, there is still a lot of old code around, and not all compilers
+support the latest standards. Therefore, we discuss both the old
+and the new solutions.
+</p>
+
+<p name="switchToTextMode">
+For the issues of arrays, see chapter~
+tut:array
+.
+</p>
+
+<h2><a id="CFortraninteroperability">31.1</a> C/Fortran interoperability</h2>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#CFortraninteroperability">C/Fortran interoperability</a>
+</p>
+<p name="switchToTextMode">
+
+<h3><a id="Linkerconventions">31.1.1</a> Linker conventions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#CFortraninteroperability">C/Fortran interoperability</a> > <a href="language.html#Linkerconventions">Linker conventions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+As explained above, a compiler turns a source file into a binary,
+which no longer has any trace of the source language: it contains in
+effect functions in machine language. The linker will then match up
+calls and definitions, which can be in different files. The problem
+with using multiple languages is then that compilers have different
+notions of how to translate function names from the source file to the
+binary file.
+</p>
+
+<p name="switchToTextMode">
+Let's look at codes (you can find example files in 
+<tt>tutorials/linking</tt>
+):
+<!-- environment: verbatim start embedded generator -->
+</p>
+// C:
+void foo() {
+  return;
+}
+! Fortran
+      Subroutine foo()
+      Return
+      End Subroutine
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+After compilation you can use
+<i>nm</i>
+ to investigate the binary 
+<i>object file</i>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% nm fprog.o
+0000000000000000 T _foo_
+....
+%% nm cprog.o
+0000000000000000 T _foo
+....
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+You see that internally the 
+<tt>foo</tt>
+ routine has different names:
+the Fortran name has an underscore appended. This makes
+it hard to call a Fortran routine from&nbsp;C, or vice versa.
+The possible name mismatches are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The Fortran compiler appends an underscore. This is the most common case.
+<li>
+Sometimes it can append two underscores.
+<li>
+Typically the routine name is lowercase in the object file, but uppercase
+      is a possibility too.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Since C is a popular language to write libraries in, this means
+that the problem is often solved in the C library by:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Appending an underscore to all C function names; or
+<li>
+Including a simple wrapper call:
+<!-- environment: verbatim start embedded generator -->
+</p>
+int SomeCFunction(int i,float f)
+{
+  // this is the actual function
+}
+int SomeCFunction_(int i,float f)
+{
+  return SomeCFunction(i,f);
+}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Complexnumbers">31.1.2</a> Complex numbers</h3>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#CFortraninteroperability">C/Fortran interoperability</a> > <a href="language.html#Complexnumbers">Complex numbers</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The 
+<i>complex data types in C/C++ and Fortran</i>
+%
+<!-- index -->
+ are compatible with each
+other. Here is an example of a C++ program linking to Lapack's complex
+vector scaling routine&nbsp;
+<tt>zscal</tt>
+.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#zscale" aria-expanded="false" aria-controls="zscale">
+        Text: zscale
+      </button>
+    </h5>
+  </div>
+  <div id="zscale" class="collapse">
+  <pre>
+// zscale.cxx
+extern "C" {
+void zscal_(int*,double complex*,double complex*,int*);
+}
+  complex double *xarray,*yarray, scale=2.;
+  xarray = new double complex[n]; yarray = new double complex[n];
+  zscal_(&n,&scale,xarray,&ione);
+</pre>
+</div>
+</div>
+</p>
+
+<h3><a id="CbindingsinFortran2003">31.1.3</a> C bindings in Fortran 2003</h3>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#CFortraninteroperability">C/Fortran interoperability</a> > <a href="language.html#CbindingsinFortran2003">C bindings in Fortran 2003</a>
+</p>
+<p name="switchToTextMode">
+
+With the latest Fortran standard there are explicit
+<i>C bindings</i>
+<!-- index -->
+,
+making
+it possible to declare the
+external name of variables and routines:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/linking/fbind.F90" aria-expanded="false" aria-controls="tutorials/linking/fbind.F90">
+        Text: tutorials/linking/fbind.F90
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/linking/fbind.F90" class="collapse">
+  <pre>
+module operator
+  real, bind(C) :: x
+contains
+  subroutine s() bind(C,name='s')
+  return
+  end subroutine
+end module
+</pre>
+</div>
+</div>
+<!-- environment: verbatim start embedded generator -->
+</p>
+%% ifort -c fbind.F90
+%% nm fbind.o
+.... T _s
+.... C _x
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+It is also possible to declare data types to be C-compatible:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/linking/fdata.F90" aria-expanded="false" aria-controls="tutorials/linking/fdata.F90">
+        Text: tutorials/linking/fdata.F90
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/linking/fdata.F90" class="collapse">
+  <pre>
+Program fdata
+
+  use iso_c_binding
+
+  type, bind(C) :: c_comp
+    real (c_float)  :: data
+    integer (c_int) :: i
+    type (c_ptr)    :: ptr
+  end type
+
+end Program fdata
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+The latest version of Fortran, unsupported by many compilers at this
+time, has mechanisms for interfacing to&nbsp;C.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+There is a module that contains named kinds, so that one can declare
+<!-- environment: verbatim start embedded generator -->
+</p>
+INTEGER,KIND(C_SHORT) :: i
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Fortran pointers are more complicated objects, so passing them
+  to&nbsp;C is hard; Fortran2003 has a mechanism to deal with C&nbsp;pointers,
+  which are just addresses.
+<li>
+Fortran derived types can be made compatible with C&nbsp;structures.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h2><a id="CC++linking">31.2</a> C/C++ linking</h2>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#CC++linking">C/C++ linking</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+Libraries written in C++ offer further problems.
+The C++ compiler makes external symbols by combining
+the names a class and its methods, in a process known
+as 
+<i>name mangling</i>
+
+<!-- index -->
+.
+You can force the compiler to
+generate names that are intelligible to other languages by
+<!-- environment: verbatim start embedded generator -->
+</p>
+#ifdef __cplusplus
+  extern"C" {
+#endif
+  .
+  .
+  place declarations here
+  .
+  .
+#ifdef __cplusplus
+  }
+#endif
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Example:
+compiling
+<!-- environment: verbatim start embedded generator -->
+</p>
+#include &lt;stdlib.h&gt;
+
+
+int foo(int x) {
+  return x;
+}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and inspecting the output with 
+<tt>nm</tt>
+ gives:
+<!-- environment: verbatim start embedded generator -->
+</p>
+0000000000000010 s EH_frame1
+0000000000000000 T _foo
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+On the other hand, the identical program compiled as C++ gives
+<!-- environment: verbatim start embedded generator -->
+</p>
+0000000000000010 s EH_frame1
+0000000000000000 T __Z3fooi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+You see that the name for 
+<tt>foo</tt>
+ is something mangled, so you can not call
+this routine from a program in a different language. On the other hand,
+if you add the 
+<tt>extern</tt>
+ declaration:
+<!-- environment: verbatim start embedded generator -->
+</p>
+#include &lt;stdlib.h&gt;
+
+
+#ifdef __cplusplus
+  extern"C" {
+#endif
+int foo(int x) {
+  return x;
+}
+#ifdef __cplusplus
+  }
+#endif
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+you again get the same linker symbols as for&nbsp;C, so that the routine
+can be called from both C and&nbsp;Fortran.
+</p>
+
+<p name="switchToTextMode">
+If your main program is in&nbsp;C, you can use the C++ compiler as linker.
+If the main program is in Fortran, you need to use the Fortran
+compiler as linker. It is then necessary to link in extra
+libraries for the C++ system routines. For instance, with the
+Intel compiler 
+<tt>-lstdc++ -lc</tt>
+ needs to be added to the link line.
+</p>
+
+<p name="switchToTextMode">
+The use of 
+<tt>extern</tt>
+ is also needed if you link other languages to a
+C++ main program. For instance, a Fortran subprogram 
+<tt>foo</tt>
+ should be
+declared as
+<!-- environment: verbatim start embedded generator -->
+</p>
+extern "C" {
+void foo_();
+}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+In that case, you again use the C++ compiler as linker.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Strings">31.3</a> Strings</h2>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#Strings">Strings</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Programming languages differ widely in how they handle strings.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+In C, a string is an array of characters; the end of the string
+  is indicated by a null character, that is the ascii character zero,
+  which has an all zero bit pattern. This is called 
+    termination}.
+<li>
+In Fortran, a string is an array of characters. The length is
+  maintained in a internal variable, which is passed as a hidden
+  parameter to subroutines.
+<li>
+In Pascal, a string is an array with an integer denoting the
+  length in the first position. Since only one byte is used for this,
+  strings can not be longer than 255 characters in Pascal.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+As you can see, passing strings between different languages is fraught
+with peril. This situation is made even worse by the fact that passing
+strings as subroutine arguments is not standard.
+</p>
+
+<p name="switchToTextMode">
+Example: the main program in Fortran passes a string
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/linking/fstring.F90" aria-expanded="false" aria-controls="tutorials/linking/fstring.F90">
+        Text: tutorials/linking/fstring.F90
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/linking/fstring.F90" class="collapse">
+  <pre>
+Program Fstring
+  character(len=5) :: word = "Word"
+  call cstring(word)
+end Program Fstring
+</pre>
+</div>
+</div>
+and the C routine accepts a character string and its length:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/linking/cstring.c" aria-expanded="false" aria-controls="tutorials/linking/cstring.c">
+        Text: tutorials/linking/cstring.c
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/linking/cstring.c" class="collapse">
+  <pre>
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+void cstring_(char *txt,int txtlen) {
+  printf("length = %d\n",txtlen);
+  printf("&lt;&lt;");
+  for (int i=0; i&lt;txtlen; i++)
+    printf("%c",txt[i]);
+  printf("&gt;&gt;\n");
+}
+</pre>
+</div>
+</div>
+which produces:
+<!-- environment: verbatim start embedded generator -->
+</p>
+length = 5
+&lt;&lt;Word &gt;&gt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+To pass a Fortran string to a C program you need to append a null
+character:
+<!-- environment: verbatim start embedded generator -->
+</p>
+call cfunction ('A string'//CHAR(0))
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Some compilers support extensions
+to facilitate this, for instance writing
+<!-- environment: verbatim start embedded generator -->
+</p>
+DATA forstring /'This is a null-terminated string.'C/
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Recently, the `C/Fortran interoperability standard' has
+provided a systematic solution to this.
+</p>
+
+<h2><a id="Subprogramarguments">31.4</a> Subprogram arguments</h2>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#Subprogramarguments">Subprogram arguments</a>
+</p>
+<p name="switchToTextMode">
+
+In C, you pass a 
+<tt>float</tt>
+ argument to a function if the function
+needs its value, and 
+<tt>float*</tt>
+ if the function has to modify the
+value of the variable in the calling environment. Fortran has no such
+distinction: every variable is passed 
+<i>by reference</i>
+. This
+has some strange consequences: if you pass a literal value
+
+<tt>37</tt>
+ to a subroutine, the compiler will allocate a nameless
+variable with that value, and pass the address of it, rather than the
+value\footnote{With a bit of cleverness and the right compiler, you
+  can have a program that says 
+<tt>print *,7</tt>
+ and
+  prints&nbsp;
+<tt>8</tt>
+ because of this.}.
+</p>
+
+<p name="switchToTextMode">
+For interfacing Fortran and C routines, this means that a Fortran
+routine looks to a C&nbsp;program like all its argument are `star'
+arguments. Conversely, if you want a C subprogram to be callable from
+Fortran, all its arguments have to be star-this or that. This means on
+the one hand that you will sometimes pass a variable by reference that
+you would like to pass by value.
+</p>
+
+<p name="switchToTextMode">
+Worse, it means that C subprograms like
+<!-- environment: verbatim start embedded generator -->
+</p>
+void mysub(int **iarray) {
+ *iarray = (int*)malloc(8*sizeof(int));
+ return;
+}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+can not be called from Fortran. There is a hack to get around this
+(check out the Fortran77 interface to the Petsc routine
+
+<tt>VecGetValues</tt>
+) and with more cleverness you can use
+
+<tt>POINTER</tt>
+ variables for this.
+</p>
+
+<h2><a id="Inputoutput">31.5</a> Input/output</h2>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#Inputoutput">Input/output</a>
+</p>
+<p name="switchToTextMode">
+
+Both languages have their own system for handling input/output, and it
+is not really possible to meet in the middle. Basically, if Fortran
+routines do I/O, the main program has to be in Fortran. Consequently,
+it is best to isolate I/O as much as possible, and use C for I/O in
+mixed language programming.
+</p>
+
+<h2><a id="PythoncallingCcode">31.6</a> Python calling C code</h2>
+<p name=crumbs>
+crumb trail:  > <a href="language.html">language</a> > <a href="language.html#PythoncallingCcode">Python calling C code</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Because of its efficiency of computing, C&nbsp;is a logical language to use
+for the lowest layers of a program. On the other hand, because of its
+expressiveness, Python is a good candidate for the top layers. It is
+then a logical thought to want to call C&nbsp;routines from a python
+program.
+This is possible using the python 
+<i>ctypes</i>
+
+<!-- index -->
+module.
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+You write your C code, and compile it to a dynamic library as
+  indicated above;
+<li>
+The python code loads the library dynamically, for instance for
+<tt>libc</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+path_libc = ctypes.util.find_library("c")
+libc = ctypes.CDLL(path_libc)
+libc.printf(b"%s\n", b"Using the C printf function from Python ... ")
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+You need to declare what the types are of the C routines in python:
+<!-- environment: verbatim start embedded generator -->
+</p>
+test_add = mylib.test_add
+test_add.argtypes = [ctypes.c_float, ctypes.c_float]
+test_add.restype = ctypes.c_float
+test_passing_array = mylib.test_passing_array
+test_passing_array.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int]
+test_passing_array.restype = None
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+Scalars can be passed simply; arrays need to be constructed:
+<!-- environment: verbatim start embedded generator -->
+</p>
+data = (ctypes.c_int * Nelements)(*[x for x in range(numel)])
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

@@ -1,0 +1,470 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>MPI topic: Hybrid computing</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+13.1 : <a href="mpi-hybrid.html#MPIsupportforthreading">MPI support for threading</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>13 MPI topic: Hybrid computing</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+While the MPI standard itself makes no mention of threads
+--~process being the primary unit of computation~--
+the use of threads is allowed.
+Below we will discuss what provisions exist for doing so.
+</p>
+
+<p name="switchToTextMode">
+Using threads and other shared memory models in combination with MPI
+leads of course to the question how
+<i>race condition</i>
+s are handled.
+Example of a code with a data race that pertains to MPI:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp sections
+#pragma omp section
+  MPI_Send( x, /* to process 2 */ )
+#pragma omp section
+  MPI_Recv( x, /* from process 3 */ )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The MPI standard here puts the burden on the user:
+this code is not legal, and behavior is not defined.
+</p>
+
+<h2><a id="MPIsupportforthreading">13.1</a> MPI support for threading</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-hybrid.html">mpi-hybrid</a> > <a href="mpi-hybrid.html#MPIsupportforthreading">MPI support for threading</a>
+</p>
+
+
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+In hybrid execution, the main question is whether all threads
+are allowed to make MPI calls. To determine this,
+replace the 
+<tt>MPI_Init</tt>
+ call by
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Init_thread" aria-expanded="false" aria-controls="MPI_Init_thread">
+        Routine reference: MPI_Init_thread
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Init_thread" class="collapse">
+  <pre>
+C:
+int MPI_Init_thread(int *argc, char ***argv, int required, int *provided)
+
+Fortran:
+MPI_Init_thread(required, provided, ierror)
+INTEGER, INTENT(IN) :: required
+INTEGER, INTENT(OUT) :: provided
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+</pre>
+</div>
+</div>
+<i>MPI_Init_thread</i>
+Here the 
+<tt>required</tt>
+ and 
+<tt>provided</tt>
+ parameters can take the following
+(monotonically increasing) values:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_THREAD_SINGLE</tt>
+: Only a single thread will
+  execute.
+<li>
+<tt>MPI_THREAD_FUNNELED</tt>
+: The program may use multiple
+  threads, but only the main thread will make MPI calls.
+</p>
+
+<p name="switchToTextMode">
+    The main thread is usually the one selected by the
+<tt>master</tt>
+ directive, but technically it is the only that
+    executes 
+<tt>MPI_Init_thread</tt>
+. If you call this routine in
+    a parallel region, the main thread may be different from the master.
+<li>
+<tt>MPI_THREAD_SERIALIZED</tt>
+: The program may use multiple
+  threads, all of which may make MPI calls, but there will never be
+  simultaneous MPI calls in more than one thread.
+<li>
+<tt>MPI_THREAD_MULTIPLE</tt>
+: Multiple threads may issue MPI
+  calls, without restrictions.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+After the initialization call, you can query the support level
+with 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Query_thread" aria-expanded="false" aria-controls="MPI_Query_thread">
+        Routine reference: MPI_Query_thread
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Query_thread" class="collapse">
+  <pre>
+C:
+int MPI_Query_thread(int *provided)
+
+Fortran:
+MPI_Query_thread(provided, ierror)
+INTEGER, INTENT(OUT) :: provided
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+</pre>
+</div>
+</div>
+<i>MPI_Query_thread</i>
+.
+</p>
+
+<p name="switchToTextMode">
+In case more than one thread performs communication,
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Is_thread_main" aria-expanded="false" aria-controls="MPI_Is_thread_main">
+        Routine reference: MPI_Is_thread_main
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Is_thread_main" class="collapse">
+  <pre>
+C:
+int MPI_Is_thread_main(int *flag)
+
+Fortran:
+MPI_Is_thread_main(flag, ierror)
+LOGICAL, INTENT(OUT) :: flag
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+</pre>
+</div>
+</div>
+<i>MPI_Is_thread_main</i>
+can determine whether a thread is the main thread.
+</p>
+
+<!-- environment: pythonnote start embedded generator -->
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  The thread level can be set through the 
+<tt>mpi4py.rc</tt>
+ object
+  (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-functional.html#Initializationfinalization">2.2.2</a>
+):
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+mpi4py.rc.threads # default True
+mpi4py.rc.thread_level # default "multiple"
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Available levels are
+
+<tt>multiple</tt>
+, 
+<tt>serialized</tt>
+, 
+<tt>funneled</tt>
+, 
+<tt>single</tt>
+.
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<span title="acronym" ><i>MPL</i></span>
+<p name="switchToTextMode">
+ always calls 
+<tt>MPI_Init_thread</tt>
+  requesting the highest level 
+<tt>MPI_THREAD_MULTIPLE</tt>
+.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+enum mpl::threading_modes {
+  mpl::threading_modes::single = MPI_THREAD_SINGLE,
+  mpl::threading_modes::funneled = MPI_THREAD_FUNNELED,
+  mpl::threading_modes::serialized = MPI_THREAD_SERIALIZED,
+  mpl::threading_modes::multiple = MPI_THREAD_MULTIPLE
+};
+threading_modes mpl::environment::threading_mode ();
+bool mpl::environment::is_thread_main ();
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: tacc start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=tacc ]] -->
+<tacc>
+
+<p name="tacc">
+<!-- TranslatingLineGenerator tacc ['tacc'] -->
+  The 
+<i>mvapich</i>
+ implementation of MPI
+  does have the required threading support, but you need to set this environment variable:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+export MV2_ENABLE_AFFINITY=0
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  Another solution is to run your code like this:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+  ibrun tacc_affinity &lt;my_multithreaded_mpi_executable
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  Intel MPI uses an environment variable to turn on thread support:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+I_MPI_LIBRARY_KIND=&lt;value&gt;
+where
+release : multi-threaded with global lock
+release_mt : multi-threaded with per-object lock for thread-split
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+
+</tacc>
+<!-- environment: tacc end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<i>mpiexec</i>
+
+<!-- index -->
+program usually propagates 
+<i>environment variables</i>
+,
+so the value of 
+<tt>OMP_NUM_THREADS</tt>
+ when you call 
+<tt>mpiexec</tt>
+
+will be seen by each MPI process.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+It is possible to use blocking sends in threads, and let the
+  threads block. This does away with the need for polling.
+<li>
+You can not send to a thread number: use the MPI
+<i>message tag</i>
+ to send to a specific thread.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Consider the 2D heat equation and explore the mix of MPI/OpenMP
+parallelism:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Give each node one MPI process that is fully multi-threaded.
+<li>
+Give each core an MPI process and don't use multi-threading.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Discuss theoretically why the former can give higher performance.
+Implement both schemes as special cases of the general hybrid case,
+and run tests to find the optimal mix.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#thread" aria-expanded="false" aria-controls="thread">
+        C Code: thread
+      </button>
+    </h5>
+  </div>
+  <div id="thread" class="collapse">
+  <pre>
+// thread.c
+MPI_Init_thread(&argc,&argv,MPI_THREAD_MULTIPLE,&threading);
+comm = MPI_COMM_WORLD;
+MPI_Comm_rank(comm,&procno);
+MPI_Comm_size(comm,&nprocs);
+
+if (procno==0) {
+  switch (threading) {
+  case MPI_THREAD_MULTIPLE : printf("Glorious multithreaded MPI\n"); break;
+  case MPI_THREAD_SERIALIZED : printf("No simultaneous MPI from threads\n"); break;
+  case MPI_THREAD_FUNNELED : printf("MPI from main thread\n"); break;
+  case MPI_THREAD_SINGLE : printf("no threading supported\n"); break;
+  }
+}
+MPI_Finalize();
+</pre>
+</div>
+</div>
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

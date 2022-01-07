@@ -1,0 +1,242 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Teaching guide</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+<a href="index.html">Back to Table of Contents</a>
+<h1>54 Teaching guide</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+Based on two lectures per week, here is an outline
+of how MPI can be taught in a college course.
+Links to the relevant exercises.
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  \toprule
+  Topic</td><td>Exercises</td><td>Week</td></tr>
+<tr><td>
+  \midrule
+  \midrule
+  Intro: cluster structure    </td><td>
+<tt>hello</tt>
+: 
+2.4
+, 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-functional.html#Initializationfinalization">2.2.2</a>
+                                              </td><td></td></tr>
+<tr><td>
+  Functional parallelism      </td><td>
+<tt>commrank</tt>
+: 
+2.5
+, 
+2.5
+, 
+<tt>prime</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-functional.html#Functionalparallelism">2.4</a>
+</td><td></td></tr>
+<tr><td>
+  \midrule
+  Allreduce, broadcast        </td><td>
+3.1
+, 
+<tt>randommax</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-collective.html#Examplesandexercises">3.2.1.2</a>
+                                                                                                                             </td><td></td></tr>
+<tr><td>
+                              </td><td>
+<tt>jordan</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-collective.html#Broadcast">3.3.3</a>
+</td><td></td></tr>
+<tr><td>
+  \midrule
+  Scan, Gather                </td><td>
+3.4
+, 
+<tt>scangather</tt>
+: 
+3.2
+, 
+3.5
+              </td><td></td></tr>
+<tr><td>
+  \cline{1-2}
+  \cline{1-2}
+  Send and receive            </td><td>
+<tt>pingpong</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Receivecall">4.1.3</a>
+, 
+<tt>rightsend</tt>
+: 
+4.4
+</td><td></td></tr>
+<tr><td>
+  \midrule
+  Sendrecv                    </td><td>
+<tt>bucketblock</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Bucketbrigade">4.1.5</a>
+, 
+<tt>sendrecv</tt>
+: 
+4.6
+, 
+4.7
+                                                                                                                             </td><td></td></tr>
+<tr><td>
+  Nonblocking                </td><td>
+<tt>isendirecv</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Receivestatusofthewaitcalls">4.2.2.6</a>
+,
+                               
+<tt>isendirecvarray</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Latencyhidingoverlappingcommunicationandcomputation">4.2.2.7</a>
+</td><td></td></tr>
+<tr><td>
+midrule
+                              </td><td>
+<tt>bucketpipenonblock</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Waitforallrequests">4.2.2.2</a>
+                                         </td><td></td></tr>
+<tr><td>
+  \cline{1-2}
+  \cline{1-2}
+  Contiguous, Vector, Indexed</td><td>
+<tt>stridesend</tt>
+: 
+6.5
+,
+                              
+<tt>cubegather</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-data.html#Subarraytype">6.3.4</a>
+</td><td></td></tr>
+<tr><td>
+  \midrule
+  Extent and resizing</td><td></td><td></td></tr>
+<tr><td>
+ \cline{1-2}
+ \cline{1-2}
+  Duplication, split          </td><td>
+<tt>procgrid</tt>
+: 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Examples">7.4.1</a>
+,
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Examples">7.4.1</a>
+                        </td><td></td></tr>
+<tr><td>
+  Groups</td><td></td><td></td></tr>
+<tr><td>
+  \midrule
+  \midrule
+  File open, write, views    </td><td>blockwrite:~
+10.1
+, viewwrite~
+10.2
+                        </td><td></td></tr>
+<tr><td>
+  \cline{1-2}
+  \cline{1-2}
+  Neighbor allgather         </td><td>rightgraph:~
+11.2
+</td><td></td></tr>
+<tr><td>
+  \bottomrule
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

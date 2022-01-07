@@ -1,0 +1,578 @@
+<html>
+<head>
+<title>MPI Examples</title>
+</head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet"
+      href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$']]}
+});
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<div style="margin: 0px 5%; width:90%; ">
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+14.1 : <a href="mpiexamples.html#C">C</a><br>
+14.2 : <a href="mpiexamples.html#F">F</a><br>
+14.3 : <a href="mpiexamples.html#G">G</a><br>
+14.4 : <a href="mpiexamples.html#I">I</a><br>
+14.5 : <a href="mpiexamples.html#P">P</a><br>
+14.6 : <a href="mpiexamples.html#R">R</a><br>
+14.7 : <a href="mpiexamples.html#S">S</a><br>
+14.8 : <a href="mpiexamples.html#T">T</a><br>
+14.9 : <a href="mpiexamples.html#W">W</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>14 MPI Examples</h1>
+
+<h1><a id="C">14.1</a> C</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#C">C</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Cancel}
+</p>
+
+<p name="switchToTextMode">
+Cancelling a send operation:
+</p>
+
+<pre>
+// cancel.c
+if (procno==nprocs-1) {
+  MPI_Status status;
+  ierr = MPI_Recv(dummy,0,MPI_INT, MPI_ANY_SOURCE,0,comm,
+                  &status); CHK(ierr);
+  first_tid = status.MPI_SOURCE;
+  ierr = MPI_Bcast(&first_tid,1,MPI_INT, nprocs-1,comm); CHK(ierr);
+  printf("first msg came from %d\n",first_tid);
+} else {
+  float randomfraction = (rand() / (double)RAND_MAX);
+  int randomwait = (int) ( nprocs * randomfraction );
+  MPI_Request request;
+  printf("process %d waits for %e/%d=%d\n",
+	   procno,randomfraction,nprocs,randomwait);
+  sleep(randomwait);
+  ierr = MPI_Isend(dummy,0,MPI_INT, nprocs-1,0,comm,
+                   &request); CHK(ierr);
+  ierr = MPI_Bcast(&first_tid,1,MPI_INT, nprocs-1,comm
+                  ); CHK(ierr);
+  if (procno!=first_tid) {
+    ierr = MPI_Cancel(&request); CHK(ierr);
+  }
+}
+</pre>
+<p name="switchToTextMode">
+\mpiexample{MPI_Cart...}
+</p>
+
+<pre>
+// cart.c
+MPI_Comm comm2d;
+ndim = 2; periodic[0] = periodic[1] = 0;
+dimensions[0] = idim; dimensions[1] = jdim;
+MPI_Cart_create(comm,ndim,dimensions,periodic,1,&comm2d);
+MPI_Cart_coords(comm2d,procno,ndim,coord_2d);
+MPI_Cart_rank(comm2d,coord_2d,&rank_2d);
+printf("I am %d: (%d,%d); originally %d\n",rank_2d,coord_2d[0],coord_2d[1],procno);
+</pre>
+<pre>
+char mychar = 65+procno;
+MPI_Cart_shift(comm2d,0,+1,&rank_2d,&rank_right);
+MPI_Cart_shift(comm2d,0,-1,&rank_2d,&rank_left);
+MPI_Cart_shift(comm2d,1,+1,&rank_2d,&rank_up);
+MPI_Cart_shift(comm2d,1,-1,&rank_2d,&rank_down);
+int irequest = 0; MPI_Request *requests = malloc(8*sizeof(MPI_Request));
+MPI_Isend(&mychar,1,MPI_CHAR,rank_right, 0,comm, requests+irequest++);
+MPI_Isend(&mychar,1,MPI_CHAR,rank_left,  0,comm, requests+irequest++);
+MPI_Isend(&mychar,1,MPI_CHAR,rank_up,    0,comm, requests+irequest++);
+MPI_Isend(&mychar,1,MPI_CHAR,rank_down,  0,comm, requests+irequest++);
+MPI_Irecv( indata+idata++, 1,MPI_CHAR, rank_right, 0,comm, requests+irequest++);
+MPI_Irecv( indata+idata++, 1,MPI_CHAR, rank_left,  0,comm, requests+irequest++);
+MPI_Irecv( indata+idata++, 1,MPI_CHAR, rank_up,    0,comm, requests+irequest++);
+MPI_Irecv( indata+idata++, 1,MPI_CHAR, rank_down,  0,comm, requests+irequest++);
+</pre>
+<p name="switchToTextMode">
+\mpiexample{MPI_Comm_dup}
+</p>
+
+<p name="switchToTextMode">
+Giving a library its own communicator.
+</p>
+
+<pre>
+// commdup_right.cxx
+class library {
+private:
+  MPI_Comm comm;
+  int procno,nprocs,other;
+  MPI_Request *request;
+public:
+  library(MPI_Comm incomm) {
+    MPI_Comm_dup(incomm,&comm);
+    MPI_Comm_rank(comm,&procno);
+    other = 1-procno;
+    request = new MPI_Request[2];
+  };
+  &nbsp;library() {
+    MPI_Comm_free(&comm);
+  }
+  int communication_start();
+  int communication_end();
+};
+</pre>
+<pre>
+library my_library(comm);
+MPI_Isend(&sdata,1,MPI_INT,other,1,comm,&(request[0]));
+my_library.communication_start();
+MPI_Irecv(&rdata,1,MPI_INT,other,MPI_ANY_TAG,
+	    comm,&(request[1]));
+MPI_Waitall(2,request,status);
+my_library.communication_end();
+</pre>
+<p name="switchToTextMode">
+\mpiexample{MPI_Comm_split}
+</p>
+
+<p name="switchToTextMode">
+First we take all processes module two, then
+again recursively.
+</p>
+
+<pre>
+// commsplit.c
+int mydata = procno;
+// create sub communicator modulo 2
+color = procno%2;
+MPI_Comm_split(MPI_COMM_WORLD,color,procno,&mod2comm);
+MPI_Comm_rank(mod2comm,&new_procno);
+
+
+// create sub communicator modulo 4 recursively
+color = new_procno%2;
+MPI_Comm_split(mod2comm,color,new_procno,&mod4comm);
+MPI_Comm_rank(mod4comm,&new_procno);
+
+
+if (mydata/4!=new_procno)
+  printf("Error %d %d %d\n",procno,new_procno,mydata/4);
+</pre>
+<pre>
+// commsplit.py
+mydata = procid
+
+
+# communicator modulo 2
+color = procid%2
+mod2comm = comm.Split(color)
+new_procid = mod2comm.Get_rank()
+
+
+# communicator modulo 4 recursively
+color = new_procid%2
+mod4comm = mod2comm.Split(color)
+new_procid = mod4comm.Get_rank()
+
+
+if mydata/4!=new_procid:
+    print "Error",procid,new_procid,mydata/4
+</pre>
+
+<h1><a id="F">14.2</a> F</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#F">F</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Fetch_and_op}
+</p>
+
+<p name="switchToTextMode">
+A root process has a table of data; the other processes do 
+atomic gets and update of that data using 
+\indexterm{passive target
+  synchronization} through 
+<tt>MPI_Win_lock</tt>
+.
+<pre>
+// passive.cxx
+if (procno==repository) {
+  // Repository processor creates a table of inputs
+  // and associates that with the window
+}
+if (procno!=repository) {
+  float contribution=(float)procno,table_element;
+  int loc=0;
+  MPI_Win_lock(MPI_LOCK_EXCLUSIVE,repository,0,the_window);
+  // read the table element by getting the result from adding zero
+  err = MPI_Fetch_and_op
+    (&contribution,&table_element,MPI_FLOAT,
+     repository,loc,MPI_SUM,the_window); CHK(err);
+  MPI_Win_unlock(repository,the_window);
+}
+</pre>
+<pre>
+// passive.py
+if procid==repository:
+    # repository process creates a table of inputs
+    # and associates it with the window
+    win_mem = np.empty( ninputs,dtype=np.float32 )
+    win = MPI.Win.Create( win_mem,comm=comm )
+else:
+    # everyone else has an empty window
+    win = MPI.Win.Create( None,comm=comm )
+if procid!=repository:
+    contribution = np.empty( 1,dtype=np.float32 )
+    contribution[0] = 1.*procid
+    table_element = np.empty( 1,dtype=np.float32 )
+    win.Lock( repository,lock_type=MPI.LOCK_EXCLUSIVE )
+    win.Fetch_and_op( contribution,table_element,repository,0,MPI.SUM)
+    win.Unlock( repository )
+</pre>
+
+<h1><a id="G">14.3</a> G</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#G">G</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Gather}
+</p>
+
+<p name="switchToTextMode">
+Gather data onto a root. Only the root allocates the gather buffer.
+<pre>
+// gather.c
+// we assume that each process has a value "localsize"
+// the root process collectes these values
+
+
+if (procno==root)
+  localsizes = (int*) malloc( (nprocs+1)*sizeof(int) );
+
+
+// everyone contributes their info
+MPI_Gather(&localsize,1,MPI_INT,
+           localsizes,1,MPI_INT,root,comm);
+</pre>
+<p name="switchToTextMode">
+\mpiexample{MPI_Get}
+</p>
+
+<p name="switchToTextMode">
+One process does a one-sided get from another. This also illustrates
+setting size parameters in
+<tt>MPI_Win_create</tt>
+. Synchronization is done with
+<tt>MPI_Win_fence</tt>
+.
+<pre>
+// getfence.c
+MPI_Win_create(&other_number,2*sizeof(int),sizeof(int),
+               MPI_INFO_NULL,comm,&the_window);
+MPI_Win_fence(0,the_window);
+if (procno==0) {
+  MPI_Get( /* data on origin: */   &my_number, 1,MPI_INT,
+	       /* data on target: */   other,1,    1,MPI_INT,
+	       the_window);
+}
+MPI_Win_fence(0,the_window);
+</pre>
+<p name="switchToTextMode">
+We make a null window on processes that do not participate.
+<pre>
+// getfence.py
+if procid==0 or procid==nprocs-1:
+    win_mem = np.empty( 1,dtype=np.float64 )
+    win = MPI.Win.Create( win_mem,comm=comm )
+else:
+    win = MPI.Win.Create( None,comm=comm )
+
+
+# put data on another process
+win.Fence()
+if procid==0 or procid==nprocs-1:
+    putdata = np.empty( 1,dtype=np.float64 )
+    putdata[0] = mydata
+    print "[%d] putting %e" % (procid,mydata)
+    win.Put( putdata,other )
+win.Fence()
+</pre>
+
+<h1><a id="I">14.4</a> I</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#I">I</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Init_thread}
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>Init_thread</tt>
+ call takes the requested level of thread support
+and reports back what the provided level is.
+<pre>
+// thread.c
+MPI_Init_thread(&argc,&argv,MPI_THREAD_MULTIPLE,&threading);
+comm = MPI_COMM_WORLD;
+MPI_Comm_rank(comm,&procno);
+MPI_Comm_size(comm,&nprocs);
+
+
+if (procno==0) {
+  switch (threading) {
+  case MPI_THREAD_MULTIPLE : printf("Glorious multithreaded MPI\n"); break;
+  case MPI_THREAD_SERIALIZED : printf("No simultaneous MPI from threads\n"); break;
+  case MPI_THREAD_FUNNELED : printf("MPI from main thread\n"); break;
+  case MPI_THREAD_SINGLE : printf("no threading supported\n"); break;
+  }
+}
+MPI_Finalize();
+</pre>
+
+<h1><a id="P">14.5</a> P</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#P">P</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Put}
+</p>
+
+<p name="switchToTextMode">
+A one-sided 
+<tt>MPI_Put</tt>
+ with active target synchronization
+through the use of fences. This is more or less the same as the
+
+<tt>MPI_Get</tt>
+ example above.
+<pre>
+// putblock.c
+MPI_Win_create(&other_number,1,sizeof(int),
+               MPI_INFO_NULL,comm,&the_window);
+MPI_Win_fence(0,the_window);
+if (mytid==0) {
+  MPI_Put( /* data on origin: */   &my_number, 1,MPI_INT,
+	       /* data on target: */   1,0,        1,MPI_INT,
+	       the_window);
+  sleep(.5);
+}
+MPI_Win_fence(0,the_window);
+if (mytid==1)
+  printf("I got the following: %d\n",other_number);
+</pre>
+<pre>
+// putfence.py
+window_data = np.zeros(2,dtype=np.int)
+my_number = np.empty(1,dtype=np.int)
+src = 0; tgt = nprocs-1
+if procid==src:
+    my_number[0] = 37
+else:
+    my_number[0] = 1
+
+
+intsize = np.dtype('int').itemsize
+win = MPI.Win.Create(window_data,intsize,comm=comm)
+
+
+win.Fence()
+if procid==src:
+    # put data in the second element of the window
+    win.Put(my_number,tgt,target=1)
+win.Fence()
+</pre>
+
+<h1><a id="R">14.6</a> R</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#R">R</a>
+
+
+<h1><a id="S">14.7</a> S</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#S">S</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Send_init}
+</p>
+
+<p name="switchToTextMode">
+Persistent communication is setup up on the sending process with
+<tt>MPI_Send_init</tt>
+ and 
+<tt>MPI_Recv_init</tt>
+, then
+performed with 
+<tt>MPI_Startall</tt>
+. The receiver is using
+regular sends and receives.
+<pre>
+// persist.c
+if (procno==src) {
+  MPI_Send_init(send,s,MPI_DOUBLE,tgt,0,comm,requests+0);
+  MPI_Recv_init(recv,s,MPI_DOUBLE,tgt,0,comm,requests+1);
+  printf("Size %d\n",s);
+  t[cnt] = MPI_Wtime();
+  for (int n=0; n&lt;NEXPERIMENTS; n++) {
+	MPI_Startall(2,requests);
+	MPI_Waitall(2,requests,MPI_STATUSES_IGNORE);
+  }
+  t[cnt] = MPI_Wtime()-t[cnt];
+  MPI_Request_free(requests+0); MPI_Request_free(requests+1);
+} else if (procno==tgt) {
+  for (int n=0; n&lt;NEXPERIMENTS; n++) {
+	MPI_Recv(recv,s,MPI_DOUBLE,src,0,comm,MPI_STATUS_IGNORE);
+	MPI_Send(recv,s,MPI_DOUBLE,src,0,comm);
+  }
+}
+</pre>
+<pre>
+// persist.py
+sendbuf = np.ones(size,dtype=np.int)
+recvbuf = np.ones(size,dtype=np.int)
+if procid==src:
+    print "Size:",size
+    times[isize] = MPI.Wtime()
+    for n in range(nexperiments):
+        requests[0] = comm.Isend(sendbuf[0:size],dest=tgt)
+        requests[1] = comm.Irecv(recvbuf[0:size],source=tgt)
+        MPI.Request.Waitall(requests)
+        sendbuf[0] = sendbuf[0]+1
+    times[isize] = MPI.Wtime()-times[isize]
+elif procid==tgt:
+    for n in range(nexperiments):
+        comm.Recv(recvbuf[0:size],source=src)
+        comm.Send(recvbuf[0:size],dest=src)
+</pre>
+<p name="switchToTextMode">
+\mpiexample{MPI_Ssend}
+</p>
+
+<p name="switchToTextMode">
+Using 
+<tt>MPI_Ssend</tt>
+ messages that would fall under the
+<i>eager limit</i>
+ do block.
+<pre>
+// ssendblock.c
+other = 1-procno;
+sendbuf = (int*) malloc(sizeof(int));
+recvbuf = (int*) malloc(sizeof(int));
+size = 1;
+MPI_Ssend(sendbuf,size,MPI_INT,other,0,comm);
+MPI_Recv(recvbuf,size,MPI_INT,other,0,comm,&status);
+printf("This statement is not reached\n");
+</pre>
+
+<h1><a id="T">14.8</a> T</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#T">T</a>
+
+
+<h1><a id="W">14.9</a> W</h1>
+<a href="mpiexamples.html">Top</a> > <a href="mpiexamples.html#W">W</a>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Win_lock}
+</p>
+
+<p name="switchToTextMode">
+See the 
+<tt>Fetch_and_op</tt>
+ example.
+</p>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Win_start}
+</p>
+
+<p name="switchToTextMode">
+A one-sided 
+<tt>MPI_Put</tt>
+ using active target synchronization:
+use 
+<tt>MPI_Win_start</tt>
+ and 
+<tt>MPI_Win_complete</tt>
+on the origin, and 
+<tt>MPI_Win_post</tt>
+ and
+<tt>MPI_Win_wait</tt>
+ on the target.
+<pre>
+// postwaitwin.c
+if (procno==origin) {
+  MPI_Group_incl(all_group,1,&target,&two_group);
+  // access
+  MPI_Win_start(two_group,0,the_window);
+  MPI_Put( /* data on origin: */   &my_number, 1,MPI_INT,
+           /* data on target: */   target,0,   1,MPI_INT,
+	       the_window);
+  MPI_Win_complete(the_window);
+}
+
+
+if (procno==target) {
+  MPI_Group_incl(all_group,1,&origin,&two_group);
+  // exposure
+  MPI_Win_post(two_group,0,the_window);
+  MPI_Win_wait(the_window);
+}
+</pre>
+<p name="switchToTextMode">
+\mpiexample{MPI_Win_create}
+</p>
+
+<p name="switchToTextMode">
+See the 
+<tt>MPI_Get</tt>
+ example.
+</p>
+
+<p name="switchToTextMode">
+\mpiexample{MPI_Win_fence}
+</p>
+
+<p name="switchToTextMode">
+One process does 
+<tt>MPI_Put</tt>
+ operations, randomly on one of
+two other processes. We use a fence for active target synchronization.
+<pre>
+// randomput.c
+MPI_Win_create(&window_data,sizeof(int),sizeof(int),
+               MPI_INFO_NULL,comm,&the_window);
+
+
+for (int c=0; c&lt;10; c++) {
+  if (mytid==0) { // decide where to put data
+	float randomfraction = (rand() / (double)RAND_MAX);
+	if (randomfraction&gt;.5)
+      other = 2;
+	else
+      other = 1;
+	my_number = 1;
+  } else {
+	window_data = 0;
+	my_number = 0;
+  }
+  my_sum += window_data;
+}
+
+
+if (mytid&gt;0 && mytid&lt;3)
+  printf("Sum on %d: %d\n",mytid,my_sum);
+if (mytid==0) printf("(sum should be 10)\n");
+</pre>
+</div>
+<a href="index.html">Back to Table of Contents</a>

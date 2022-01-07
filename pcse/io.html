@@ -1,0 +1,177 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Parallel I/O</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+<a href="index.html">Back to Table of Contents</a>
+<h1>53 Parallel I/O</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+For a great discussion see~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/bibliography.html#Mendez:ParallelIOpage">[Mendez:ParallelIOpage]</a>
+,
+from which figures here are taken.
+</p>
+
+<h2><a id="UsesequentialIO">53.1</a> Use sequential I/O</h2>
+<p name=crumbs>
+crumb trail:  > <a href="io.html">io</a> > <a href="io.html#UsesequentialIO">Use sequential I/O</a>
+</p>
+<p name="switchToTextMode">
+
+MPI processes can do anything a regular process can,
+including opening a file.
+This is the simplest form of parallel I/O:
+every MPI process opens its own file.
+To prevent write collisions,
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+you use 
+<tt>MPI_Comm_rank</tt>
+ to generate a unique file name, or
+<li>
+you use a local file system, typically 
+<tt>/tmp</tt>
+, that is unique
+  per process, or at least per the group of processes on a node.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+For reading it is actually possible for all processes to open the same file,
+but for reading this is not really feasible. Hence the unique files.
+</p>
+
+<h2><a id="MPIIO">53.2</a> MPI I/O</h2>
+<p name=crumbs>
+crumb trail:  > <a href="io.html">io</a> > <a href="io.html#MPIIO">MPI I/O</a>
+</p>
+<p name="switchToTextMode">
+
+In chapter~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-io.html">MPI topic: File I/O</a>
+ we discussed MPI I/O.
+This is a way for all processes on a communicator to open a single file,
+and write to it in a coordinated fashion.
+This has the big advantage that the end result is an ordinary Unix file.
+</p>
+
+<h2><a id="Higherlevellibraries">53.3</a> Higher level libraries</h2>
+<p name=crumbs>
+crumb trail:  > <a href="io.html">io</a> > <a href="io.html#Higherlevellibraries">Higher level libraries</a>
+</p>
+<p name="switchToTextMode">
+
+Libraries such as 
+<i>NetCDF</i>
+ or 
+<i>HDF5</i>
+offer advantages over MPI I/O:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Files can be OS-independent, removing worries such
+  as about 
+<i>little-endian</i>
+ storage.
+<li>
+Files are self-documenting: they contain the metadata describing their contents.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

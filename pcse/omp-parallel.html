@@ -1,0 +1,835 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP topic: Parallel regions</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+18.1 : <a href="omp-parallel.html#Creatingparallelismwithparallelregions">Creating parallelism with parallel regions</a><br>
+18.2 : <a href="omp-parallel.html#Nestedparallelism">Nested parallelism</a><br>
+18.2.1 : <a href="omp-parallel.html#Subprogramswithparallelregions">Subprograms with parallel regions</a><br>
+18.2.2 : <a href="omp-parallel.html#Finecontrol">Fine control</a><br>
+18.3 : <a href="omp-parallel.html#Cancelparallelconstruct">Cancel parallel construct</a><br>
+18.4 : <a href="omp-parallel.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>18 OpenMP topic: Parallel regions</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+
+<!-- index -->
+</p>
+
+<h2><a id="Creatingparallelismwithparallelregions">18.1</a> Creating parallelism with parallel regions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-parallel.html">omp-parallel</a> > <a href="omp-parallel.html#Creatingparallelismwithparallelregions">Creating parallelism with parallel regions</a>
+</p>
+<p name="switchToTextMode">
+
+The simplest way to create parallelism in OpenMP is to use
+the 
+<tt>parallel</tt>
+ pragma. A~block preceded by the 
+<tt>omp parallel</tt>
+ pragma
+is called a 
+<i>parallel region</i>
+; it
+is executed by a newly created team of threads.
+This is an instance of the 
+<i>SPMD</i>
+ model: all threads execute the same
+segment of code.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+  // this is executed by a team of threads
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+It would be pointless to have the block be executed identically by
+all threads. One way to get a meaningful parallel code is to use the function
+<tt>omp_get_thread_num</tt>
+, to find out which thread you are,
+and execute work that is individual to that thread.
+There is also a function
+<tt>omp_get_num_threads</tt>
+ to find out the total number of threads.
+Both these functions give a number relative to the current team;
+recall from figure&nbsp;
+17.3
+ that new teams can be created recursively.
+</p>
+
+<p name="switchToTextMode">
+For instance, if you program computes
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+result = f(x)+g(x)+h(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+you could parallelize this as
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+double result,fresult,gresult,hresult;
+#pragma omp parallel
+{ int num = omp_get_thread_num();
+  if (num==0)      fresult = f(x);
+  else if (num==1) gresult = g(x);
+  else if (num==2) hresult = h(x);
+}
+result = fresult + gresult + hresult;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+The first thing we want to do is create a team of threads. This
+is done with a 
+<i>parallel region</i>
+.
+Here is a very simple example:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#hello-omp" aria-expanded="false" aria-controls="hello-omp">
+        C Code: hello-omp
+      </button>
+    </h5>
+  </div>
+  <div id="hello-omp" class="collapse">
+  <pre>
+// hello.c
+#pragma omp parallel
+  {
+    int t = omp_get_thread_num();
+    printf("Hello world from %d!\n",t);
+  }
+</pre>
+</div>
+</div>
+or in Fortran
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#hello-who-omp-f" aria-expanded="false" aria-controls="hello-who-omp-f">
+        Fortran Code: hello-who-omp-f
+      </button>
+    </h5>
+  </div>
+  <div id="hello-who-omp-f" class="collapse">
+  <pre>
+!! hellocount.F90
+!$omp parallel
+  nthreads = omp_get_num_threads()
+  mythread = omp_get_thread_num()
+  write(*,'("Hello from",i3," out of",i3)') mythread,nthreads
+!$omp end parallel
+</pre>
+</div>
+</div>
+or in C++
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#hello-omp-cxx" aria-expanded="false" aria-controls="hello-omp-cxx">
+        C++ Code: hello-omp-cxx
+      </button>
+    </h5>
+  </div>
+  <div id="hello-omp-cxx" class="collapse">
+  <pre>
+// hello.cxx
+#pragma omp parallel
+  {
+    int t = omp_get_thread_num();
+    stringstream proctext;
+    proctext &lt;&lt; "Hello world from " &lt;&lt; t &lt;&lt; endl;
+    cerr &lt;&lt; proctext.str();
+  }
+</pre>
+</div>
+</div>
+(Note the use of 
+<tt>stringstream</tt>
+: without that
+the output lines from the various threads may get mixed up.)
+</p>
+
+<p name="switchToTextMode">
+This code corresponds to the model we just discussed:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Immediately preceding the parallel block, one thread will be
+  executing the code.
+  In the main program this is the 
+<i>initial thread</i>
+.
+<li>
+At the start of the block, a new 
+<i>team of threads</i>
+ is
+  created, and the thread that was active before the block
+  becomes the 
+<i>master thread</i>
+ of that team.
+<li>
+After the block only the master thread is active.
+<li>
+Inside the block there is team of threads: each thread in the
+  team executes the body of the block, and it will have access to all
+  variables of the surrounding environment.
+  How many
+  threads there are can be determined in a number of ways; we will get to that later.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  In future versions of OpenMP, the master thread will be called
+  the 
+<i>primary thread</i>
+.
+  In 5.1 the master construct will be deprecated, and masked (with
+  added functionality) will take its place.  In 6.0 master will
+  disappear from the Spec, including 
+<tt>proc_bind</tt>
+ master “variable”
+  and combined master constructs (master taskloop, etc.)
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Make a full program based on this fragment. Insert different print statements
+  before, inside, and after the parallel region.
+  Run this example. How many times is each print statement executed?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+You see that the 
+<tt>parallel</tt>
+ directive
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Is preceded by a special marker: a 
+<tt>#pragma omp</tt>
+ for&nbsp;C/C++,
+  and the 
+<tt>!$OMP</tt>
+ 
+<i>sentinel</i>
+ for Fortran;
+<li>
+Is followed by a single statement or a block in&nbsp;C/C++,
+  or followed by a block in Fortran which is delimited by an 
+<tt>!$omp end</tt>
+ directive.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Directives look like 
+<i>cpp directives</i>
+, but they
+are actually handled by the compiler, not the preprocessor.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Take the `hello world' program above, and modify it so that you get
+  multiple messages to you screen, saying
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+  Hello from thread 0 out of 4!
+  Hello from thread 1 out of 4!
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  and so on. (The messages may very well appear out of sequence.)
+</p>
+
+<p name="switchToTextMode">
+
+  What happens if you set your number of threads larger than the available
+  cores on your computer?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What happens if you call 
+<tt>omp_get_thread_num</tt>
+ and 
+<tt>omp_get_num_threads</tt>
+  outside a parallel region?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  omp_get_thread_limit
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+See also 
+<tt>OMP_WAIT_POLICY</tt>
+ values: 
+<tt>ACTIVE,PASSIVE</tt>
+
+</p>
+
+<h2><a id="Nestedparallelism">18.2</a> Nested parallelism</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-parallel.html">omp-parallel</a> > <a href="omp-parallel.html#Nestedparallelism">Nested parallelism</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+What happens if you call a function from inside a parallel region, and
+that function itself contains a parallel region?
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int main() {
+  ...
+#pragma omp parallel
+  {
+  ...
+  func(...)
+  ...
+  }
+} // end of main
+void func(...) {
+#pragma omp parallel
+  {
+  ...
+  }
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+By default, the nested parallel region will have only one thread.
+To allow nested thread creation,
+use the environment variable
+<tt>OMP_MAX_ACTIVE_LEVELS</tt>
+ (default:&nbsp;1)
+to set the number of levels of parallel nesting.
+Equivalently, there are functions
+<tt>omp_set_max_active_levels</tt>
+ and 
+<tt>omp_get_max_active_levels</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+OMP_MAX_ACTIVE_LEVELS=3
+ or
+void omp_set_max_active_levels(int);
+int omp_get_max_active_levels(void);
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  A deprecated mechanism is to
+  set 
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+OMP_NESTED=true
+ or
+omp_set_nested(1)
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+Nested parallelism can happen with nested loops,
+but it's also possible to have a 
+<tt>sections</tt>
+ construct
+and a loop nested.
+Example:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompsectionnest" aria-expanded="false" aria-controls="ompsectionnest">
+        C Code: ompsectionnest
+      </button>
+    </h5>
+  </div>
+  <div id="ompsectionnest" class="collapse">
+  <pre>
+// sectionnest.c
+#pragma omp parallel sections reduction(+:s)
+    {
+    #pragma omp section
+      {
+	double s1=0;
+	omp_set_num_threads(team);
+        #pragma omp parallel for reduction(+:s1)
+	for (int i=0; i&lt;N; i++) {
+</pre>
+</div>
+</div>
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+  \tiny
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#code/mpi/c/sectionnest.runout" aria-expanded="false" aria-controls="code/mpi/c/sectionnest.runout">
+        Text: code/mpi/c/sectionnest.runout
+      </button>
+    </h5>
+  </div>
+  <div id="code/mpi/c/sectionnest.runout" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Subprogramswithparallelregions">18.2.1</a> Subprograms with parallel regions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-parallel.html">omp-parallel</a> > <a href="omp-parallel.html#Nestedparallelism">Nested parallelism</a> > <a href="omp-parallel.html#Subprogramswithparallelregions">Subprograms with parallel regions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+A common application of nested parallelism is the case
+where you have a subprogram with a parallel region,
+which itself gets called from a parallel region.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Test nested parallelism by writing an OpenMP program as follows:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Write a subprogram that contains a parallel region.
+<li>
+
+ Write a main program with a parallel region; call the subprogram both inside and outside the parallel region.
+<li>
+Insert print statements
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+in the main program outside the parallel region,
+<li>
+in the parallel region in the main program,
+<li>
+
+ in the subprogram outside the parallel region,
+<li>
+in the parallel region inside the subprogram.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+  Run your program and count how many print statements of each type you get.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+Writing subprograms that are called in a parallel region illustrates
+the following point: directives are evaluation with respect to the
+<i>dynamic scope</i>
+<!-- index -->
+ of the
+parallel region, not just the lexical scope. In the following example:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+  f();
+}
+void f() {
+#pragma omp for
+  for ( .... ) {
+    ...
+  }
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+the body of the function&nbsp;
+<tt>f</tt>
+ falls in the dynamic scope of the
+parallel region, so the for loop will be parallelized.
+</p>
+
+<p name="switchToTextMode">
+If the function may be called both from inside and outside parallel
+regions, you can test which is the case with 
+<tt>omp_in_parallel</tt>
+.
+</p>
+
+<h3><a id="Finecontrol">18.2.2</a> Fine control</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-parallel.html">omp-parallel</a> > <a href="omp-parallel.html#Nestedparallelism">Nested parallelism</a> > <a href="omp-parallel.html#Finecontrol">Fine control</a>
+</p>
+<p name="switchToTextMode">
+
+The amount of nested parallelism can be set:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+OMP_NUM_THREADS=4,2
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+means that initially a parallel region will have four threads, and
+each thread can create two more threads.
+</p>
+
+<!-- environment: verbatim start embedded generator -->
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+OMP_MAX_ACTIVE_LEVELS=123
+
+
+omp_set_max_active_levels( n )
+n = omp_get_max_active_levels()
+
+
+OMP_THREAD_LIMIT=123
+
+
+n = omp_get_thread_limit()
+
+
+omp_set_max_active_levels
+omp_get_max_active_levels
+omp_get_level
+omp_get_active_level
+omp_get_ancestor_thread_num
+
+
+omp_get_team_size(level)
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+<!-- index -->
+</p>
+
+<h2><a id="Cancelparallelconstruct">18.3</a> Cancel parallel construct</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-parallel.html">omp-parallel</a> > <a href="omp-parallel.html#Cancelparallelconstruct">Cancel parallel construct</a>
+</p>
+
+<p name="switchToTextMode">
+
+It is possible to terminate a parallel construct early
+with the 
+<tt>cancel</tt>
+ directive:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+!$omp cancel construct [if (expr)]
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+where construct is
+
+<tt>parallel</tt>
+,
+
+<tt>sections</tt>
+,
+
+<tt>do</tt>
+
+or
+
+<tt>taskgroup</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-examples.html#Depth-firstsearch">31.3</a>
+ for an example.
+</p>
+
+<p name="switchToTextMode">
+Cancelling is disabled by default for performance reasons.
+To activate it, set the 
+<tt>OMP_CANCELLATION</tt>
+ variable to true.
+</p>
+
+<h2><a id="Reviewquestions">18.4</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-parallel.html">omp-parallel</a> > <a href="omp-parallel.html#Reviewquestions">Review questions</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  T/F?
+  The function  <tt>omp_get_num_threads()</tt> 
+  returns a number that is equal to the number of cores.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  T/F?
+  The function  <tt>omp_set_num_threads()</tt> 
+  can not be set to a higher number than the number of cores.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What function can be used to detect the number of cores?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

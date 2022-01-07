@@ -1,0 +1,469 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP topic: Work sharing</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+21.1 : <a href="omp-share.html#Sections">Sections</a><br>
+21.2 : <a href="omp-share.html#Singlemaster">Single/master</a><br>
+21.3 : <a href="omp-share.html#Fortranarraysyntaxparallelization">Fortran array syntax parallelization</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>21 OpenMP topic: Work sharing</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+
+<p name="switchToTextMode">
+
+The declaration of a 
+<i>parallel region</i>
+ establishes a team of
+threads. This offers the possibility of parallelism, but to actually
+get meaningful parallel activity you need something more.
+OpenMP uses the concept of a 
+construct}: a way of dividing parallelizable work over a team of threads.
+The work sharing constructs are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>for</tt>
+ (for~C) or
+  
+<tt>do</tt>
+ (for Fortran). The threads divide up the loop iterations among
+  themselves; see~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-loop.html#Loopparallelism">19.1</a>
+.
+<li>
+
+<tt>sections</tt>
+ The threads divide a fixed number of sections
+  between themselves; see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-share.html#Sections">21.1</a>
+.
+<li>
+
+<tt>single</tt>
+ The section is executed by a single thread;
+  section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-share.html#Singlemaster">21.2</a>
+.
+<li>
+
+<tt>task</tt>
+ See section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#Reviewquestions">23.6</a>
+.
+<li>
+
+<tt>workshare</tt>
+ Can parallelize Fortran array syntax;
+  section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-share.html#Fortranarraysyntaxparallelization">21.3</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Sections">21.1</a> Sections</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-share.html">omp-share</a> > <a href="omp-share.html#Sections">Sections</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+A parallel loop is an example of independent work units that are numbered.
+If you have a pre-determined number of independent work units,
+the 
+<tt>sections</tt>
+ is more appropriate. In a 
+<tt>sections</tt>
+ construct
+can be any number of 
+<tt>section</tt>
+ constructs. These need to be
+independent, and they can be execute by any available thread in the current team,
+including having multiple sections done by the same thread.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp sections
+{
+#pragma omp section
+  // one calculation
+#pragma omp section
+  // another calculation
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+This construct can be used to divide large blocks of independent work.
+Suppose that in the following line, both 
+<tt>f(x)</tt>
+ and 
+<tt>g(x)</tt>
+
+are big calculations:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  y = f(x) + g(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+You could then write
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+double y1,y2;
+#pragma omp sections
+{
+#pragma omp section
+  y1 = f(x)
+#pragma omp section
+  y2 = g(x)
+}
+y = y1+y2;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Instead of using two temporaries, you could also use a critical
+section; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#<tt>critical<tt>and<tt>atomic<tt>">23.2.2</a>
+.  However, the best solution
+is have a 
+<tt>reduction</tt>
+ clause on the 
+<tt>parallel sections</tt>
+ directive.
+For the sum
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  y = f(x) + g(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+You could then write
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompsectreduct" aria-expanded="false" aria-controls="ompsectreduct">
+        C Code: ompsectreduct
+      </button>
+    </h5>
+  </div>
+  <div id="ompsectreduct" class="collapse">
+  <pre>
+// sectionreduct.c
+#pragma omp parallel reduction(+:y)
+#pragma omp sections
+    {
+#pragma omp section
+      y += f();
+#pragma omp section
+      y += g();
+    }
+</pre>
+</div>
+</div>
+</p>
+
+<h2><a id="Singlemaster">21.2</a> Single/master</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-share.html">omp-share</a> > <a href="omp-share.html#Singlemaster">Single/master</a>
+</p>
+
+<p name="switchToTextMode">
+
+The 
+limit the execution of a block to a single thread.
+This can for instance be used to print tracing information
+or doing 
+<i>I/O</i>
+
+<!-- index -->
+ operations.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+#pragma omp single
+  printf("We are starting this section!\n");
+  // parallel stuff
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Another use of 
+<tt>single</tt>
+ is to perform initializations
+in a parallel region:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int a;
+#pragma omp parallel
+{
+  #pragma omp single
+    a = f(); // some computation
+  #pragma omp sections
+    // various different computations using a
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+The point of the single directive in this last example is that the
+computation needs to be done only once, because of the shared memory.
+Since it's a work sharing construct there is an 
+<i>implicit   barrier</i>
+
+which guarantees that all threads have the correct value in their
+local memory (see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-memory.html#Relaxedmemorymodel">26.3</a>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  What is the difference between this approach and how the same
+  computation would be parallelized in MPI?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>master</tt>
+ directive, also enforces execution
+on a single thread, specifically the master thread of the team,
+but it does not have the synchronization through the implicit barrier.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Modify the above code to read:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int a;
+#pragma omp parallel
+{
+  #pragma omp master
+    a = f(); // some computation
+  #pragma omp sections
+    // various different computations using a
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  This code is no longer correct. Explain.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+Above we motivated the 
+<tt>single</tt>
+ directive as a way of initializing
+shared variables. It is also possible to use 
+<tt>single</tt>
+ to initialize
+private variables. In that case you add the 
+clause. This is a good solution if setting the variable takes&nbsp;I/O.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Give two other ways to initialize a private variable, with all
+  threads receiving the same value. Can you give scenarios where each
+  of the three strategies would be preferable?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Fortranarraysyntaxparallelization">21.3</a> Fortran array syntax parallelization</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-share.html">omp-share</a> > <a href="omp-share.html#Fortranarraysyntaxparallelization">Fortran array syntax parallelization</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>parallel do</tt>
+ directive is used to parallelize loops,
+and this applies to both C and Fortran. However, Fortran also
+has implied loops in its 
+<i>array syntax</i>
+
+<!-- index -->
+.
+To parallelize array syntax you can use the 
+<tt>workshare</tt>
+directive.
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>workshare</tt>
+ directive exists only in Fortran.
+It can be used to parallelize
+the implied loops in 
+<i>array syntax</i>
+
+<!-- index -->
+,
+as well as  
+<i>forall</i>
+
+<!-- index -->
+ loops.
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

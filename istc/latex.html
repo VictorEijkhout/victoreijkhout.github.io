@@ -1,0 +1,1364 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>LaTeX for scientific documentation</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+34.1 : <a href="l.html.html#TheideabehindLaTeX,somehistoryofTeX">The idea behind LaTeX, some history of TeX</a><br>
+34.1.1 : <a href="l.html.html#InstallingLaTeX">Installing LaTeX</a><br>
+34.1.2 : <a href="l.html.html#RunningLaTeX">Running LaTeX</a><br>
+34.2 : <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a><br>
+34.2.1 : <a href="l.html.html#Documentstructure">Document structure</a><br>
+34.2.2 : <a href="l.html.html#Somesimpletext">Some simple text</a><br>
+34.2.3 : <a href="l.html.html#Math">Math</a><br>
+34.2.4 : <a href="l.html.html#Referencing">Referencing</a><br>
+34.2.5 : <a href="l.html.html#Lists">Lists</a><br>
+34.2.6 : <a href="l.html.html#Sourcecodeandalgorithms">Source code and algorithms</a><br>
+34.2.7 : <a href="l.html.html#Graphics">Graphics</a><br>
+34.2.8 : <a href="l.html.html#Bibliographyreferences">Bibliography references</a><br>
+34.2.9 : <a href="l.html.html#Environmentvariables">Environment variables</a><br>
+34.3 : <a href="l.html.html#Aworkedoutexample">A worked out example</a><br>
+34.3.1 : <a href="l.html.html#Listings">Listings</a><br>
+34.3.2 : <a href="l.html.html#Nativegraphing">Native graphing</a><br>
+34.4 : <a href="l.html.html#Wheretotakeitfromhere">Where to take it from here</a><br>
+34.5 : <a href="l.html.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>34 LaTeX for scientific documentation</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<h2><a id="TheideabehindLaTeX,somehistoryofTeX">34.1</a> The idea behind LaTeX, some history of TeX</h2>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#TheideabehindLaTeX,somehistoryofTeX">The idea behind LaTeX, some history of TeX</a>
+</p>
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+}
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+TeX  is a typesetting system that dates back to the late 1970s. In
+those days, graphics terminals where you could design a document layout
+and immediately view it, the way you can with for instance Microsoft Word, were
+rare.  Instead, TeX  uses a two-step workflow, where you first type
+in your document with formatting instructions in an ascii document,
+using your favorite text editor.
+Next, you would invoke the
+
+<tt>latex</tt>
+ program, as a sort of compiler, to translate this document to
+a form that can be printed or viewed.
+<!-- environment: verbatim start embedded generator -->
+</p>
+  %% edit mydocument.tex
+  %% latex mydocument
+  %% # print or view the resulting output
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The process is comparable to
+making web pages by typing HTML commands.
+</p>
+
+<p name="switchToTextMode">
+This way of working may seem clumsy, but
+it has some advantages. For instance, the TeX  input files are plain
+ascii, so they can be generated automatically, for instance
+from a database. Also, you can edit them with whatever your
+favorite editor happens to be.
+</p>
+
+<p name="switchToTextMode">
+Another point in favor of TeX  is the fact that the layout is
+specified by commands that are written in a sort of programming
+language. This has some important consequences:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Separation of concerns: when you are writing your document, you
+  do not have to think about layout. You give the `chapter' command,
+  and the implementation of that command will be decided
+  independently, for instance by you choosing a document style.
+<li>
+Changing the layout of a finished document is then done by
+  choosing a different realization of the layout commands in the input file:
+  the same `chapter' command is used, but by choosing a different
+  style the resulting layout is
+  different. This sort of change can be as simple as
+  a one-line change to the document style declaration.
+<li>
+If you have unusual typesetting needs, it is possible to write
+  new TeX  commands for this. For many needs such extensions have in
+  fact already been written; see section&nbsp;
+34.4
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+The commands in TeX  are fairly low level. For this reason, a number
+of people have written systems on top of TeX  that offer powerful
+features, such as automatic cross-referencing, or generation of a
+table of contents. The most popular of these systems is LaTeX. Since
+TeX  is an interpreted system, all of its mechanisms are still
+available to the user, even though LaTeX  is loaded on top of it.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="InstallingLaTeX">34.1.1</a> Installing LaTeX</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#TheideabehindLaTeX,somehistoryofTeX">The idea behind LaTeX, some history of TeX</a> > <a href="l.html.html#InstallingLaTeX">Installing LaTeX</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The easiest way to install LaTeX  on your system is by downloading
+the TeX{}live distribution from 
+<a href=http://tug.org/texlive>http://tug.org/texlive</a>
+. Apple
+users can also use 
+<tt>fink</tt>
+ or 
+<tt>macports</tt>
+. Various front-ends to
+TeX  exist, such as TeX{}shop on the Mac.
+</p>
+
+<h3><a id="RunningLaTeX">34.1.2</a> Running LaTeX</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#TheideabehindLaTeX,somehistoryofTeX">The idea behind LaTeX, some history of TeX</a> > <a href="l.html.html#RunningLaTeX">Running LaTeX</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+In this section you will run the LaTeX  compiler
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+Originally, the 
+<tt>latex</tt>
+ compiler would output a device independent
+file format, named 
+<tt>dvi</tt>
+, which could then be translated to
+PostScript or PDF, or directly printed. These days, many people use
+the 
+<tt>pdflatex</tt>
+ program which directly translates 
+<tt>.tex</tt>
+ files to
+
+<tt>.pdf</tt>
+ files. This has the big advantage that the generated PDF
+files have automatic cross linking and a side panel with table of
+contents. An illustration is found below.
+</p>
+
+<p name="switchToTextMode">
+Let us do a simple example.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<!-- environment: verbatim start embedded generator -->
+\documentclass{article}
+\begin{document}
+Hello world!
+\end{document}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="caption">
+FIGURE 34.1: A minimal LaTeX  document
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Create a text file 
+<tt>minimal.tex</tt>
+ with the content as in
+figure&nbsp;
+34.1
+. Try the command 
+<tt>pdflatex minimal</tt>
+ or
+
+<tt>latex minimal</tt>
+. Did you get a file 
+<tt>minimal.pdf</tt>
+ in the first
+case or 
+<tt>minimal.dvi</tt>
+ in the second case? Use a pdf viewer, such
+as Adobe Reader, or
+
+<tt>dvips</tt>
+ respectively to view the output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: caution start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator caution ['caution'] -->
+{If you make a typo, TeX  can be somewhat unfriendly. If you get an
+error message and TeX  is asking for input, typing 
+<tt>x</tt>
+
+usually gets you out, or 
+<tt>Ctrl-C</tt>
+. Some systems allow you to type
+
+<tt>e</tt>
+ to go directly into the editor to correct the typo.}
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="AgentleintroductiontoLaTeX">34.2</a> A gentle introduction to LaTeX</h2>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Here you will get a very brief run-through of LaTeX  features. There
+are various more in-depth tutorials available, such as the one by
+Oetiker&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Oetiker:LaTeXintro">[Oetiker:LaTeXintro]</a>
+.
+</p>
+
+<h3><a id="Documentstructure">34.2.1</a> Document structure</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Documentstructure">Document structure</a>
+</p>
+<p name="switchToTextMode">
+
+Each LaTeX  document needs the following lines:
+<!-- environment: verbatim start embedded generator -->
+</p>
+  \documentclass{ .... } % the dots will be replaced
+
+
+\begin{document}
+
+
+\end{document}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The `documentclass' line needs a class name in between the braces;
+typical values are `article' or `book'. Some organizations have their
+own styles, for instance `ieeeproc' is for proceedings of the IEEE.
+</p>
+
+<p name="switchToTextMode">
+All document text goes between the 
+\verb+
+\begin{document}
++ and
+\verb+
+\end{document}
++ lines. (Matched `begin' and `end' lines are said
+to denote an `environment', in this case the document environment.)
+</p>
+
+<p name="switchToTextMode">
+The part before 
+\verb+
+\begin{document}
++ is called the `preamble'. It
+contains customizations for this particular document. For instance, a
+command to make the whole document double spaced would go in the
+preamble. If you are using 
+<tt>pdflatex</tt>
+ to format your document, you
+want a line
+<!-- environment: verbatim start embedded generator -->
+</p>
+  \usepackage{hyperref}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+here.
+</p>
+
+<p name="switchToTextMode">
+Have you noticed the following?
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The backslash character is special: it starts a LaTeX  command.
+<li>
+The braces are also special: they have various functions, such
+  as indicating the argument of a command.
+<li>
+The percent character indicates that everything to the end of
+  the line is a comment.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Somesimpletext">34.2.2</a> Some simple text</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Somesimpletext">Some simple text</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn some basics of text formatting.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Create a file 
+<tt>first.tex</tt>
+ with the content of
+figure&nbsp;
+34.1
+ in it. Type some text in the preamble,
+that is, before the
+\n{\
+\begin\{document\}} line and run 
+<tt>pdflatex</tt>
+ on your file.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{You should get an error message because you are not allowed to have text
+in the preamble. Only commands are allowed there; all text has to go after
+\n{\
+\begin\{document\}}.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Edit your document: put some text in between the
+\n{\
+\begin\{document\}} and \n{\
+\end\{document\}} lines.
+Let your text have both some long lines that go on for a while,
+and some short ones. Put superfluous spaces between words, and at the
+beginning or end of lines. Run 
+<tt>pdflatex</tt>
+ on your document and view
+the output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{You notice that the white space in your input has been collapsed in the
+output. TeX  has its own notions about what space should look like,
+and you do not have to concern yourself with this matter.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Edit your document again, cutting and pasting the
+paragraph, but leaving a blank line between the two copies. Paste it
+a third time, leaving several blank lines. Format, and view the
+output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{TeX  interprets one or more blank lines as the
+separation between paragraphs.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Add \n{\\usepackage\{pslatex\}} to the preamble and rerun
+
+<tt>pdflatex</tt>
+ on your
+document. What changed in the output?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{This should have the effect of changing the typeface from the default
+to Times Roman.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+{Typefaces are notoriously unstandardized. Attempts to use different
+typefaces may or may not work. Little can be said about this in general.}
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+Add the following line before the first paragraph:
+<!-- environment: verbatim start embedded generator -->
+</p>
+  \section{This is a section}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and a similar line before the
+second. Format. You see that LaTeX  automatically numbers the
+sections, and that it handles indentation different for the first
+paragraph after a heading.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Replace 
+<tt>article</tt>
+ by 
+<tt>artikel3</tt>
+ in the documentclass declaration line and
+reformat your document. What changed?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{There are many documentclasses that implement the same commands as
+
+<tt>article</tt>
+ (or another standard style), but that have their own
+layout. Your document should format without any problem, but get a
+better looking layout.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+{The 
+<tt>artikel3</tt>
+ class is part of most distributions these days, but
+you can get an error message about an unknown documentclass if it is
+missing or if your environment is not set up correctly. This depends
+on your installation. If the file seems missing, download the files
+from 
+<a href=http://tug.org/texmf-dist/tex/latex/ntgclass/>http://tug.org/texmf-dist/tex/latex/ntgclass/</a>
+
+and put them in your current directory; see also section&nbsp;
+34.2.9
+.}
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Math">34.2.3</a> Math</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Math">Math</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn the basics of math typesetting
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+One of the goals of the original TeX  system was to facilitate the
+setting of mathematics. There are two ways to have math in your
+document:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Inline math is part of a paragraph, and is delimited by dollar
+  signs.
+<li>
+Display math is, as the name implies, displayed by itself.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Put 
+<tt>\$x+y\$</tt>
+ somewhere in a paragraph and format your document.
+Put  \n{\
+\[
+x+y\
+\]
+} somewhere in a paragraph and format.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{Formulas between single dollars are included in the paragraph where
+you declare them. Formulas between \n{\
+\[
+...\
+\]
+} are typeset in a
+display.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+For display
+equations with a number, use an 
+<tt>equation</tt>
+ environment. Try this.
+</p>
+
+<p name="switchToTextMode">
+Here are some common things to do in math. Make sure to try them out.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Subscripts and superscripts: 
+\verb-$x_i^2$-. If the sub or superscript
+  is more than a single symbol, it needs to be grouped:
+\verb-$x_{i+1}^{2n}$-. If you need a brace in a formula, use
+\verb-$\{ \}$-.
+<li>
+Greek letters and other symbols: 
+\verb-$\alpha\otimes\beta_i$-.
+<li>
+Combinations of all these 
+\verb-$\int_{t=0}^\infty tdt$-.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Take the last example and typeset it as display math. Do
+you see a difference with inline math?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{TeX  tries not to include the distance between text lines, even if
+there is math in a paragraph. For this reason it typesets the bounds
+on an integral sign differently from display math.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Referencing">34.2.4</a> Referencing</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Referencing">Referencing</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will see TeX's cross referencing mechanism in action.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+So far you have not seen LaTeX  do much that would save you any
+work. The cross referencing mechanism of LaTeX  will definitely save
+you work: any counter that LaTeX  inserts (such as section numbers)
+can be referenced by a label. As a result, the reference will always
+be correct.
+</p>
+
+<p name="switchToTextMode">
+Start with an example
+document that has at least two section headings. After your first section
+heading, put the command 
+\verb+
+
++,
+and put 
+\verb+
+
++ after the second section
+heading. These label commands can go on the same line as the
+
+<tt>section</tt>
+ command, or on the next.
+Now put
+<!-- environment: verbatim start embedded generator -->
+</p>
+  As we will see in section&nbsp;
+\ref{sec:other}
+.
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+in the paragraph before the second section. (The tilde character
+denotes a non-breaking space.)
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Make these edits and format the document. Do
+you see the warning about an undefined reference? Take a look at the
+output file. Format the document
+again, and check the output again.
+Do you have any new files in your directory?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{On a first pass through a document, the TeX  compiler will gather
+all labels with their values in a 
+<tt>.aux</tt>
+ file. The document will
+display a double question mark for any references that are
+unknown. In the second pass the correct values will be filled
+in.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<!-- environment: caution start embedded generator -->
+<!-- TranslatingLineGenerator caution ['caution'] -->
+{If after the second pass there are still undefined references, you
+probably made a typo. If you use the 
+<tt>bibtex</tt>
+ utility for
+literature references, you will regularly need three passes to get
+all references resolved correctly.}
+</p name="caution">
+</caution>
+<!-- environment: caution end embedded generator -->
+<p name="switchToTextMode">
+
+Above you saw that the 
+<tt>equation</tt>
+ environment gives displayed
+math with an equation number. You can add a label to this environment
+to refer to the equation number.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Write a formula in an 
+<tt>equation</tt>
+
+environment, and add a label.  Refer to this label anywhere in the
+text. Format (twice) and check the output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{The \n{\
+\label} and \n{\
+\ref} command are used in the same way for
+formulas as for section numbers. Note that you must use
+\n{\
+\begin/end\{equation\}} rather than \n{\
+\[
+...\
+\]
+} for the formula.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Lists">34.2.5</a> Lists</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Lists">Lists</a>
+</p>
+</p>
+
+<!-- environment: purpose start embedded generator -->
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will see the basics of lists.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+Bulleted and numbered lists are provided through an environment.
+<!-- environment: verbatim start embedded generator -->
+</p>
+\begin{itemize}
+\item
+This is an item;
+\item
+this is one too.
+\end{itemize}
+\begin{enumerate}
+\item
+This item is numbered;
+\item
+this one is two.
+\end{enumerate}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Add some lists to your document, including nested
+lists. Inspect the output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{Nested lists will be indented further and the labeling and numbering
+style changes with the list depth.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Add a label to an item in an 
+<tt>enumerate</tt>
+ list and refer
+to it.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: outcome start embedded generator -->
+<!-- TranslatingLineGenerator outcome ['outcome'] -->
+{Again, the \n{\
+\label} and \n{\
+\ref} commands work as before.}
+</p name="outcome">
+</outcome>
+<!-- environment: outcome end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Sourcecodeandalgorithms">34.2.6</a> Source code and algorithms</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Sourcecodeandalgorithms">Source code and algorithms</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+As a computer scientist, you will often want to include
+algorithms in your writings; sometimes even source code.
+</p>
+
+<p name="switchToTextMode">
+In this tutorial so far you have seen that some characters
+have special meaning to LaTeX{}, and just can not just type them
+and expect them to show up in the output. Since funny characters
+appear quite regularly in programming languages, we need a tool for this:
+the 
+<i>verbatim mode</i>
+.
+</p>
+
+<p name="switchToTextMode">
+To display bits of code inside a paragraph, you use the 
+\verb+
+\verb+
+command.  This command delimits its argument with two identical
+characters that can not appear in the verbatim text. For instance,
+the output
+ <tt>if (x%5&gt;0) { ... }</tt>  is produced by 
+\verb/
+ <tt>if (x%5&gt;0) { ... }</tt> /.
+(Exercise: how did the author of this book get that verbatim command
+in the text?)
+</p>
+
+<p name="switchToTextMode">
+For longer stretches of verbatim text, that need to be displayed
+by themselves you use
+<!-- environment: quote start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator quote ['quote'] -->
+\leavevmode\noindent\parindent=0pt
+\hbox{
+\verb+
+<!-- environment: verbatim start embedded generator -->
+</p>
+\hbox{
+\verb+stuff+}\\
+\hbox{
+\verb+
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
++}\\
+</p name="quote">
+</quote>
+<!-- environment: quote end embedded generator -->
+<p name="switchToTextMode">
+Finally, in order to include a whole file as verbatim listing, use
+\n{\verbatiminput{path/filename}}.
+</p>
+
+<p name="switchToTextMode">
+Verbatim text is one way of displaying algorithms, but there are
+more elegant solutions. For instance, in this book the following is
+used:
+<!-- environment: verbatim start embedded generator -->
+</p>
+\usepackage[algo2e,noline,noend]{algorithm2e}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The result can be seen, for instance, on page&nbsp;\pageref{fig:taskqueue}.
+</p>
+
+<h3><a id="Graphics">34.2.7</a> Graphics</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Graphics">Graphics</a>
+</p>
+<p name="switchToTextMode">
+
+Since you can not immediately see the output of what you are typing,
+sometimes the output may come as a surprise. That is especially so
+with graphics. LaTeX  has no standard way of dealing with graphics,
+but the following is a common set of commands:
+<!-- environment: verbatim start embedded generator -->
+</p>
+\usepackage{graphicx} % this line in the preamble
+
+
+\includegraphics{myfigure} % in the body of the document
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The figure can be in any of a number of formats, except that
+PostScript figures (with extension 
+<tt>.ps</tt>
+ or 
+<tt>.eps</tt>
+)
+can not be used if you use pdflatex.
+</p>
+
+<p name="switchToTextMode">
+Since your figure is often not the right size, the include line will
+usually have something like:
+<!-- environment: verbatim start embedded generator -->
+</p>
+\includegraphics[scale=.5]{myfigure}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+A bigger problem is that figures can be too big to fit on the page if
+they are placed where you declare them. For this reason, they are
+usually treated as `floating material'. Here is a typical  declaration
+of a figure:
+<!-- environment: verbatim start embedded generator -->
+</p>
+\begin{figure}
+  \includegraphics{myfigure}
+  \caption{This is a figure}
+\label{fig:first}
+\end{figure}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+It contains the following elements:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The 
+<tt>figure</tt>
+ environment is for `floating' figures; they can
+  be placed right at the location where they are declared, at the top
+  or bottom of the next page, at the end of the chapter, et cetera.
+<li>
+The 
+<tt>[ht]</tt>
+ argument of the \n{\
+\begin\{figure\}} line
+  states that your figure should be attempted to be placed 
+<tt>h</tt>
+ere; it
+  that does not work, it should go 
+<tt>t</tt>
+op of the next page. The
+  remaining possible specifications are 
+<tt>b</tt>
+ for placement at the bottom of a
+  page, or 
+<tt>p</tt>
+&nbsp;for placement on a page by itself. For example
+<!-- environment: verbatim start embedded generator -->
+</p>
+\begin{figure}
+[hbp]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  declares that the figure has to be placed here if possible, at the
+  bottom of the page if that's not possible, and on a page of its
+  own if it is too big to fit on a page with text.
+<li>
+A caption to be put under the figure, including a figure number;
+<li>
+A label so that you can refer to the figure number by its label:
+  \n{figure\char`\&nbsp;\
+\ref\{fig:first\}}.
+<li>
+And of course the figure material. There are various ways to
+  fine-tune the figure placement. For instance
+<!-- environment: verbatim start embedded generator -->
+</p>
+\begin{center}
+    \includegraphics{myfigure}
+\end{center}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  gives a centered figure.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Bibliographyreferences">34.2.8</a> Bibliography references</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Bibliographyreferences">Bibliography references</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+The mechanism for citing papers and books in your document is a bit
+like that for cross referencing. There are labels involved, and there
+is a 
+\verb+
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#thatbook">[thatbook]</a>
++ command that inserts a reference, usually
+numeric. However, since you are likely to refer to a paper or book in
+more than one document your write, LaTeX  allows you to have a
+database of literature references in a file by itself,
+rather than somewhere in your document.
+</p>
+
+<p name="switchToTextMode">
+Make a file 
+<tt>mybibliography.bib</tt>
+ with the following content:
+<!-- environment: verbatim start embedded generator -->
+</p>
+@article{JoeDoe1985,
+author = {Joe Doe},
+title = {A framework for bibliography references},
+journal = {American Library Assoc. Mag.},
+year = {1985}
+}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+In your document 
+<tt>mydocument.tex</tt>
+, put
+<!-- environment: verbatim start embedded generator -->
+</p>
+For details, refer to Doe&nbsp;
+\cite{JoeDoe1985}
+ % somewhere in the text
+
+
+\bibliography{mybibliography} % at the end of the document
+\bibliographystyle{plain}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Format your document, then type on the commandline
+<!-- environment: verbatim start embedded generator -->
+</p>
+bibtex mydocument
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and format your document two more times. There should now be a
+bibliography in it, and a correct citation. You will also see that
+files 
+<tt>mydocument.bbl</tt>
+ and 
+<tt>mydocument.blg</tt>
+ have been created.
+</p>
+
+<h3><a id="Environmentvariables">34.2.9</a> Environment variables</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#AgentleintroductiontoLaTeX">A gentle introduction to LaTeX</a> > <a href="l.html.html#Environmentvariables">Environment variables</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+On Unix systems, TeX  investigates the 
+<tt>TEXINPUTS</tt>
+ 
+<i>environment variable</i>
+ when it tries to find an include file. Consequently, you can
+create a directory for your styles and other downloaded include files,
+and set this variable to the location of that directory.
+Similarly, the 
+<tt>BIBINPUTS</tt>
+ variable indicates the location of
+bibliography files for bibtex (section&nbsp;
+34.2.8
+).
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Aworkedoutexample">34.3</a> A worked out example</h2>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#Aworkedoutexample">A worked out example</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The following example 
+<tt>demo.tex</tt>
+ contains many of the elements discussed above.
+</p>
+
+<!-- environment: multicols start embedded generator -->
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+\tiny
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#latexdemo/demo.tex" aria-expanded="false" aria-controls="latexdemo/demo.tex">
+        Text: latexdemo/demo.tex
+      </button>
+    </h5>
+  </div>
+  <div id="latexdemo/demo.tex" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+You also need the file 
+<tt>math.bib</tt>
+:
+</p>
+
+<!-- environment: multicols start embedded generator -->
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+\tiny
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#latexdemo/math.bib" aria-expanded="false" aria-controls="latexdemo/math.bib">
+        Text: latexdemo/math.bib
+      </button>
+    </h5>
+  </div>
+  <div id="latexdemo/math.bib" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+The following sequence of commands
+<!-- environment: verbatim start embedded generator -->
+</p>
+  pdflatex demo
+  bibtex demo
+  pdflatex demo
+  pdflatex demo
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+gives
+</p>
+
+<img src="graphics/code/latexdemo/demopage1." width=800></img>
+<p name="switchToTextMode">
+
+<img src="graphics/code/latexdemo/demopage2." width=800></img>
+</p>
+
+<h3><a id="Listings">34.3.1</a> Listings</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#Aworkedoutexample">A worked out example</a> > <a href="l.html.html#Listings">Listings</a>
+</p>
+<p name="switchToTextMode">
+
+The `listings' package is makes it possible to have source code included,
+with coloring and indentation automatically taken care of.
+</p>
+
+<!-- environment: multicols start embedded generator -->
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+\tiny
+\strippedinput{code/latexdemo}{listing.tex}
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+Output:
+</p>
+
+<img src="graphics/code/latexdemo/listing." width=800></img>
+<p name="switchToTextMode">
+
+<h3><a id="Nativegraphing">34.3.2</a> Native graphing</h3>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#Aworkedoutexample">A worked out example</a> > <a href="l.html.html#Nativegraphing">Native graphing</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+You have seen how to include graphics files,
+but it is also possible to let LaTeX  do the drawing.
+For this, there is the 
+<i>tikz</i>
+ package.
+Here we show another package 
+<i>pgfplots</i>
+that uses 
+<tt>tikz</tt>
+ to draw numerical plots.
+</p>
+
+<!-- environment: multicols start embedded generator -->
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+\strippedinput{code/latexdemo}{barchart.tex}
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+<img src="graphics/code/latexdemo/barchart." width=800></img>
+</p>
+
+<h2><a id="Wheretotakeitfromhere">34.4</a> Where to take it from here</h2>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#Wheretotakeitfromhere">Where to take it from here</a>
+</p>
+
+<p name="switchToTextMode">
+
+This tutorial touched only briefly on some essentials of TeX  and
+LaTeX. You can find longer intros online&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Oetiker:LaTeXintro">[Oetiker:LaTeXintro]</a>
+,
+or read a book&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Lamport:LaTeX,KopkaDaly,LaTeXcompanion">[Lamport:LaTeX,KopkaDaly,LaTeXcompanion]</a>
+. Macro
+packages and other software can be found on the Comprehensive
+TeX  Archive 
+<a href=http://www.ctan.org>http://www.ctan.org</a>
+. For questions you can go to
+the newsgroup 
+<tt>comp.text.tex</tt>
+, but the most common ones can often
+already be found on web sites&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#UKTeXFAQ">[UKTeXFAQ]</a>
+.
+</p>
+
+<p name="switchToTextMode">
+\begin{istc}
+</p>
+
+<h2><a id="Reviewquestions">34.5</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="latex.html">latex</a> > <a href="l.html.html#Reviewquestions">Review questions</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+Write a one or two page document about your field of study. Show that
+you have mastered the following constructs:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+formulas, including labels and referencing;
+<li>
+including a figure;
+<li>
+using bibliography references;
+<li>
+construction of nested lists.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+\end{istc}
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

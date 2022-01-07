@@ -1,0 +1,1242 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Getting started with OpenMP</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+17.1 : <a href="omp-basics.html#TheOpenMPmodel">The OpenMP model</a><br>
+17.1.1 : <a href="omp-basics.html#Targethardware">Target hardware</a><br>
+17.1.2 : <a href="omp-basics.html#Targetsoftware">Target software</a><br>
+17.1.3 : <a href="omp-basics.html#Aboutthreadsandcores">About threads and cores</a><br>
+17.1.4 : <a href="omp-basics.html#Aboutthreaddata">About thread data</a><br>
+17.2 : <a href="omp-basics.html#CompilingandrunninganOpenMPprogram">Compiling and running an OpenMP program</a><br>
+17.2.1 : <a href="omp-basics.html#Compiling">Compiling</a><br>
+17.2.2 : <a href="omp-basics.html#RunninganOpenMPprogram">Running an OpenMP program</a><br>
+17.3 : <a href="omp-basics.html#YourfirstOpenMPprogram">Your first OpenMP program</a><br>
+17.3.1 : <a href="omp-basics.html#Directives">Directives</a><br>
+17.3.2 : <a href="omp-basics.html#Parallelregions">Parallel regions</a><br>
+17.3.3 : <a href="omp-basics.html#AnactualOpenMPprogram!">An actual OpenMP program!</a><br>
+17.3.4 : <a href="omp-basics.html#Codeandexecutionstructure">Code and execution structure</a><br>
+17.4 : <a href="omp-basics.html#Threaddata">Thread data</a><br>
+17.5 : <a href="omp-basics.html#Creatingparallelism">Creating parallelism</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>17 Getting started with OpenMP</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+This chapter explains the basic concepts of OpenMP, and helps you get
+started on running your first OpenMP program.
+</p>
+
+<h2><a id="TheOpenMPmodel">17.1</a> The OpenMP model</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#TheOpenMPmodel">The OpenMP model</a>
+</p>
+<p name="switchToTextMode">
+
+We start by establishing a mental picture of the hardware and software
+that OpenMP targets.
+</p>
+
+<h3><a id="Targethardware">17.1.1</a> Target hardware</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#TheOpenMPmodel">The OpenMP model</a> > <a href="omp-basics.html#Targethardware">Target hardware</a>
+</p>
+<p name="switchToTextMode">
+
+Modern computers have a multi-layered design. Maybe you have access to
+a cluster, and maybe you have learned how to use MPI to communicate
+between cluster nodes. OpenMP, the topic of this chapter, is concerned
+with a single 
+<i>cluster node</i>
+ or 
+<i>motherboard</i>
+,
+and getting the most out of the available parallelism available there.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/stampede-node.jpg" width=800></img>
+<p name="caption">
+FIGURE 17.1: A node with two sockets and a co-processor
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+Figure~
+17.1
+ pictures a typical design of a node:
+within one enclosure you find two 
+<i>sockets</i>
+
+<!-- index -->
+:
+single processor chips. Your personal laptop of computer will probably
+have one socket, most supercomputers have nodes with two or four
+sockets (the picture is of a 
+<i>Stampede node</i>
+ with two
+sockets)\footnote {In that picture you also see a co-processor: OpenMP
+  is increasingly targeting those too.}, although the recent
+<i>Intel Knight's Landing</i>
+ is again a single-socket
+design.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/sandybridge-eightcore-ann.jpg" width=800></img>
+<p name="caption">
+FIGURE 17.2: Structure of an Intel Sandybridge eight-core socket
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+To see where OpenMP operates we need to dig into the
+sockets. Figure~
+17.2
+ shows a picture of an
+<i>Intel Sandybridge</i>
+ socket. You recognize a structure
+with eight 
+<i>cores</i>
+
+<i>core</i>
+: independent processing
+units, that all have access to the same memory. (In
+figure~
+17.1
+ you saw four memory banks attached to
+each of the two sockets; all of the sixteen cores have access to all
+that memory.)
+</p>
+
+<p name="switchToTextMode">
+To summarize the structure of the architecture that OpenMP targets:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+A node has up to four sockets;
+<li>
+each socket has up to~60 cores;
+<li>
+each core is an independent processing unit, with access to all
+  the memory on the node.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Targetsoftware">17.1.2</a> Target software</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#TheOpenMPmodel">The OpenMP model</a> > <a href="omp-basics.html#Targetsoftware">Target software</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+OpenMP is based on on two concepts: the use of 
+<i>threads</i>
+and the 
+<i>fork/join model</i>
+ of
+parallelism. For now you can think of a thread as a sort of process:
+the computer executes a sequence of instructions.
+The fork/join model says that a thread can split itself (`fork')
+into a number of threads that are identical copies. At some point
+these copies go away and the original thread is left (`join'),
+but while the 
+<i>team of threads</i>
+ created by the fork exists,
+you have parallelism available to you. The part of the execution
+between fork and join is known as a 
+<i>parallel region</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Figure~
+17.3
+ gives a simple picture of this:
+a thread forks into a team of threads, and these threads
+themselves can fork again.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/fork-join.jpeg" width=800></img>
+<p name="caption">
+FIGURE 17.3: Thread creation and deletion during parallel execution
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+The threads that are forked are all copies of the
+<i>master thread</i>
+<!-- index -->
+: they have access to all that was
+computed so far; this is their 
+<i>shared data</i>
+.  Of course, if
+the threads were completely identical the parallelism would be
+pointless, so they also have private data, and they can identify
+themselves: they know their thread number.  This allows you to do
+meaningful parallel computations with threads.
+</p>
+
+<p name="switchToTextMode">
+This brings us to the third important concept: that of 
+<i>work sharing</i>
+constructs. In a team of threads, initially there will be replicated execution;
+a work sharing construct divides available parallelism over the threads.
+</p>
+
+<!-- environment: quote start embedded generator -->
+<!-- environment block purpose: [[ environment=quote ]] -->
+<quote>
+
+<p name="quote">
+<!-- TranslatingLineGenerator quote ['quote'] -->
+  So there you have it: OpenMP uses teams of threads, and inside
+  a parallel region the work is distributed over the threads with a work sharing construct.
+  Threads can access shared data, and they have some private data.
+</p name="quote">
+</quote>
+<!-- environment: quote end embedded generator -->
+<p name="switchToTextMode">
+
+An important difference between OpenMP and MPI is that parallelism in
+OpenMP is dynamically activated by a thread spawning a team of
+threads. Furthermore,
+the number of threads used can differ between parallel regions, and
+threads can create threads recursively. This is known as
+as 
+<i>dynamic mode</i>
+. By contrast, in an MPI program the number
+of running processes is (mostly) constant throughout the run, and
+determined by factors external to the program.
+</p>
+
+<h3><a id="Aboutthreadsandcores">17.1.3</a> About threads and cores</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#TheOpenMPmodel">The OpenMP model</a> > <a href="omp-basics.html#Aboutthreadsandcores">About threads and cores</a>
+</p>
+<p name="switchToTextMode">
+
+OpenMP programming is typically done to take advantage of
+<i>multicore</i>
+ processors. Thus, to get a good speedup you
+would typically let your number of threads be equal to the number of
+cores. However, there is nothing to prevent you from creating more
+threads: the operating system will use 
+<i>time slicing</i>
+ to let
+them all be executed. You just don't get a speedup beyond the number
+of actually available cores.
+</p>
+
+<p name="switchToTextMode">
+On some modern processors there are 
+<i>hardware threads</i>
+,
+meaning that a core can actually let more than thread be executed,
+with some speedup over the single thread. To use such a processor
+efficiently you would let the number of OpenMP threads be $2\times$ or
+$4\times$ the number of cores, depending on the hardware.
+</p>
+
+<h3><a id="Aboutthreaddata">17.1.4</a> About thread data</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#TheOpenMPmodel">The OpenMP model</a> > <a href="omp-basics.html#Aboutthreaddata">About thread data</a>
+</p>
+<p name="switchToTextMode">
+
+In most programming languages, visibility of data
+is governed by rules on the 
+<i>scope of variables</i>
+:
+a~variable is declared in a block, and it is then visible to any
+statement in that block and blocks with a 
+<i>lexical scope</i>
+contained in it, but not in surrounding blocks:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+main () {
+  // no variable `x' define here
+  {
+    int x = 5;
+    if (somecondition) { x = 6; }
+    printf("x=%e\n",x); // prints 5 or 6
+  }
+  printf("x=%e\n",x); // syntax error: `x' undefined
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+In C, you can redeclare a variable inside a nested scope:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+{
+  int x;
+  if (something) {
+    double x; // same name, different entity
+  }
+  x = ... // this refers to the integer again
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Doing so makes the outer variable inaccessible.
+</p>
+
+<p name="switchToTextMode">
+Fortran has simpler rules, since it does not have blocks inside blocks.
+</p>
+
+<p name="switchToTextMode">
+In OpenMP the situation is a bit more tricky because of the threads.
+When a team of threads is created they can all see the data of the
+master thread. However, they can also create data of their own.
+We will go into the details later.
+</p>
+
+<h2><a id="CompilingandrunninganOpenMPprogram">17.2</a> Compiling and running an OpenMP program</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#CompilingandrunninganOpenMPprogram">Compiling and running an OpenMP program</a>
+</p>
+<p name="switchToTextMode">
+
+<h3><a id="Compiling">17.2.1</a> Compiling</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#CompilingandrunninganOpenMPprogram">Compiling and running an OpenMP program</a> > <a href="omp-basics.html#Compiling">Compiling</a>
+</p>
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Your file or Fortran module needs to contain
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#include "omp.h"
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+in C, and
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+use omp_lib
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+or
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#include "omp_lib.h"
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+for Fortran.
+</p>
+
+<p name="switchToTextMode">
+OpenMP is handled by extensions to your regular compiler, typically by
+adding an option to your commandline:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+# gcc
+gcc -o foo foo.c -fopenmp
+# Intel compiler
+icc -o foo foo.c -qopenmp
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+If you have separate compile and link stages, you need that option in both.
+</p>
+
+<p name="switchToTextMode">
+When you use the openmp compiler option,
+the 
+<i>OpenMP macro</i>
+,
+(or  
+<i>cpp</i>
+ macro)
+<tt>_OPENMP</tt>
+will be defined. Thus, you can have conditional compilation by writing
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#ifdef _OPENMP
+   ...
+#else
+   ...
+#endif
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The value of this macro is a decimal value 
+<tt>yyyymm</tt>
+ denoting the OpenMP standard release
+that this compiler supports.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="RunninganOpenMPprogram">17.2.2</a> Running an OpenMP program</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#CompilingandrunninganOpenMPprogram">Compiling and running an OpenMP program</a> > <a href="omp-basics.html#RunninganOpenMPprogram">Running an OpenMP program</a>
+</p>
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+You run an OpenMP program by invoking it the regular way (for instance 
+<tt>./a.out</tt>
+),
+but its behavior is influenced by some 
+<i>OpenMP environment variables</i>
+.
+The most important one is 
+<tt>OMP_NUM_THREADS</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+export OMP_NUM_THREADS=8
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+which sets the number of threads that a program will use.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/openmp.html#Runtimefunctionsandinternalcontrolvariables">29.1</a>
+ for a list of all environment variables.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="YourfirstOpenMPprogram">17.3</a> Your first OpenMP program</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#YourfirstOpenMPprogram">Your first OpenMP program</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In this section you will see just enough of OpenMP to write a first
+program and to explore its behavior. For this we need to introduce a
+couple of OpenMP language constructs. They will all be discussed in
+much greater detail in later chapters.
+</p>
+
+<h3><a id="Directives">17.3.1</a> Directives</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#YourfirstOpenMPprogram">Your first OpenMP program</a> > <a href="omp-basics.html#Directives">Directives</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+OpenMP is not magic, so you have to tell it when something
+can be done in parallel. This is mostly done through 
+<i>directives</i>
+;
+additional specifications can be done through library calls.
+</p>
+
+<p name="switchToTextMode">
+In C/C++ the 
+<i>pragma</i>
+ mechanism is used: annotations for
+the benefit of the compiler that are otherwise not part of the
+language. This looks like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp somedirective clause(value,othervalue)
+  parallel statement;
+
+
+#pragma omp somedirective clause(value,othervalue)
+ {
+  parallel statement 1;
+  parallel statement 2;
+ }
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+with
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the 
+ <tt>#pragma omp</tt>  
+<i>sentinel</i>
+ to indicate that
+  an OpenMP directive is coming;
+<li>
+a directive, such as 
+<tt>parallel</tt>
+;
+<li>
+and possibly clauses with values.
+<li>
+After the directive comes either a single statement or a block
+  in 
+<i>curly braces</i>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Directives in C/C++ are case-sensitive. Directives can be broken over
+multiple lines by escaping the line end.
+</p>
+
+<p name="switchToTextMode">
+The sentinel in Fortran looks like a comment:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+!$omp directive clause(value)
+  statements
+!$omp end directive
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The difference with the C&nbsp;directive is that
+Fortran can not have a block, so there is an explicit
+<i>end-of directive</i>
+ line.
+</p>
+
+<p name="switchToTextMode">
+If you break a directive over more than one line, all but the last line
+need to have a continuation character, and each line needs to have the sentinel:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+!$OMP parallel do &
+!%OMP   copyin(x),copyout(y)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The directives are case-insensitive. In
+<i>Fortran fixed-form source</i>
+ files, 
+ <tt>c$omp</tt>  and
+ <tt>*$omp</tt>  are allowed too.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="Parallelregions">17.3.2</a> Parallel regions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#YourfirstOpenMPprogram">Your first OpenMP program</a> > <a href="omp-basics.html#Parallelregions">Parallel regions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The simplest way to create parallelism in OpenMP is to use
+the 
+<tt>parallel</tt>
+ pragma. A&nbsp;block preceded by the 
+<tt>omp parallel</tt>
+ pragma
+is called a 
+<i>parallel region</i>
+; it
+is executed by a newly created team of threads.
+This is an instance of the 
+<i>SPMD</i>
+ model:
+all threads execute (redundantly) the same segment of code.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+  // this is executed by a team of threads
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Write a `hello world' program, where the
+  print statement is in a parallel region.
+  Compile and run.
+</p>
+
+<p name="switchToTextMode">
+  Run your program with different values of the environment variable
+<tt>OMP_NUM_THREADS</tt>
+.
+  If you know how many cores your machine has,
+  can you set the value higher?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+We will go into much more detail in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Creatingparallelism">17.5</a>
+.
+</p>
+
+<h3><a id="AnactualOpenMPprogram!">17.3.3</a> An actual OpenMP program!</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#YourfirstOpenMPprogram">Your first OpenMP program</a> > <a href="omp-basics.html#AnactualOpenMPprogram!">An actual OpenMP program!</a>
+</p>
+<p name="switchToTextMode">
+
+Let's start exploring how OpenMP handles parallelism,
+using the following functions:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>omp_get_num_threads</tt>
+ reports how many threads are
+  currently active, and
+<li>
+<tt>omp_get_thread_num</tt>
+ reports the number of the
+  thread that makes the call.
+<li>
+<tt>omp_get_num_procs</tt>
+ reports the number of available
+  cores.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Take the hello world program of exercise&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Parallelregions">17.3.2</a>
+  and insert the above functions, before, in, and after the parallel region.
+  What are your observations?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Extend the program from exercise&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#AnactualOpenMPprogram!">17.3.3</a>
+. Make a
+  complete program based on these lines:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int tsum=0;
+#pragma omp parallel
+  tsum += /* the thread number */
+printf("Sum is %d\n",tsum);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Compile and run again. (In fact, run your program a number of times.)
+Do you see something unexpected? Can you think
+of an explanation?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+If the above puzzles you, read about 
+<i>race condition</i>
+s
+in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Atomicoperations">9.3.7</a>
+.
+</p>
+
+<h3><a id="Codeandexecutionstructure">17.3.4</a> Code and execution structure</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#YourfirstOpenMPprogram">Your first OpenMP program</a> > <a href="omp-basics.html#Codeandexecutionstructure">Code and execution structure</a>
+</p>
+
+<p name="switchToTextMode">
+
+Here are a couple of important concepts:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+An OpenMP directive is followed by an
+<i>structured block</i>
+; in C&nbsp;this is a single statement, a
+  compound statement, or a block in braces; In Fortran it is
+  delimited by the directive and its matching `
+<tt>end</tt>
+' directive.
+</p>
+
+<p name="switchToTextMode">
+  A&nbsp;structured block can not be jumped into, so it can not start with a
+  labeled statement, or contain a jump statement leaving the block.
+<li>
+ An OpenMP 
+<i>construct</i>
+ is the section of code
+  starting with a directive and spanning the following structured block,
+  plus in Fortran the end-directive. This is a lexical concept: it contains
+  the statements directly enclosed, and not any subroutines called from them.
+<li>
+  A 
+<i>region of code</i>
+ is defined as all statements
+  that are dynamically encountered while executing the code of an OpenMP construct.
+  This is a dynamic concept: unlike a `construct', it does include any subroutines
+  that are called from the code in the structured block.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Threaddata">17.4</a> Thread data</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#Threaddata">Thread data</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In most programming languages, visibility of data
+is governed by rules on the 
+<i>scope of variables</i>
+:
+a&nbsp;variable is declared in a block, and it is then visible to any
+statement in that block and blocks with a 
+<i>lexical scope</i>
+contained in it, but not in surrounding blocks:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+main () {
+  // no variable `x' define here
+  {
+    int x = 5;
+    if (somecondition) { x = 6; }
+    printf("x=%e\n",x); // prints 5 or 6
+  }
+  printf("x=%e\n",x); // syntax error: `x' undefined
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Fortran has simpler rules, since it does not have blocks inside blocks.
+</p>
+
+<p name="switchToTextMode">
+OpenMP has similar rules concerning data in parallel regions
+and other OpenMP constructs. First of all, data is visible
+in enclosed scopes:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+main() {
+  int x;
+#pragma omp parallel
+  {
+     // you can use and set `x' here
+  }
+  printf("x=%e\n",x); // value depends on what
+                      // happened in the parallel region
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+In C, you can redeclare a variable inside a nested scope:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+{
+  int x;
+  if (something) {
+    double x; // same name, different entity
+  }
+  x = ... // this refers to the integer again
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Doing so makes the outer variable inaccessible.
+</p>
+
+<p name="switchToTextMode">
+OpenMP has a similar mechanism:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+{
+  int x;
+#pragma omp parallel
+  {
+    double x;
+  }
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+There is an important difference: each thread in the team
+gets its own instance of the enclosed variable.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/fork-join-vars.jpeg" width=800></img>
+<p name="caption">
+FIGURE 17.4: Locality of variables in threads
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+This is illustrated in figure&nbsp;
+17.4
+.
+</p>
+
+<p name="switchToTextMode">
+In addition to such scoped variables, which live on a 
+<i>stack</i>
+,
+there are variables on the
+<i>heap</i>
+, typically created by a call to 
+<tt>malloc</tt>
+(in&nbsp;C) or 
+<tt>new</tt>
+ (in&nbsp;C++). Rules for them are more complicated.
+</p>
+
+<p name="switchToTextMode">
+Summarizing the above, there are
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<i>shared variables</i>
+,
+  where each thread refers to the same data item, and
+<li>
+<i>private variables</i>
+,
+  where each thread has its own instance.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+In addition to using scoping, OpenMP also uses options on the directives
+to control whether data is private or shared.
+</p>
+
+<p name="switchToTextMode">
+Many of the difficulties of parallel programming with OpenMP stem
+from the use of shared variables. For instance, if two threads
+update a shared variable, you not guarantee an order on the updates.
+</p>
+
+<p name="switchToTextMode">
+We will discuss all this in detail in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-share.html#Fortranarraysyntaxparallelization">21.3</a>
+.
+</p>
+
+<h2><a id="Creatingparallelism">17.5</a> Creating parallelism</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-basics.html">omp-basics</a> > <a href="omp-basics.html#Creatingparallelism">Creating parallelism</a>
+</p>
+
+<p name="switchToTextMode">
+
+The 
+<i>fork/join model</i>
+ of OpenMP means that you need some way of
+indicating where an activity can be forked for independent execution.
+There are two ways of doing this:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+You can declare a parallel region and
+  split one thread into a whole team of threads. We will discuss this next
+  in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Creatingparallelism">17.5</a>
+. The division of the work over the threads
+  is controlled by 
+<i>work sharing construct</i>
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-reduction.html#Reductionsandfloating-pointmath">20.6</a>
+).
+<li>
+Alternatively, you can use tasks and indicating one parallel
+  activity at a time. You will see this in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#Reviewquestions">23.6</a>
+.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+Note that OpenMP only indicates how much parallelism is present;
+whether independent activities are in fact executed in parallel
+is a runtime decision. The factors influencing this are discussed
+in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Creatingparallelism">17.5</a>
+.
+</p>
+
+<p name="switchToTextMode">
+Declaring a parallel region tells OpenMP that a team of threads can be created.
+The actual size of the team depends on various factors (see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/openmp.html#Runtimefunctionsandinternalcontrolvariables">29.1</a>
+for variables and functions mentioned in this section).
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The 
+<i>environment variable</i>
+
+<!-- index -->
+<tt>OMP_NUM_THREADS</tt>
+ limits the number of
+  threads that can be created.
+<li>
+If you don't set this variable, you can also set this limit
+  dynamically with the 
+<i>library routine</i>
+
+    routines} 
+<tt>omp_set_num_threads</tt>
+. This routine takes
+  precedence over the aforementioned environment variable if both are
+  specified.
+<li>
+A limit on the number of threads can also be set as a clause
+  on a parallel region.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+If you specify a greater amount of parallelism than the hardware supports,
+the runtime system will probably ignore your specification and choose a lower value.
+To ask how much parallelism is actually used in your parallel region,
+use 
+<tt>omp_get_num_threads</tt>
+. To query these hardware limits,
+use 
+<tt>omp_get_num_procs</tt>
+.
+You can query the maximum number of threads with 
+<tt>omp_get_max_threads</tt>
+.
+This equals the value of 
+<tt>OMP_NUM_THREADS</tt>
+,
+not the number of actually active threads in a parallel region.
+</p>
+
+<!-- environment: multicols start embedded generator -->
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompproccount" aria-expanded="false" aria-controls="ompproccount">
+        C Code: ompproccount
+      </button>
+    </h5>
+  </div>
+  <div id="ompproccount" class="collapse">
+  <pre>
+// proccount.c
+void nested_report() {
+#pragma omp parallel
+#pragma omp master
+  printf("Parallel  : count %2d cores and %2d threads out of max %2d\n",
+	 omp_get_num_procs(),omp_get_num_threads(),omp_get_max_threads());
+}
+
+int main(int argc,char **argv) {
+
+  printf("---------------- Parallelism report ----------------\n");
+
+  printf("Sequential: count %2d cores and %2d threads out of max %2d\n",
+	 omp_get_num_procs(),omp_get_num_threads(),omp_get_max_threads());
+#pragma omp parallel
+#pragma omp master
+  printf("Parallel  : count %2d cores and %2d threads out of max %2d\n",
+	 omp_get_num_procs(),omp_get_num_threads(),omp_get_max_threads());
+
+#pragma omp parallel
+#pragma omp master
+  nested_report();
+//codesnippet ompproccount
+
+  return 0;
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+\tiny
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+[c:48] for t in 1 2 4 8 16 ; do OMP_NUM_THREADS=$t ./proccount ; done
+---------------- Parallelism report ----------------
+Sequential: count  4 cores and  1 threads out of max  1
+Parallel  : count  4 cores and  1 threads out of max  1
+Parallel  : count  4 cores and  1 threads out of max  1
+---------------- Parallelism report ----------------
+Sequential: count  4 cores and  1 threads out of max  2
+Parallel  : count  4 cores and  2 threads out of max  2
+Parallel  : count  4 cores and  1 threads out of max  2
+---------------- Parallelism report ----------------
+Sequential: count  4 cores and  1 threads out of max  4
+Parallel  : count  4 cores and  4 threads out of max  4
+Parallel  : count  4 cores and  1 threads out of max  4
+---------------- Parallelism report ----------------
+Sequential: count  4 cores and  1 threads out of max  8
+Parallel  : count  4 cores and  8 threads out of max  8
+Parallel  : count  4 cores and  1 threads out of max  8
+---------------- Parallelism report ----------------
+Sequential: count  4 cores and  1 threads out of max 16
+Parallel  : count  4 cores and 16 threads out of max 16
+Parallel  : count  4 cores and  1 threads out of max 16
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+Another limit on the number of threads is imposed when you use nested parallel regions.
+This can arise if you have a parallel region in a subprogram which is sometimes called
+sequentially, sometimes in parallel. The variable 
+<tt>OMP_NESTED</tt>
+ controls
+whether the inner region will create a team of more than one thread.
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

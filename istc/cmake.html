@@ -1,0 +1,382 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>The Cmake build system</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+25.1 : <a href="cmake.html#CMakeasbuildsystem">CMake as build system</a><br>
+25.1.1 : <a href="cmake.html#Scriptstructure">Script structure</a><br>
+25.1.2 : <a href="cmake.html#Executable">Executable</a><br>
+25.1.3 : <a href="cmake.html#Directorystructure">Directory structure</a><br>
+25.1.4 : <a href="cmake.html#Macrodefinitions">Macro definitions</a><br>
+25.2 : <a href="cmake.html#CMakescripting">CMake scripting</a><br>
+25.2.1 : <a href="cmake.html#Variables">Variables</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>25 The Cmake build system</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+
+<h2><a id="CMakeasbuildsystem">25.1</a> CMake as build system</h2>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakeasbuildsystem">CMake as build system</a>
+</p>
+</p>
+
+<i>CMake</i>
+<p name="switchToTextMode">
+ is a general build system that uses other systems
+such as 
+<i>Make</i>
+ as a back-end.
+The general workflow is:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+The configuration stage. Here the 
+<tt>CMakeLists.txt</tt>
+ file
+  is parsed, and 
+<tt>build</tt>
+ directory populated. This typically looks like:
+<!-- environment: verbatim start embedded generator -->
+</p>
+mkdir build
+cd build
+cmake &lt;source location&gt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Some people create the build directory in the source tree,
+in which case the cmake command is
+<!-- environment: verbatim start embedded generator -->
+</p>
+cmake ..
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Other put the build directory next to the source, in which case:
+<!-- environment: verbatim start embedded generator -->
+</p>
+cmake ../src_directory
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+The build stage. Here the installation-specific compilation
+  in the build directory is performed.
+  With Make as the backend this would be
+<!-- environment: verbatim start embedded generator -->
+</p>
+cd build
+make
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+but more generally
+<!-- environment: verbatim start embedded generator -->
+</p>
+cmake --build &lt;build directory&gt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+The install stage. This can move binary files to a permanent
+  location, such as putting library files in 
+<tt>/url/lib</tt>
+.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: verbatim start embedded generator -->
+</p>
+[3] cmake --version
+cmake version 3.19.2
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Scriptstructure">25.1.1</a> Script structure</h3>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakeasbuildsystem">CMake as build system</a> > <a href="cmake.html#Scriptstructure">Script structure</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+CMake is driven by the 
+ file.
+This needs to be in the root directory of your project.
+(You can additionally have files by that name in subdirectories.)
+See further section&nbsp;
+25.2
+.
+</p>
+
+<h3><a id="Executable">25.1.2</a> Executable</h3>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakeasbuildsystem">CMake as build system</a> > <a href="cmake.html#Executable">Executable</a>
+</p>
+<p name="switchToTextMode">
+
+If you have a project that is supposed to deliver an executable,
+you declare in your 
+<tt>CMakeLists.txt</tt>
+:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+add_executable( myprogram programmain.c )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+If there is only one source file, this is all you need.
+However, often you will build libraries.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+add_library( mylibrary libsource.c libheader.h )
+target_link_libraries( myprogram PRIVATE mylibrary )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+By default the library is build as a static 
+<tt>.a</tt>
+ file,
+but adding
+<!-- environment: lstlisting start embedded generator -->
+</p>
+add_library( mylibrary SHARED libsource.c libheader.h )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+or adding a runtime flag
+<!-- environment: verbatim start embedded generator -->
+</p>
+cmake -D BUILD_SHARED_LIBS=TRUE
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+changes that to a shared 
+<tt>.so</tt>
+ type.
+</p>
+
+<h3><a id="Directorystructure">25.1.3</a> Directory structure</h3>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakeasbuildsystem">CMake as build system</a> > <a href="cmake.html#Directorystructure">Directory structure</a>
+</p>
+<p name="switchToTextMode">
+
+If your sources are spread over multiple directories,
+there needs to be a 
+<tt>CMakeLists.txt</tt>
+ file in each.
+For instance, a library directory would have a file with only
+<!-- environment: lstlisting start embedded generator -->
+</p>
+add_library( hello_lib SHARED
+             hello.c hello.h )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+to build the library file from the sources indicated.
+</p>
+
+<p name="switchToTextMode">
+The main file would then specify
+<!-- environment: lstlisting start embedded generator -->
+</p>
+target_include_directories
+   ( hellolibdir PUBLIC
+     "${CMAKE_CURRENT_SOURCE_DIR}/hellolib" )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+giving a path relative to the directory of the main file.
+</p>
+
+<h3><a id="Macrodefinitions">25.1.4</a> Macro definitions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakeasbuildsystem">CMake as build system</a> > <a href="cmake.html#Macrodefinitions">Macro definitions</a>
+</p>
+<p name="switchToTextMode">
+
+Another thing that cmake can provide is defining macros.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+target_compile_definitions
+  ( programname PUBLIC
+    HAVE_HELLO_LIB=1 )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="CMakescripting">25.2</a> CMake scripting</h2>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakescripting">CMake scripting</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>CMakeLists.txt</tt>
+ file is a script,
+though it doesn't much look like it.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+  Instructions consist of a command, followed by a parenthesized
+  list of arguments.
+<li>
+  (All arguments are strings: there are no numbers.)
+<li>
+  Each command needs to start on a new line, but otherwise
+  whitespace and line breaks are ignore.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Comments start with a hash character.
+</p>
+
+<h3><a id="Variables">25.2.1</a> Variables</h3>
+<p name=crumbs>
+crumb trail:  > <a href="cmake.html">cmake</a> > <a href="cmake.html#CMakescripting">CMake scripting</a> > <a href="cmake.html#Variables">Variables</a>
+</p>
+<p name="switchToTextMode">
+
+Variables are set with 
+<tt>set</tt>
+.
+Using the variable by itself gives the value,
+except in strings, where a shell-like notation is needed:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+SET(SOME_ERROR "An error has occurred")
+message(STATUS "${SOME_ERROR}")
+set(MY_VARIABLE "This is a variable")
+message(STATUS "Variable MY_VARIABLE has value ${MY_VARIABLE}")
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Some variables are set by other commands.
+For instance the 
+<tt>project</tt>
+ command sets
+<tt>PROJECT_NAME</tt>
+ and 
+<tt>PROJECT_VERSION</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

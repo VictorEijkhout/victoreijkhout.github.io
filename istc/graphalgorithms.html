@@ -1,0 +1,1649 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Graph analytics</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+9.1 : <a href="graphalgorithms.html#Graphalgorithmsasmatrix-vectoroperations">Graph algorithms as matrix-vector operations</a><br>
+9.1.1 : <a href="graphalgorithms.html#Statetransitions">State transitions</a><br>
+9.1.2 : <a href="graphalgorithms.html#Generalmatrix-vectorproduct">General matrix-vector product</a><br>
+9.1.3 : <a href="graphalgorithms.html#Sampleimplementation">Sample implementation</a><br>
+9.2 : <a href="graphalgorithms.html#Traditionalgraphalgorithms">Traditional graph algorithms</a><br>
+9.2.1 : <a href="graphalgorithms.html#Shortestpathalgorithms">Shortest path algorithms</a><br>
+9.2.2 : <a href="graphalgorithms.html#Floyd-Warshallall-pairsshortestpath">Floyd-Warshall all-pairs shortest path</a><br>
+9.2.3 : <a href="graphalgorithms.html#Spanningtrees">Spanning trees</a><br>
+9.2.4 : <a href="graphalgorithms.html#Graphcutting">Graph cutting</a><br>
+9.3 : <a href="graphalgorithms.html#Parallelization">Parallelization</a><br>
+9.3.1 : <a href="graphalgorithms.html#Strategies">Strategies</a><br>
+9.3.1.1 : <a href="graphalgorithms.html#Dynamicscheduling">Dynamic scheduling</a><br>
+9.3.1.2 : <a href="graphalgorithms.html#Vertex-centricthinking">Vertex-centric thinking</a><br>
+9.3.1.3 : <a href="graphalgorithms.html#Linearalgebrainterpretation">Linear algebra interpretation</a><br>
+9.3.2 : <a href="graphalgorithms.html#Parallelizingtheall-pairsalgorithms">Parallelizing the all-pairs algorithms</a><br>
+9.3.3 : <a href="graphalgorithms.html#Partitioning">Partitioning</a><br>
+9.4 : <a href="graphalgorithms.html#`Realworld'graphs">`Real world' graphs</a><br>
+9.4.1 : <a href="graphalgorithms.html#Propertiesofrandomgraphs">Properties of random graphs</a><br>
+9.5 : <a href="graphalgorithms.html#Hypertextalgorithms">Hypertext algorithms</a><br>
+9.5.1 : <a href="graphalgorithms.html#HITS">HITS</a><br>
+9.5.2 : <a href="graphalgorithms.html#PageRank">PageRank</a><br>
+9.6 : <a href="graphalgorithms.html#Large-scalecomputationalgraphtheory">Large-scale computational graph theory</a><br>
+9.6.1 : <a href="graphalgorithms.html#Distributionofnodesvsedges">Distribution of nodes vs edges</a><br>
+9.6.2 : <a href="graphalgorithms.html#Hyper-sparsedatastructures">Hyper-sparse data structures</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>9 Graph analytics</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+
+<p name="switchToTextMode">
+
+Various problems in scientific computing can be formulated as graph
+problems (for
+an introduction to graph theory see Appendix~
+app:graph
+); for
+instance, you have
+encountered the problem of load
+balancing (section~
+2.10.4
+) and finding
+independent sets (section~
+6.8.2
+).
+</p>
+
+<p name="switchToTextMode">
+Many traditional graph algorithms are
+not immediately, or at least not efficiently, applicable, since the
+graphs are often distributed, and traditional graph theory assume global
+knowledge of the whole graph. Moreover, graph theory is often concerned
+with finding the optimal algorithm, which is usually not a parallel one.
+Therefore, parallel graph algorithms are a field of study by themselves.
+</p>
+
+<p name="switchToTextMode">
+Recently, new types of graph computations in have arisen in scientific
+computing. Here the graph are no longer tools, but objects of study
+themselves. Examples are the 
+<i>World Wide Web</i>
+ or the
+<i>social graph</i>
+ of 
+<i>Facebook</i>
+, or the graph
+of all possible 
+<i>protein interactions</i>
+ in a living organism.
+</p>
+
+<p name="switchToTextMode">
+For this reason, combinatorial computational
+science is becoming a discipline in its own right.
+In this section we look at 
+<i>graph analytics</i>
+:
+computations on large graphs. We start by discussing some classic
+algorithms, but we give them in an algebraic framework that will
+make parallel implementation much easier.
+For this, we first start by giving an algebraic presentation
+of graph algorithms.
+</p>
+
+<h2><a id="Graphalgorithmsasmatrix-vectoroperations">9.1</a> Graph algorithms as matrix-vector operations</h2>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Graphalgorithmsasmatrix-vectoroperations">Graph algorithms as matrix-vector operations</a>
+</p>
+
+<p name="switchToTextMode">
+
+Often we consider the adjacency matrix as nothing more than a table.
+We will now show that we can actually do algebraic computations with it,
+making it deserving of the name `matrix'.
+As a simple example
+of using linear algebra on an adjacency matrix~$G$,
+let $e$ the vector of all~$1$s, then $Ge$ is
+the vector that lists the degrees of the nodes.
+</p>
+
+<p name="switchToTextMode">
+We can do many operations this way. Consider a weighted graph~$G$.
+Finding for each node~$i$ the largest weight~$g_{ij}$ can be described as
+\[
+ y=G\otimes e\qquad\hbox{where}\qquad
+   y_i=\max_j g_{ij}\cdot 1
+\]
+This looks like the regular matrix-vector product $Ge$, but with
+the sum replaced by a maximum calculation.
+</p>
+
+<h3><a id="Statetransitions">9.1.1</a> State transitions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Graphalgorithmsasmatrix-vectoroperations">Graph algorithms as matrix-vector operations</a> > <a href="graphalgorithms.html#Statetransitions">State transitions</a>
+</p>
+<p name="switchToTextMode">
+
+In many cases we actually need the left product, that is, multiplying
+the adjacency matrix from the left by a row vector. Let for example $e_i$~be
+the vector with a~$1$ in location~$i$ and zero elsewhere. Then $e_i^tG$
+has a one in every~$j$ that is a neighbour of~$i$ in the adjacency graph of~$G$.
+</p>
+
+<p name="switchToTextMode">
+More general, if we compute $x^tG=y^t$ for a unit basis vector~$x$, we have
+\[
+\begin{cases}
+ x_i\not=0 \\ x_j=0&j\not= i 
+\end{cases}
+\wedge G_{ij}\not=0 \Rightarrow y_j\not=0.
+\]
+Informally we can say that $G$ makes a transition from state~$i$ to state~$j$.
+</p>
+
+<p name="switchToTextMode">
+Often we have vectors with only nonnegative elements, which case
+\[
+\begin{cases}
+ x_i\not=0 \\ x_j\geq 0&\hbox{all $j$} 
+\end{cases}
+\wedge G_{ij}\not=0 \Rightarrow y_j\not=0.
+\]
+</p>
+
+<p name="switchToTextMode">
+This left matrix-vector product has a simple application: 
+<i>Markov chains</i>
+.
+Suppose we have a system (see for instance~
+app:fsa
+) that can be
+in any of $n$~states, and the probabilities of being in these states sum up to~$1$.
+We can then use the adjacency matrix to model
+state transitions.
+</p>
+
+<p name="switchToTextMode">
+Let $G$ by an adjacency matrix with the property that all elements are
+non-negative.
+For a Markov process,
+the sum of the probabilities of all state transitions,
+from a given state, is~$1$.
+We now interpret elements of the adjaceny matrix
+$g_{ij}$ as the probability of going from state $i$ to state~$j$.
+We now have that the elements in each row sum to~1.
+</p>
+
+<p name="switchToTextMode">
+Let $x$~be a probability vector, that is,
+$x_i$~is the nonegative probability
+of being in state~$i$, and the elements in~$x$ sum to~$1$,
+then $y^t=x^tG$ describes these probabilities,
+after one state transition.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+For a vector $x$ to be a proper probability vector, its elements
+need to sum to~1.
+Show that, with a matrix as just described,
+the elements of~$y$ again sum to~1.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Generalmatrix-vectorproduct">9.1.2</a> General matrix-vector product</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Graphalgorithmsasmatrix-vectoroperations">Graph algorithms as matrix-vector operations</a> > <a href="graphalgorithms.html#Generalmatrix-vectorproduct">General matrix-vector product</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The examples above showed that sometimes we perform an operation
+on an adjacency matrix that has the structure of a matrix-vector product,
+but may not necessarily use addition and multiplication. (Many more examples
+of this can be found in section&nbsp;
+9.2
+.)
+</p>
+
+<p name="switchToTextMode">
+For instance, suppose we use a vector to denote a set&nbsp;$V$ of vertices:
+$v_i=1$&nbsp;for $i\in V$.
+Then $w^t=v^tG$ describes the set of neighbors of the vertices in&nbsp;$V$.
+However, if we use our regular matrix-vector product,
+some elements of $w^t$ may no longer be zero or one.
+(When does this happen, in graph terms?)
+To get that, we replace the addition in
+\[
+ w_j = \sum_i v_i G_{ij} 
+\]
+by a more general reduction
+\[
+ w_j = \bigoplus_i v_i G_{ij} 
+\]
+with taking a maximum as the reduction operator.
+</p>
+
+<p name="switchToTextMode">
+Motivated by such reasoning, we define a general product
+\[
+ y = G \mathop{\oplus\cdot_\otimes} x 
+\]
+where $\otimes$ is a binary operator, and $\oplus$&nbsp;a&nbsp;reduction operator,
+as
+\[
+ y_i = \bigoplus_j (g_{ij} \otimes x_j ). 
+\]
+In this notation, finding the largest weight would be
+\[
+ w= G\mathop{\max\cdot_\times} e. 
+\]
+</p>
+
+<p name="switchToTextMode">
+This will be used in several algorithms below;
+for other applications see&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Kung:pegasus2009">[Kung:pegasus2009]</a>
+.
+</p>
+
+<h3><a id="Sampleimplementation">9.1.3</a> Sample implementation</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Graphalgorithmsasmatrix-vectoroperations">Graph algorithms as matrix-vector operations</a> > <a href="graphalgorithms.html#Sampleimplementation">Sample implementation</a>
+</p>
+<p name="switchToTextMode">
+
+We assume that we have types 
+<tt>vectorvalue</tt>
+ and 
+<tt>matrixvalue</tt>
+:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+  vector values can take on a numerical value, or have a exceptional
+  value 
+<tt>undefined</tt>
+;
+<li>
+matrix values are 
+<tt>empty</tt>
+/
+<tt>filled</tt>
+
+  for 
+<i>unweighted graph</i>
+s,
+  or any numerical value for 
+<i>weighted graph</i>
+s.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+The most important part of the code is the matrix-vector multiplication;
+we give the left multiplication since that is most common in graph computations.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#graphmultiply" aria-expanded="false" aria-controls="graphmultiply">
+        C++ Code: graphmultiply
+      </button>
+    </h5>
+  </div>
+  <div id="graphmultiply" class="collapse">
+  <pre>
+// graphmvp.cxx
+  Vector leftmultiply
+      ( const Vector& left,
+	function&lt; vectorvalue( vectorvalue,matrixvalue ) &gt; mult,
+	function&lt; vectorvalue( vectorvalue,vectorvalue ) &gt; add
+	) const {
+    const int n = size();
+    Vector result(n);
+    for ( int row=0; row&lt;n; row++ ) {
+      Vector partial(n);
+      for ( int col=0; col&lt;n; col++ )
+	partial[col] = mult( left[row],adjacency[row][col] );
+      result.addin(partial,add);
+    }
+    return result;
+  };
+</pre>
+</div>
+</div>
+The multiplication routine takes two function pointers:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+a multiplication function for vector and matrix elements; and
+<li>
+an addition function for performing a reduction on vector elements.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+We demonstrate this with two simple examples.
+First we do a single matrix-vector multiplication,
+with a matrix that connects each node to its successor
+modulo the matrix size:
+\[
+ m_{ij} = \delta_{i+1,j} 
+\]
+We apply this to a vector corresponding to a single vertex:
+\snippetwithoutput{graphshift}{graph}{graph1}
+</p>
+
+<p name="switchToTextMode">
+In the second example we take the same matrix,
+but now compute the single-source shortest path to each node.
+This makes the multiplication and addition routines
+marginally more complex:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#graphpathmultadd" aria-expanded="false" aria-controls="graphpathmultadd">
+        C++ Code: graphpathmultadd
+      </button>
+    </h5>
+  </div>
+  <div id="graphpathmultadd" class="collapse">
+  <pre>
+    auto mult =
+      [] ( vectorvalue v,matrixvalue m ) -&gt; vectorvalue {
+	if (m==empty) return undefined;
+	else if (v==undefined) return v;
+	else return v+1;
+      };
+    auto add =
+      [] ( vectorvalue x,vectorvalue y ) -&gt; vectorvalue {
+	if (x==undefined) return y;
+	else if (y==undefined) return x;
+	else // return minimum
+	  return ( x&lt;y ? x : y );
+      };
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+We now apply the matrix-vector multiplication
+until we have found the distance to each vertex:
+\snippetwithoutput{graphdistloop}{graph}{graph2}
+</p>
+
+<h2><a id="Traditionalgraphalgorithms">9.2</a> Traditional graph algorithms</h2>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Traditionalgraphalgorithms">Traditional graph algorithms</a>
+</p>
+
+<p name="switchToTextMode">
+
+We start by looking at a few `classic' graph algorithms, and we
+discuss how they can be implemented in parallel. The connection
+between graphs and sparse matrices (see Appendix&nbsp;
+app:graph
+) will
+be crucial here: many graph algorithms have the structure of
+a 
+<i>sparse matrix-vector multiplication</i>
+
+<!-- index -->
+.
+</p>
+
+<h3><a id="Shortestpathalgorithms">9.2.1</a> Shortest path algorithms</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Traditionalgraphalgorithms">Traditional graph algorithms</a> > <a href="graphalgorithms.html#Shortestpathalgorithms">Shortest path algorithms</a>
+</p>
+<p name="switchToTextMode">
+
+There are several types of shortest path algorithms. For instance,
+in the 
+<i>single source shortest path</i>
+ algorithm
+one wants the shortest path from a given node to any other node.
+In 
+<i>all-pairs shortest path</i>
+ algorithms
+one wants to know the distance between any two nodes.
+Computing the actual paths is not part of these algorithms;
+however, it is usually easy to include some information by
+which the path can be reconstructed later.
+</p>
+
+<p name="switchToTextMode">
+We start with a simple algorithm: finding the single source shortest
+paths in an unweighted graph. This is simple to do with a 
+<span title="acronym" ><i>BFS</i></span>
+:
+</p>
+
+<!-- environment: displayalgorithm start embedded generator -->
+<p>Input: A graph, and a starting node&nbsp;$s$}  \Output{A function $d(v)$ that measures the distance from $s$ to&nbsp;$v$}  Let $s$ be given, and set $d(s)=0$\;  Initialize the finished set as $U=\{s\}$\;  Set $c=1$\;  \While{not finished}{    Let $V$ the neighbours of $U$ that are not themselves in $U$\;    \If{$V=\emptyset$}{We're done}\Else{    Set $d(v)=c+1$ for all $v\in V$.\;    $U\leftarrow U\cup V$\;    Increase $c\leftarrow c+1$    }  </p>
+
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+
+This way of formulating an algorithm is useful for theoretical purposes:
+typically you can formulate a 
+<i>predicate</i>
+ that is true
+for every iteration of the while loop. This then allows you to prove
+that the algorithm terminates and that it computes what you intended it to compute.
+And on a traditional processor this would indeed be how you program
+a graph algorithm. However, these days graphs such as from Facebook
+can be enormous, and you want to program your graph algorithm in
+parallel.
+</p>
+
+<p name="switchToTextMode">
+In that case, the traditional formulations fall short:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+They are often based on queues to which nodes are added or subtracted; this means
+  that there is some form of shared memory.
+<li>
+Statements about nodes and neighbours are made without wondering if these
+  satisfy any sort of spatial locality; if a node is touched more than once there is
+  no guarantee of temporal locality.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Floyd-Warshallall-pairsshortestpath">9.2.2</a> Floyd-Warshall all-pairs shortest path</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Traditionalgraphalgorithms">Traditional graph algorithms</a> > <a href="graphalgorithms.html#Floyd-Warshallall-pairsshortestpath">Floyd-Warshall all-pairs shortest path</a>
+</p>
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+The 
+<i>Floyd-Warshall algorithm</i>
+ is an example of an all-pairs
+shortest paths algorithm. It is a 
+<i>dynamic programming</i>
+algorithm that is based on gradually increasing the set of intermediate
+nodes for the paths.
+Specifically,  in step&nbsp;$k$ all paths $u\rightsquigarrow v$ are considered
+that have intermediate nodes in the set $k=\{0,&hellip;,k-1\}$, and $\Delta_k(u,v)$
+is the defined as the path length from $u$ to&nbsp;$v$ where all intermediate nodes
+are in&nbsp;$k$. Initially, this means that only graph edges are considered, and
+when $k\equiv |V|$ we have considered all possible paths and we are done.
+</p>
+
+<p name="switchToTextMode">
+The computational step is
+<!-- environment: equation start embedded generator -->
+</p>
+  \Delta\_{k+1}(u,v) = \min\bigl\{ \Delta\_k(u,v),
+  \Delta\_k(u,k)+\Delta\_k(k,v) \bigr\}.
+\label{eq:floyd-allpairs}
+\end{equation}
+</equation>
+<!-- environment: equation end embedded generator -->
+<p name="switchToTextMode">
+that is, the $k$-th estimate for the distance $\Delta(u,v)$ is the minimum
+of the old one, and a new path that has become feasible now that we
+are considering node&nbsp;$k$. This latter path is found by
+concatenating paths $u\rightsquigarrow k$
+and&nbsp;$k\rightsquigarrow v$.
+</p>
+
+<p name="switchToTextMode">
+Writing it algorithmically:
+<!-- environment: displayalgorithm start embedded generator -->
+</p>
+\For {$k$ from zero to $|V|$}{      \For {all nodes $u,v$} {        $\Delta\_{uv} \leftarrow f(\Delta\_{uv},\Delta\_{uk},\Delta\_{kv})$      }  }
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+we see that this algorithm has a similar structure to Gaussian elimination,
+except that there the inner loop would be `for all $u,v&gt;k$'.
+</p>
+
+<p name="switchToTextMode">
+In section&nbsp;
+5.4.3
+ you saw that the factorization of sparse
+matrices leads to 
+<i>fill-in</i>
+
+<!-- index -->
+,
+so the same problem occurs here. This requires flexible data structures,
+and this problem becomes even worse in parallel; see section&nbsp;
+9.6
+.
+</p>
+
+<p name="switchToTextMode">
+Algebraically:
+<!-- environment: displayalgorithm start embedded generator -->
+</p>
+\For {$k$ from zero to $|V|$} {    $D\leftarrow D.\_{\min} \bigl[D(:,k) \mathbin{\min\cdot\_+} D(k,:)  \bigr]$  }
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+
+The Floyd-Warshall algorithm does not tell you the actual
+path. Storing those paths during the distance calculation above is
+costly, both in time and memory. A&nbsp;simpler solution is possible: we
+store a second matrix&nbsp;$n(i,j)$ that has the highest node number of the
+path between $i$ and&nbsp;$j$.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Include the calculation of $n(i,j)$ in the Floyd-Warshall algorithm,
+  and describe how to use this to find the shortest path between $i$
+  and&nbsp;$j$ once $d(\cdot,\cdot)$ and $n(\cdot,\cdot)$ are known.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h3><a id="Spanningtrees">9.2.3</a> Spanning trees</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Traditionalgraphalgorithms">Traditional graph algorithms</a> > <a href="graphalgorithms.html#Spanningtrees">Spanning trees</a>
+</p>
+<p name="switchToTextMode">
+
+In an undirected graph $G=\langle V,E\rangle$, we call $T\subset E$ a&nbsp;`tree'
+if it is connected and acyclic. It is called a 
+<i>spanning tree</i>
+if additionally its edges contain all vertices.
+If the graph has edge weights
+$w_i\colon i\in E$, the tree has weight $\sum_{e\in T} w_e$, and
+we call a tree a 
+<i>minimum spanning tree</i>
+ if it has minimum weight.
+A&nbsp;minimum spanning tree need not be unique.
+</p>
+
+<i>Prim's algorithm</i>
+<p name="switchToTextMode">
+, a slight variant of
+<i>Dijkstra's shortest path algorithm</i>
+, computes a spanning
+tree starting at a root. The root has path length zero, and all other
+nodes infinity.  In each step, all nodes connected to the known tree
+nodes are considered, and their best known path length updated.
+</p>
+
+<!-- environment: displayalgorithm start embedded generator -->
+<p>\For {all vertices $v$}{$\ell(v)\leftarrow\infty$}  $\ell(s)\leftarrow 0$\;  $Q\leftarrow V-\{s\}$ and $T\leftarrow \{s\}$\;  \While{$Q\not=\emptyset$} {    let $u$ be the element in $Q$ with minimal $\ell(u)$ value\;    remove $u$ from $Q$, and add it to $T$\;    \For {$v\in Q$ with $(u,v)\in E$} {      \If {$\ell(u)+w\_{uv}&lt</p>
+\ell(v)$} {Set $\ell(v)\leftarrow \ell(u)+w\_{uv}$}    }  }
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/dijkstra-proof.jpeg" width=800></img>
+<p name="caption">
+FIGURE 9.1: Illustration of the correctness of Dijkstra's algorithm
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: theorem start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator theorem ['theorem'] -->
+  The above algorithm computes the shortest distance from each
+  node to the root node.
+</p name="theorem">
+</theorem>
+<!-- environment: theorem end embedded generator -->
+<!-- environment: proof start embedded generator -->
+<!-- TranslatingLineGenerator proof ['proof'] -->
+  The key to the correctness of this algorithm is the fact that
+  we choose&nbsp;$u$ to have minimal $\ell(u)$ value. Call the true shortest path
+  length to a vertex&nbsp;$L(v)$. Since we start with an $\ell$&nbsp;value of infinity and
+  only ever decrease it, we always have $L(v)\leq\ell(v)$.
+</p>
+
+<p name="switchToTextMode">
+  Our induction hypothesis will be that, at any stage in the algorithm,
+  for the nodes in the current&nbsp;$T$ the path length is determined correctly:
+\[
+ u\in T\Rightarrow L(u)=\ell(u). 
+\]
+  This is certainly true when the tree consists only of the root&nbsp;$s$.
+  Now we need to prove the induction step: if for all nodes in the
+  current tree the path length is correct, then we will also
+  have $L(u)=\ell(u)$.
+</p>
+
+<p name="switchToTextMode">
+  Suppose this is not true, and there is another path that is shorter.
+  This path needs to go through some node&nbsp;$y$ that is not currently in&nbsp;$T$;
+  this illustrated in figure&nbsp;
+9.1
+.
+  Let $x$&nbsp;be the node in&nbsp;$T$ on the purported shortest path right before&nbsp;$y$.
+  Now we have $\ell(u)&gt;L(u)$ since we do not have the right pathlength
+  yet, and $L(u)&gt;L(x)+w_{xy}$ since there is at least one edge (which has
+  positive weight) between $y$ and&nbsp;$u$. But $x\in T$, so $L(x)=\ell(x)$
+  and $L(x)+w_{xy}=\ell(x)+w_{xy}$. Now we observe that when $x$ was
+  added to&nbsp;$T$ its neighbours were updated, so $\ell(y)$ is $\ell_x+w_{xy}$ or less.
+  Stringing together these inequalities we find
+\[
+ \ell(y)&lt;\ell(x)+w_{xy}=L(x)+w_{xy}&lt;L(u)&lt;\ell(u) 
+\]
+  which contradicts the fact that we choose&nbsp;$u$ to have minimal $\ell$&nbsp;value.
+</p name="proof">
+</proof>
+<!-- environment: proof end embedded generator -->
+<p name="switchToTextMode">
+
+To parallelize this algorith we observe that the inner loop is
+independent and therefore parallelizable.
+However, the outer loop
+has a choice that minimizes a function value. Computing this
+choice is a reduction operator, and subsequently it needs to be broadcast.
+This strategy makes the sequential time equal to $d\log P$ where $d$&nbsp;is
+the depth of the spanning tree.
+</p>
+
+<p name="switchToTextMode">
+On a single processor, finding the minimum value in an array is
+naively an $O(N)$ operation, but through the use of a 
+<i>priority queue</i>
+this can be reduced to $O(\log N)$. For the parallel version of the spanning tree
+algorithm the corresponding term is&nbsp;$O(\log (N/P))$, not counting the $O(\log P)$
+cost of the reduction.
+</p>
+
+<h3><a id="Graphcutting">9.2.4</a> Graph cutting</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Traditionalgraphalgorithms">Traditional graph algorithms</a> > <a href="graphalgorithms.html#Graphcutting">Graph cutting</a>
+</p>
+<p name="switchToTextMode">
+
+Sometimes you may want to partition a graph, for instance for purposes
+of parallel processing. If this is done by partitioning the vertices,
+you are as-it-were cutting edges, which is why this is known as a
+<i>vertex cut</i>
+ partitioning. There are various criteria for
+what makes a good vertex cut.
+For instance, you want the cut parts to
+be of roughly equal size, to balance out parallel work.
+</p>
+
+<p name="switchToTextMode">
+Since the
+vertices often correspond to communication,
+you also want the number of vertices on the cut
+(or their sum of weights in case of a weighted graph)
+to be small.
+The 
+<i>graph Laplacian</i>
+ (section&nbsp;
+19.6.1
+)
+is a popular algorithm for this.
+</p>
+
+<p name="switchToTextMode">
+Another example of graph cutting is the case of a
+<i>bipartite graph</i>
+: a&nbsp;graph with two classes of nodes,
+and only edges from the one class to the other. Such a graph can for
+instance model a population and a set of properties: edges denote that
+a person has a certain interest.
+</p>
+
+<h2><a id="Parallelization">9.3</a> Parallelization</h2>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a>
+</p>
+<p name="switchToTextMode">
+
+Many graph algorithms, such as in section&nbsp;
+9.2
+, are not
+trivial to parallelize. Here are some considerations.
+</p>
+
+<p name="switchToTextMode">
+
+First of all, unlike in many other algorithms, it is hard to target
+the outermost loop level, since this is often a `while' loop, making a
+parallel stopping test necessary.  On the other hand, typically there
+are macro steps that are sequential, but in which a number of
+variables are considered independently. Thus there is indeed
+parallelism to be exploited.
+</p>
+
+<p name="switchToTextMode">
+The independent work in graph algorithms is of an interesting
+structure.  While we can identify `for all' loops, which are
+candidates for parallelization, these are different from what we have
+seen before.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The traditional formulations often feature sets of variables
+  that are gradually built up or depleted. This is implementable by
+  using a shared data structures and a 
+<i>task queue</i>
+, but this limits the
+  implementation to some form of shared memory.
+<li>
+  Next, while in each iteration operations are independent, the dynamic
+  set on which they operate means that assignment of data
+  elements to processors is tricky.
+  A&nbsp;fixed assignment may lead to much idle time, but dynamic
+  assignment carries large overhead.
+<li>
+With dynamic task assignment, the algorithm
+  will have little spatial or temporal locality.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+For these reasons, a linear algebra formulation can be preferable.
+We definitely need this approach once distributed memory is considered,
+but even on multicore architectures it can pay off to
+encourage locality.
+</p>
+
+<p name="switchToTextMode">
+In section&nbsp;
+6.5
+ we discussed the parallel evaluation
+of the sparse matrix-vector product. Because of the sparsity,
+only a partitioning by block rows or columns made sense.
+In effect, we let the partitioning be determined by one of the problem
+variables. This is also the only strategy that makes sense for
+single-source shortest path algorithms.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Can you make an \textit{a priori} argument for basing the
+  parallelization on a distribution of the vector? How much data is
+  involved in this operation, how much work, and how many sequential
+  steps?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Strategies">9.3.1</a> Strategies</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a> > <a href="graphalgorithms.html#Strategies">Strategies</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Here are three ways of parallelizing graph algorithms, in decreasing
+order of obviousness, and increasing order of scalability. (See
+also&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Kalavri2016HighLevelPA">[Kalavri2016HighLevelPA]</a>
+.)
+</p>
+
+<h4><a id="Dynamicscheduling">9.3.1.1</a> Dynamic scheduling</h4>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a> > <a href="graphalgorithms.html#Strategies">Strategies</a> > <a href="graphalgorithms.html#Dynamicscheduling">Dynamic scheduling</a>
+</p>
+<p name="switchToTextMode">
+
+Many graph algorithms build up a data structure&nbsp;$V$ of vertices to be
+processed; they they execute a sequence of supersteps containing a
+loop
+<!-- environment: verbatim start embedded generator -->
+</p>
+for all v in V:
+  // do something with v
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+If the processing of a vertex&nbsp;
+<tt>v</tt>
+ does not affect $V$ itself, the
+loop is parallel and can be executed through dynamic scheduling.
+</p>
+
+<p name="switchToTextMode">
+This is in effect a dynamic assignment of data to processing
+elements. It is efficient in the sense that no processing element
+winds up with data elements on which no processing is needed, so all
+processing power of the computer is fully exploited. On the other
+hand, the dynamic assignment carries operating system overhead, and it
+leads to lots of data traffice, since a vertex is unlikely to be in
+local memory (such as cache) of the processing element.
+</p>
+
+<p name="switchToTextMode">
+A further problem is that the loop may look like:
+<!-- environment: verbatim start embedded generator -->
+</p>
+for all v in V:
+  for all neighbours u of v:
+    // update something on u
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Now it can happen that two nodes 
+<tt>v1,v2</tt>
+ both update a shared
+neighbour&nbsp;
+<tt>u</tt>
+, and this conflict needs to be resolved though
+<i>cache coherence</i>
+. This carries a latency penalty, or
+may even necessitate using locks, which carries an operating system
+penalty.
+</p>
+
+<h4><a id="Vertex-centricthinking">9.3.1.2</a> Vertex-centric thinking</h4>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a> > <a href="graphalgorithms.html#Strategies">Strategies</a> > <a href="graphalgorithms.html#Vertex-centricthinking">Vertex-centric thinking</a>
+</p>
+<p name="switchToTextMode">
+
+<h4><a id="Linearalgebrainterpretation">9.3.1.3</a> Linear algebra interpretation</h4>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a> > <a href="graphalgorithms.html#Strategies">Strategies</a> > <a href="graphalgorithms.html#Linearalgebrainterpretation">Linear algebra interpretation</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+We will now show that graph algorithms can often be considered as sparse-matrix
+algorithms, which means that we can apply all the concepts and analysis we have developed for these.
+</p>
+
+<p name="switchToTextMode">
+If $G$ is the 
+<i>adjacency matrix</i>
+ of the graph, we can
+also formulate the shortest path algorithm analogous to a series of
+matrix-vector multiplications (see appendix
+section&nbsp;
+9.1
+). Let $x$ be the vector tabulating distances
+from the source, that is, $x_i$&nbsp;is the distance of node&nbsp;$i$ from the source.
+For any neighbour $j$ of&nbsp;$i$, the distance to the source is then $x_i+G_{ij}$,
+unless a shorter distance was already known.
+In other words, we can define a product
+\[
+ y^t=x^tG\equiv \forall_i\colon
+  y_j = \min\bigl\{ x_j, \min_{i\colon G_{ij}\not=0} \{x_i+1\} \bigr\},
+\]
+and the iterations of the above while-loop correspond to subsequent
+matrix-vector products under this definition.
+</p>
+
+<p name="switchToTextMode">
+This algorithm works because we can set $d(v)$ to its final value
+the first time we visit it: this happens precisely after a number of
+outer iterations equal to the path length. The total number of inner loop
+executions equals the number of edges in the graph.
+A&nbsp;weighted graph is somewhat trickier,
+since a path with more stages can actually be shorter as measured in the sum
+of the weights of the stages. Here is the Bellman-Ford algorithm:
+</p>
+
+<!-- environment: displayalgorithm start embedded generator -->
+<p>Let $s$ be given, and set $d(s)=0$\;  Set $d(v)=\infty$ for all other nodes&nbsp;$v$\;  \For{$|E|-1$ times}{    \For{all edges $e=(u,v)$}{      Relax: \If{$d(u)+w\_{uv} &lt</p>
+d(v)$}{Set $d(v)\leftarrow d(u)+w\_{uv}$}    }  }
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+
+This algorithm is correct since, for a given node&nbsp;$u$, after $k$ steps
+of the outer iteration it has considered all path $s\rightarrow u$ of
+$k$ stages.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What is the complexity of this algorithm? Can the length of the
+  outer loop be reduced if you have some knowledge of the graph?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+We can again write this as a series of matrix-vector products, if we define
+the product as
+\[
+ y^t=x^tG\equiv \forall_i\colon
+  y_j = \min\bigl\{ x_j, \min_{i\colon G_{ij}\not=0} \{x_i+g_{ij}\} \bigr\},
+\]
+This has essentially the same basis as above: the minimum distance to&nbsp;$j$
+is minimum of an already computed distance, or the minimum distance to any node&nbsp;$i$
+plus the transition&nbsp;$g_{ij}$.
+</p>
+
+<h3><a id="Parallelizingtheall-pairsalgorithms">9.3.2</a> Parallelizing the all-pairs algorithms</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a> > <a href="graphalgorithms.html#Parallelizingtheall-pairsalgorithms">Parallelizing the all-pairs algorithms</a>
+</p>
+<p name="switchToTextMode">
+
+In the single-source shortest path algorithm above we didn't have much
+choice but to parallelize by distributing the vector rather than the
+matrix.  This type of distribution is possible here too, and it
+corresponds to a one-dimensional distribution of the $D(\cdot,\cdot)$
+quantities.
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Sketch the parallel implementation of this variant of the
+  algorithm. Show that each $k$-th iteration involves a broadcast with
+  processor&nbsp;$k$ as root.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+However, this approach runs into the same scaling problems as the
+matrix-vector product using a one-dimensional distribution of the
+matrix; see section&nbsp;
+6.2.2
+. Therefore we need to use a
+two-dimensional distribution.
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Do the scaling analysis. In a weak scaling scenario with constant memory,
+  what is the asymptotic efficiency?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Sketch the Floyd-Warshall algorithm using a two-dimensional
+  distribution of the $D(\cdot,\cdot)$ quantities.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  The parallel Floyd-Warshall algorithm performs quite some operations
+  on zeros, certainly in the early stages. Can you design an algorithm
+  that avoids those?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<h3><a id="Partitioning">9.3.3</a> Partitioning</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Parallelization">Parallelization</a> > <a href="graphalgorithms.html#Partitioning">Partitioning</a>
+</p>
+<p name="switchToTextMode">
+
+Traditional graph partitioning algorithms&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#LiTa:separator">[LiTa:separator]</a>
+ are
+not simply parallelizable. Instead, two possible approaches are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Using the graph Laplacian; section&nbsp;
+19.6.1
+.
+<li>
+Using a multi-level approach:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Partition a coarsened version of the graph;
+<li>
+Gradually uncoarsen the graph, adapting the partitioning.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="`Realworld'graphs">9.4</a> `Real world' graphs</h2>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#`Realworld'graphs">`Real world' graphs</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In discussions such as in section&nbsp;
+4.2.3
+ you have seen how
+the discretization of 
+<span title="acronym" ><i>PDEs</i></span>
+ leads to computational problems that
+has a graph aspect to them. Such graphs have properties that make them
+amenable to certain kinds of problems.
+For instance, using 
+<span title="acronym" ><i>FDMs</i></span>
+ or 
+<span title="acronym" ><i>FEMs</i></span>
+ to model two or
+three-dimensional objects leads graphs where each node is connected to
+just a few neighbours. This makes it easy to find
+<i>separators</i>
+, which in turn allows such solution methods as
+<i>nested dissection</i>
+; see section&nbsp;
+6.8.1
+.
+</p>
+
+<p name="switchToTextMode">
+There are however applications with computationally intensive graph
+problems that do not look like 
+<span title="acronym" ><i>FEM</i></span>
+ graphs. We will briefly look
+at the example of the world-wide web, and algorithms such
+<i>Google</i>
+'s 
+<i>PageRank</i>
+ which try to find
+authoratative nodes.
+</p>
+
+<p name="switchToTextMode">
+For now, we will call such graphs 
+<i>random graphs</i>
+,
+although this term has a technical meaning
+too&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Erdos:randomgraph">[Erdos:randomgraph]</a>
+.
+</p>
+
+<h3><a id="Propertiesofrandomgraphs">9.4.1</a> Properties of random graphs</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#`Realworld'graphs">`Real world' graphs</a> > <a href="graphalgorithms.html#Propertiesofrandomgraphs">Properties of random graphs</a>
+</p>
+<p name="switchToTextMode">
+
+The graphs we have seen in most of this course have properties that
+stem from the fact that they model objects in our three-dimensional
+world. Thus, the typical distance between two nodes is
+typically&nbsp;$O(N^{1/3})$ where $N$ is the number of nodes. Random graphs
+do not behave like this: they often have a 
+<i>small world</i>
+property where the typical distance is&nbsp;$O(\log N)$. A&nbsp;famous example
+is the graph of film actors and their connection by having appeared in
+the same movie: according to `Six degrees of separation', no two actors
+have a distance more than six in this graph. In graph terms this means
+that the diameter of the graph is six.
+</p>
+
+<p name="switchToTextMode">
+Small-world graphs have other properties, such as the existence of
+cliques (although these feature too in higher order 
+<span title="acronym" ><i>FEM</i></span>
+ problems)
+and hubs: nodes of a high degree. This leads to implications such as
+the following: deleting a random node in such a graph does not have a
+large effect on shortest paths.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Considering the graph of airports and the routes that exist between
+  them. If there are only hubs and non-hubs, argue that deleting a
+  non-hub has no effect on shortest paths between other airports. On
+  the other hand, consider the nodes ordered in a two-dimensional
+  grid, and delete an arbitrary node. How many shortest paths are affected?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: notready start embedded generator -->
+</p>
+
+</notready>
+<!-- environment: notready end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Hypertextalgorithms">9.5</a> Hypertext algorithms</h2>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Hypertextalgorithms">Hypertext algorithms</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+There are several algorithms based on linear algebra
+for measuring the importance of web
+sites&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Langville2005eigenvector">[Langville2005eigenvector]</a>
+. We will briefly define a few
+and discuss computational implications.
+</p>
+
+<h3><a id="HITS">9.5.1</a> HITS</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Hypertextalgorithms">Hypertext algorithms</a> > <a href="graphalgorithms.html#HITS">HITS</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+In the HITS (Hypertext-Induced
+Text Search) algorithm, sites have a 
+<i>hub</i>
+ score that measures how many
+other sites it points to, and an 
+<i>authority</i>
+ score that measures
+how many sites point to it. To calculate such scores we define an
+<i>incidence matrix</i>
+&nbsp;$L$, where
+\[
+ L_{ij}=
+\begin{cases}
+  1&\mbox{document $i$ points to document $j$}\\
+  0&\mbox{otherwise}
+\end{cases}
+\]
+The authority scores $x_i$ are defined as the sum of the hub scores
+$y_j$ of everything that points to&nbsp;$i$, and the other way around. Thus
+\[
+\begin{array}{l}
+  x=L^ty\\ y=Lx
+\end{array}
+\]
+or $x=LL^tx$ and $y=L^tLy$, showing that this is an eigenvalue
+problem. The eigenvector we need has only nonnegative entries; this is
+known as the 
+<i>Perron vector</i>
+ for a
+<i>nonnegative matrix</i>
+, see appendix&nbsp;
+13.4
+. The
+Perron vector is computed by a 
+<i>power method</i>
+; see
+section&nbsp;
+13.3
+.
+</p>
+
+<p name="switchToTextMode">
+A practical search strategy is:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Find all documents that contain the search terms;
+<li>
+Build the subgraph of these documents, and possible one or two
+  levels of documents related to them;
+<li>
+Compute authority and hub scores on these documents, and present
+  them to the user as an ordered list.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h3><a id="PageRank">9.5.2</a> PageRank</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Hypertextalgorithms">Hypertext algorithms</a> > <a href="graphalgorithms.html#PageRank">PageRank</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+The PageRank&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#PageBrin:PageRank">[PageBrin:PageRank]</a>
+ basic idea is similar to
+HITS:
+it models the question
+`if the user keeps clicking on links that are somehow the
+most desirable on a page, what will overall be the set of the most
+desirable links'.
+This is modeled by defining
+the ranking of a web page is the sum of the rank of all pages
+that connect to it. The algorithm It is often phrased iteratively:
+<!-- environment: displayalgorithm start embedded generator -->
+</p>
+<p>\While{Not converged}        { \For { all pages $i$}          {            $\mathrm{rank}\_i \leftarrow \epsilon +            (1-\epsilon) \sum\_{j\colon\mathrm{connected}j\rightarrow i}\mathrm{rank}\_j$          } \;          normalize the ranks vector \</p>
+}
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+where the ranking is the fixed point of this algorithm.
+The $\epsilon$ term solve the problem that if a page has
+no outgoing links, a user that would wind up there would never
+leave.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Argue that this algorithm can be interpreted in two different ways,
+  roughly corresponding to the Jacobi and Gauss-Seidel iterative
+  methods; section&nbsp;
+5.5.3
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  In the PageRank algorithm, each page `gives its rank' to the ones it
+  connects to. Give pseudocode for this variant. Show that it
+  corresponds to a matrix-vector product by columns, as opposed to by
+  rows for the above formulation. What would be a problem implementing
+  this in shared memory parallelism?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+For an analysis of this method, including the question of whether it
+converges at all, it is better to couch it completely in
+linear algebra terms.
+Again we define a connectivity matrix
+\[
+ M_{ij}=
+\begin{cases}
+  1&\mbox{if page $j$ links to $i$}\\
+  0&\mbox{otherwise}
+\end{cases}
+\]
+With $e=(1,&hellip;,1)$, the vector $d^t=e^tM$ counts how many links
+there are on a page: $d_i$&nbsp;is the number of links on page&nbsp;$i$. We
+construct a diagonal matrix $D=\diag(d_1,&hellip;)$ we normalize $M$ to
+$T=MD\inv$.
+</p>
+
+<p name="switchToTextMode">
+Now the columns sums (that is, the sum of the elements in any column)
+of $T$ are all&nbsp;$1$, which we can express as $e^tT=e^t$ where
+$e^t=(1,&hellip;,1)$. Such a matrix is
+called 
+<i>stochastic matrix</i>
+. It has the following
+interpretation:
+<!-- environment: quote start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator quote ['quote'] -->
+  If $p$ is a 
+<i>probability vector</i>
+, that is, $p_i$ is the
+  probability that the user is looking at page&nbsp;$i$, then $Tp$ is the
+  probability vector after the user has clicked on a random link.
+</p name="quote">
+</quote>
+<!-- environment: quote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Mathematically, a probability vector is characterized by the fact
+  that the sum of its elements is&nbsp;1. Show that the product of a
+  stochastic matrix and a probability vector is indeed again a
+  probability vector.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+The PageRank algorithm as formulated above
+would correspond to taking an
+arbitrary stochastic vector&nbsp;$p$, computing the 
+<i>power method</i>
+$Tp,T^2p,T^3p,&hellip;$ and
+seeing if that sequence converges to something.
+</p>
+
+<p name="switchToTextMode">
+There are few problems with this basic algorithm, such as
+pages with no outgoing links. In general, mathematically we are
+dealing with `invariant subspaces'. Consider for
+instance an web with only 2 pages and the following
+<i>adjacency matrix</i>
+:
+\[
+ A=
+\begin{pmatrix}
+  1/2&0\\ 1/2&1
+\end{pmatrix}
+.
+\]
+Check for yourself that this corresponds to the second page having no
+outgoing links. Now let $p$ be the starting vector $p^t=(1,1)$, and
+compute a few iterations of the power method. Do you see that the
+probability of the user being on the second page goes up to&nbsp;1? The
+problem here is that we are dealing with a
+<i>reducible matrix</i>
+.
+</p>
+
+<p name="switchToTextMode">
+To prevent this problem, PageRank
+introduces another element: sometimes the user
+will get bored from clicking, and will go to an arbitrary page (there
+are also provisions for pages with no outgoing links). If we
+call $s$ the chance that the user will click on a link, then the
+chance of going to an arbitrary page is $1-s$. Together, we now have
+the process
+\[
+ p'\leftarrow sTp+(1-s)e, 
+\]
+that is, if $p$&nbsp;is a vector of probabilities then $p'$ is a vector of
+probabilities that describes where the user is after making one page
+transition, either by clicking on a link or by `teleporting'.
+</p>
+
+<p name="switchToTextMode">
+The PageRank vector is the stationary point of this process; you can
+think of it as the probability distribution after the user has made
+infinitely many transitions. The PageRank vector satisfies
+\[
+ p=sTp+(1-s)e \Leftrightarrow (I-sT)p=(1-s)e. 
+\]
+Thus, we now have to wonder whether $I-sT$ has an inverse.
+If the inverse exists it satisfies
+\[
+ (I-sT)\inv = I+sT+s^2T^2+\cdots 
+\]
+It is not hard to see that the inverse exists: with the Gershgorin theorem
+(appendix&nbsp;
+13.5
+) you can see that the eigenvalues of
+$T$ satisfy $|\lambda|\leq 1$. Now use that $s&lt;1$, so the series of
+partial sums converges.
+</p>
+
+<p name="switchToTextMode">
+The above formula for the inverse also indicates a way to compute the
+PageRank vector&nbsp;$p$ by using a series of matrix-vector
+multiplications.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Write pseudo-code for computing the PageRank vector, given the
+  matrix&nbsp;$T$. Show that you never need to compute the powers of&nbsp;$T$
+  explicitly. (This is an instance of 
+<i>Horner's rule</i>
+).
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+In the case that $s=1$, meaning that we rule out teleportation, the
+PageRank vector satisfies $p=Tp$, which is again the problem of
+finding the 
+<i>Perron vector</i>
+; see appendix&nbsp;
+13.4
+.
+</p>
+
+<p name="switchToTextMode">
+We find the Perron vector by a power iteration (section&nbsp;
+13.3
+)
+\[
+ p^{(i+1)} = T p^{(i)}. 
+\]
+This is a sparse matrix vector product, but unlike in the 
+<span title="acronym" ><i>BVP</i></span>
+case the sparsity is unlikely to have a structure such as
+bandedness. Computationally, one probably has to use the same
+parallelism arguments as for a dense matrix: the matrix has to be
+distributed two-dimensionally&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#OgAi:sparsestorage">[OgAi:sparsestorage]</a>
+.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Large-scalecomputationalgraphtheory">9.6</a> Large-scale computational graph theory</h2>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Large-scalecomputationalgraphtheory">Large-scale computational graph theory</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+In the preceding sections you have seen that many graph algorithms
+have a computational structure that makes the matrix-vector product
+their most important kernel. Since most graphs are of low degree
+relative to the number of nodes, the product is a 
+<i>sparse</i>
+
+matrix-vector product.
+</p>
+
+<p name="switchToTextMode">
+In many cases we can then, as in section&nbsp;
+6.5
+,
+make a one-dimensional distribution of the matrix,
+induced by a distribution of the graph nodes: if a processor
+owns a graph node&nbsp;$i$, it owns all the edges&nbsp;$i,j$.
+</p>
+
+<p name="switchToTextMode">
+However, often the computation is very unbalanced. For instance,
+in the single-source shortest path algorithm only the vertices
+along the front are active. For this reason, sometimes a distribution
+of edges rather than vertices makes sense. For an even balancing
+of the load even random distributions can be used.
+</p>
+
+<p name="switchToTextMode">
+The 
+<i>parallelization of the Floyd-Warshall algorithm</i>
+(section&nbsp;
+9.2.2
+) proceeds along different lines. Here we don't
+compute a quantity per node, but a quantity that is a function of pairs
+of nodes, that is, a matrix-like quantity. Thus, instead of distributing
+the nodes, we distribute the pair distances.
+</p>
+
+<h3><a id="Distributionofnodesvsedges">9.6.1</a> Distribution of nodes vs edges</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Large-scalecomputationalgraphtheory">Large-scale computational graph theory</a> > <a href="graphalgorithms.html#Distributionofnodesvsedges">Distribution of nodes vs edges</a>
+</p>
+<p name="switchToTextMode">
+
+Sometimes we need to go beyond a one-dimensional decomposition in dealing
+with sparse graph matrices.
+Let's assume that we're dealing with a graph that has a structure that
+is more or less random, for instance in the sense that the chance of
+there being an edge is the same for any pair of vertices. Also
+assuming that we have a large number of vertices and edges, every
+processor will then store a certain number of vertices. The conclusion
+is then that the chance that any pair of processors needs to exchange
+a message is the same, so the number of messages is&nbsp;$O(P)$. (Another
+way of visualizing this is to see that nonzeros are randomly
+distributed through the matrix.) This does not give a scalable
+algorithm.
+</p>
+
+<p name="switchToTextMode">
+The way out is to treat this sparse matrix as a dense one, and invoke
+the arguments from section&nbsp;
+6.2.2
+ to decide on a
+two-dimensional distribution of the matrix.
+(See&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Yoo:2005:scalable-bfs">[Yoo:2005:scalable-bfs]</a>
+ for an application to the 
+<span title="acronym" ><i>BFS</i></span>
+problem; they formulate their algorithm in graph terms, but the
+structure of the 2D matrix-vector product is clearly recognizable.)
+The two-dimensional product algorithm only needs collectives in
+processor rows and columns, so the number of processors involved
+is&nbsp;$O(\sqrt P)$.
+</p>
+
+<h3><a id="Hyper-sparsedatastructures">9.6.2</a> Hyper-sparse data structures</h3>
+<p name=crumbs>
+crumb trail:  > <a href="graphalgorithms.html">graphalgorithms</a> > <a href="graphalgorithms.html#Large-scalecomputationalgraphtheory">Large-scale computational graph theory</a> > <a href="graphalgorithms.html#Hyper-sparsedatastructures">Hyper-sparse data structures</a>
+</p>
+<p name="switchToTextMode">
+
+With a two-dimensional distribution of sparse matrices,
+it is conceivable that some processes wind up with matrices
+that have empty rows. Formally, a matrix is called
+<i>hyper-sparse</i>
+<!-- index -->
+if the number of nonzeros is (asymptotically) less than the dimension.
+</p>
+
+<p name="switchToTextMode">
+In this case, 
+<span title="acronym" ><i>CRS</i></span>
+ format can be inefficient,
+and something called
+<i>double-compressed storage</i>
+<!-- index -->
+can be used&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#BulucGilbert:hypersparse">[BulucGilbert:hypersparse]</a>
+.
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

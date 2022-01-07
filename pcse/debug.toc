@@ -1,0 +1,12 @@
+49.1 : <a href="debug.html#Step0:compilingfordebug">Step 0: compiling for debug</a><br>
+49.2 : <a href="debug.html#Invoking<tt>gdb<tt>">Invoking <tt>gdb</tt></a><br>
+49.3 : <a href="debug.html#Findingerrors">Finding errors</a><br>
+49.3.1 : <a href="debug.html#Cprograms">C programs</a><br>
+49.3.2 : <a href="debug.html#Fortranprograms">Fortran programs</a><br>
+49.4 : <a href="debug.html#MemorydebuggingwithValgrind">Memory debugging with Valgrind</a><br>
+49.5 : <a href="debug.html#Steppingthroughaprogram">Stepping through a program</a><br>
+49.6 : <a href="debug.html#Inspectingvalues">Inspecting values</a><br>
+49.7 : <a href="debug.html#Paralleldebugging">Parallel debugging</a><br>
+49.7.1 : <a href="debug.html#MPIdebuggingwithgdb">MPI debugging with gdb</a><br>
+49.7.2 : <a href="debug.html#Full-screenparalleldebuggingwithDDT">Full-screen parallel debugging with DDT</a><br>
+49.8 : <a href="debug.html#Furtherreading">Further reading</a><br>

@@ -1,0 +1,1155 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>MPI topic: Topologies</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+11.1 : <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a><br>
+11.1.1 : <a href="mpi-topo.html#Cartesiantopologycommunicator">Cartesian topology communicator</a><br>
+11.1.2 : <a href="mpi-topo.html#Cartesianvsworldrank">Cartesian vs world rank</a><br>
+11.1.3 : <a href="mpi-topo.html#Cartesiancommunication">Cartesian communication</a><br>
+11.1.4 : <a href="mpi-topo.html#Communicatorsinsubgrids">Communicators in subgrids</a><br>
+11.1.5 : <a href="mpi-topo.html#Reordering">Reordering</a><br>
+11.2 : <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a><br>
+11.2.1 : <a href="mpi-topo.html#Graphcreation">Graph creation</a><br>
+11.2.2 : <a href="mpi-topo.html#Neighborcollectives">Neighbor collectives</a><br>
+11.2.3 : <a href="mpi-topo.html#Query">Query</a><br>
+11.2.4 : <a href="mpi-topo.html#Graphtopology(deprecated)">Graph topology (deprecated)</a><br>
+11.2.5 : <a href="mpi-topo.html#Re-ordering">Re-ordering</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>11 MPI topic: Topologies</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+A communicator describes a group of processes, but the structure of
+your computation may not be such that every process will communicate
+with every other process. For instance, in a computation that is
+mathematically defined on a
+Cartesian 2D grid, the
+processes themselves act as if they are two-dimensionally ordered and communicate
+with N/S/E/W neighbors. If MPI had this knowledge about your
+application, it could conceivably optimize for it, for instance by
+renumbering the ranks so that communicating processes are closer
+together physically in your cluster.
+</p>
+
+<p name="switchToTextMode">
+The mechanism to declare this structure of a computation to MPI
+is known as a 
+<i>virtual topology</i>
+. The following types of
+topology are defined:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_UNDEFINED</tt>
+: this values holds for communicators where no
+  topology has explicitly been specified.
+<li>
+<tt>MPI_CART</tt>
+: this value holds for Cartesian
+  toppologies, where processes act as if they are ordered in a
+  multi-dimensional `brick'; see
+  section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html#Cartesiangridtopology">11.1</a>
+.
+<li>
+<tt>MPI_GRAPH</tt>
+: this value describes the graph
+  topology that was defined in \mpistandard{1};
+  section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html#Graphtopology(deprecated)">11.2.4</a>
+. It is unnecessarily burdensome, since
+  each process needs to know the total graph, and should therefore be
+  considered obsolete; the type 
+<tt>MPI_DIST_GRAPH</tt>
+ should
+  be used instead.
+<li>
+<tt>MPI_DIST_GRAPH</tt>
+: this value describes the distributed graph
+  topology where each process only describes the edges in the process
+  graph that touch itself; see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html#Distributedgraphtopology">11.2</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+These values can be discovered with the routine
+<tt>MPI_Topo_test</tt>
+.
+</p>
+
+<h2><a id="Cartesiangridtopology">11.1</a> Cartesian grid topology</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a>
+</p>
+
+<p name="switchToTextMode">
+
+A 
+<i>Cartesian grid</i>
+ is a structure, typically in 2~or~3 dimensions,
+of points that have two neighbors in each of the dimensions.
+Thus, if a Cartesian grid has sizes $K\times M\times N$, its
+points have coordinates $(k,m,n)$ with $0\leq k<K$ et cetera.
+Most points have six neighbors $(k\pm1,m,n)$, $(k,m\pm1,n)$, $(k,m,n\pm1)$;
+the exception are the edge points. A~grid where edge processors
+are connected through 
+<i>wraparound connections</i>
+ is called
+a 
+<i>periodic grid</i>
+.
+</p>
+
+<p name="switchToTextMode">
+The auxiliary routine 
+<tt>MPI_Dims_create</tt>
+assists in finding a grid of a given dimension,
+attempting to minimize the diameter.
+\csnippetwithoutput{dimscreate}{examples/mpi/c}{cartdims}
+If the dimensions array is nonzero in a component, that one is not touched.
+Of course, the product of the specified dimensions has to divide in
+the input number of nodes.
+</p>
+
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Cartesiantopologycommunicator">11.1.1</a> Cartesian topology communicator</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a> > <a href="mpi-topo.html#Cartesiantopologycommunicator">Cartesian topology communicator</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The cartesian topology is specified by giving
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Cart_create" aria-expanded="false" aria-controls="MPI_Cart_create">
+        Routine reference: MPI_Cart_create
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Cart_create" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Cart_create</i>
+ the sizes of the processor grid along
+each axis, and whether the grid is periodic along that axis.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#cartcreate" aria-expanded="false" aria-controls="cartcreate">
+        C Code: cartcreate
+      </button>
+    </h5>
+  </div>
+  <div id="cartcreate" class="collapse">
+  <pre>
+MPI_Comm cart_comm;
+int *periods = (int*) malloc(dim*sizeof(int));
+for ( int id=0; id&lt;dim; id++ ) periods[id] = 0;
+MPI_Cart_create
+  ( comm,dim,dimensions,periods,
+    0,&cart_comm );
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+(The Cartesian grid can have fewer processes than the input communicator:
+any processes not included get 
+<tt>MPI_COMM_NULL</tt>
+ as output.)
+</p>
+
+<p name="switchToTextMode">
+For a given communicator, you can test what type it is
+with 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Topo_test" aria-expanded="false" aria-controls="MPI_Topo_test">
+        Routine reference: MPI_Topo_test
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Topo_test" class="collapse">
+  <pre>
+int MPI_Topo_test(MPI_Comm comm, int *status)
+
+status:
+MPI_UNDEFINED
+MPI_CART
+MPI_GRAPH
+MPI_DIST_GRAPH
+</pre>
+</div>
+</div>
+<i>MPI_Topo_test</i>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#carttypetest" aria-expanded="false" aria-controls="carttypetest">
+        C Code: carttypetest
+      </button>
+    </h5>
+  </div>
+  <div id="carttypetest" class="collapse">
+  <pre>
+int world_type,cart_type;
+MPI_Topo_test( comm,&world_type);
+MPI_Topo_test( cart_comm,&cart_type );
+if (procno==0) {
+  printf("World comm type=%d, Cart comm type=%d\n",
+         world_type,cart_type);
+  printf("no topo        =%d, cart top      =%d\n",
+         MPI_UNDEFINED,MPI_CART);
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+For a Cartesian communicator, you can retrieve
+its information with 
+<tt>MPI_Cartdim_get</tt>
+and 
+<tt>MPI_Cart_get</tt>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#cartget" aria-expanded="false" aria-controls="cartget">
+        C Code: cartget
+      </button>
+    </h5>
+  </div>
+  <div id="cartget" class="collapse">
+  <pre>
+int dim;
+MPI_Cartdim_get( cart_comm,&dim );
+int *dimensions = (int*) malloc(dim*sizeof(int));
+int *periods    = (int*) malloc(dim*sizeof(int));
+int *coords     = (int*) malloc(dim*sizeof(int));
+MPI_Cart_get( cart_comm,dim,dimensions,periods,coords );
+</pre>
+</div>
+</div>
+</p>
+
+<h3><a id="Cartesianvsworldrank">11.1.2</a> Cartesian vs world rank</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a> > <a href="mpi-topo.html#Cartesianvsworldrank">Cartesian vs world rank</a>
+</p>
+<p name="switchToTextMode">
+
+Each point in this new communicator has a coordinate and a rank.
+The translation from rank to Cartesian coordinate is done by
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Cart_coords" aria-expanded="false" aria-controls="MPI_Cart_coords">
+        Routine reference: MPI_Cart_coords
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Cart_coords" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Cart_coords</i>
+,
+and translation from coordinates to a rank is done by
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Cart_rank" aria-expanded="false" aria-controls="MPI_Cart_rank">
+        Routine reference: MPI_Cart_rank
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Cart_rank" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Cart_rank</i>
+.
+In both cases, this translation can be done on any process;
+for the latter routine note that coordinates outside the
+Cartesian grid are erroneous,
+if the grid is not periodic in the offending coordinate.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#cart" aria-expanded="false" aria-controls="cart">
+        C Code: cart
+      </button>
+    </h5>
+  </div>
+  <div id="cart" class="collapse">
+  <pre>
+// cart.c
+MPI_Comm comm2d;
+int periodic[ndim]; periodic[0] = periodic[1] = 0;
+MPI_Cart_create(comm,ndim,dimensions,periodic,1,&comm2d);
+MPI_Cart_coords(comm2d,procno,ndim,coord_2d);
+MPI_Cart_rank(comm2d,coord_2d,&rank_2d);
+printf("I am %d: (%d,%d); originally %d\n",rank_2d,coord_2d[0],coord_2d[1],procno);
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+The 
+<tt>reorder</tt>
+ parameter to 
+<tt>MPI_Cart_create</tt>
+indicates whether processes can have a rank
+in the new communicator that is different from in the old one.
+</p>
+
+<h3><a id="Cartesiancommunication">11.1.3</a> Cartesian communication</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a> > <a href="mpi-topo.html#Cartesiancommunication">Cartesian communication</a>
+</p>
+<p name="switchToTextMode">
+
+A common communication pattern in Cartesian grids is to
+do an 
+<tt>MPI_Sendrecv</tt>
+ with processes that are adjacent
+along one coordinate axis.
+</p>
+
+<p name="switchToTextMode">
+By way of example, consider a 3D grid that is periodic in the first dimension:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#cartperiod0" aria-expanded="false" aria-controls="cartperiod0">
+        C Code: cartperiod0
+      </button>
+    </h5>
+  </div>
+  <div id="cartperiod0" class="collapse">
+  <pre>
+// cartcoord.c
+for ( int id=0; id&lt;dim; id++)
+  periods[id] = id==0 ? 1 : 0;
+MPI_Cart_create
+  ( comm,dim,dimensions,periods,
+    0,&period_comm );
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+We shift process&nbsp;0 in dimensions 0 and&nbsp;1.
+In dimension&nbsp;0 we get a wrapped-around source,
+and a target that is the next process in row-major ordering;
+in dimension&nbsp;1 we get 
+<tt>MPI_PROC_NULL</tt>
+ as source,
+and a legitimate target.
+\csnippetwithoutput{cartshift01}{examples/mpi/c}{cartshift}
+</p>
+
+<h3><a id="Communicatorsinsubgrids">11.1.4</a> Communicators in subgrids</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a> > <a href="mpi-topo.html#Communicatorsinsubgrids">Communicators in subgrids</a>
+</p>
+<p name="switchToTextMode">
+
+The routine 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Cart_sub" aria-expanded="false" aria-controls="MPI_Cart_sub">
+        Routine reference: MPI_Cart_sub
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Cart_sub" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Cart_sub</i>
+ is similar to
+<tt>MPI_Comm_split</tt>
+, in that it splits a communicator
+into disjoint subcommunicators.
+In this case, it splits a Cartesian communicator
+into disjoint Cartesian communicators,
+each corresponding to a subset of the dimensions.
+This subset inherits both sizes and periodicity from the original communicator.
+</p>
+
+<p name="switchToTextMode">
+\csnippetwithoutput{hyperplane13p}{examples/mpi/c}{cartsub}
+</p>
+
+<h3><a id="Reordering">11.1.5</a> Reordering</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Cartesiangridtopology">Cartesian grid topology</a> > <a href="mpi-topo.html#Reordering">Reordering</a>
+</p>
+<p name="switchToTextMode">
+
+The routine 
+<tt>MPI_Cart_map</tt>
+ gives a re-ordered rank
+for the calling process.
+</p>
+
+<h2><a id="Distributedgraphtopology">11.2</a> Distributed graph topology</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a>
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/graphcollective.png" width=800></img>
+<p name="switchToTextMode">
+  \caption{Illustration of a distributed graph topology where each
+    node has four neighbors}
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+In many calculations on a grid (using the term in its mathematical,
+<span title="acronym" ><i>FEM</i></span>
+, sense), a grid point will collect information from grid
+points around it. Under a sensible distribution of the grid over
+processes, this means that each process will collect information from
+a number of neighbor processes. The number of
+neighbors is dependent on that process. For instance, in a 2D
+grid (and assuming a five-point stencil for the computation) most
+processes communicate with four neighbors; processes on the edge with
+three, and processes in the corners with two.
+</p>
+
+<p name="switchToTextMode">
+Such a topology is illustrated in figure&nbsp;
+11.1
+.
+</p>
+
+<p name="switchToTextMode">
+MPI's notion of 
+<i>neighborhood collectives</i>
+, offer an elegant way of
+expressing such communication structures. There are various reasons
+for using graph topologies over the older, simpler methods.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+MPI is allowed to reorder the processes, so that network proximity
+  in the cluster corresponds to proximity in the structure of the
+  code.
+<li>
+Ordinary collectives could not directly be used for graph
+  problems, unless one would adopt a subcommunicator for each graph
+  neighborhood. However, scheduling would then lead to deadlock or
+  serialization.
+<li>
+The normal way of dealing with graph problems is through
+  nonblocking communications. However, since the user indicates an
+  explicit order in which they are posted, congestion at certain
+  processes may occur.
+<li>
+Collectives can pipeline data, while send/receive operations
+  need to transfer their data in its entirety.
+<li>
+Collectives can use spanning trees, while send/receive uses a
+  direct connection.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Thus the minimal description of a process graph contains for each process:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Degree: the number of neighbor processes; and
+<li>
+the ranks of the processes to communicate with.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+However, this ignores that communication is not always symmetric:
+maybe the processes you receive from are not the ones you send
+to.
+Worse, maybe only one side of this duality is easily described.
+Therefore, there are two routines:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_Dist_graph_create_adjacent</tt>
+ assumes that a
+  process knows both who it is sending it, and who will send to
+  it. This is the most work for the programmer to specify, but it is
+  ultimately the most efficient.
+<li>
+<tt>MPI_Dist_graph_create</tt>
+ specifies on each process
+  only what it is the source for; that is, who this process will be sending
+  to. Consequently, some amount of processing
+  --&nbsp;including communication&nbsp;-- is needed to build the converse
+  information, the ranks that will be sending to a process.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Graphcreation">11.2.1</a> Graph creation</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a> > <a href="mpi-topo.html#Graphcreation">Graph creation</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+There are two creation routines for process graphs. These routines are
+fairly general in that they allow any process to specify any part of
+the topology. In practice, of course, you will mostly let each process
+describe its own neighbor structure.
+</p>
+
+<p name="switchToTextMode">
+The routine 
+<tt>MPI_Dist_graph_create_adjacent</tt>
+ assumes that a process
+knows both who it is sending it, and who will send to it. This means
+that every edge in the communication graph is represented twice, so
+the memory footprint is double of what is strictly necessary. However,
+no communication is needed to build the graph.
+</p>
+
+<p name="switchToTextMode">
+The second creation routine, 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Dist_graph_create" aria-expanded="false" aria-controls="MPI_Dist_graph_create">
+        Routine reference: MPI_Dist_graph_create
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Dist_graph_create" class="collapse">
+  <pre>
+int MPI_Dist_graph_create
+   (MPI_Comm comm_old, int n, const int sources[],
+    const int degrees[], const int destinations[], const int weights[],
+    MPI_Info info, int reorder,
+    MPI_Comm *comm_dist_graph)
+
+Input Parameters:
+comm_old : input communicator (handle)
+n : number of source nodes for which this process specifies edges (non-negative integer)
+sources : array containing the n source nodes for which this process specifies edges (array of non-negative integers)
+degrees : array specifying the number of destinations for each source node in the source node array (array of non-negative integers)
+destinations : destination nodes for the source nodes in the source
+node array (array of
+non-negative
+integers)
+weights : weights for source to destination edges (array of
+non-negative integers or MPI_UNWEIGHTED)
+info : hints on optimization and interpretation of weights (handle)
+reorder : the process may be reordered (true) or not (false) (logical)
+
+Output Parameters:
+comm_dist_graph : communicator with distributed graph topology added (handle)
+
+Python:
+MPI.Comm.Create_dist_graph
+    (self, sources, degrees, destinations, weights=None, Info info=INFO_NULL, bool reorder=False)
+returns graph communicator
+</pre>
+</div>
+</div>
+<i>MPI_Dist_graph_create</i>
+, is
+probably easier to use, especially in cases where the communication
+structure of your program is symmetric, meaning that a process sends
+to the same neighbors that it receives from.  Now you specify on each
+process only what it is the source for; that is, who this process will
+be sending to.\footnote{I disagree with this design
+  decision. Specifying your sources is usually easier than specifying
+  your destinations.}. Consequently, some amount of processing
+--&nbsp;including communication&nbsp;-- is needed to build the converse
+information, the ranks that will be sending to a process.
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+  The class  <tt>mpl::</tt> 
+<tt>dist_graph_communicator</tt>
+<p name="switchToTextMode">
+  only has a constructor corresponding to 
+<tt>MPI_Dist_graph_create</tt>
+.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+Figure&nbsp;
+11.1
+ describes the common five-point
+stencil structure. If we let each process only describe itself, we get
+the following:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>nsources</tt>
+$=1$ because the calling process describes on node
+  in the graph: itself.
+<li>
+
+<tt>sources</tt>
+ is an array of length&nbsp;1, containing the rank of the
+  calling process.
+<li>
+
+<tt>degrees</tt>
+ is an array of length&nbsp;1, containing the degree
+  (probably:&nbsp;4) of this process.
+<li>
+
+<tt>destinations</tt>
+ is an array of length the degree of this
+  process, probably again&nbsp;4. The elements of this array are the ranks
+  of the neighbor nodes; strictly speaking the ones that this process
+  will send to.
+<li>
+
+<tt>weights</tt>
+ is an array declaring the relative importance of the
+  destinations. For an 
+<i>unweighted graph</i>
+ use
+<tt>MPI_UNWEIGHTED</tt>
+.
+  In the case the graph is weighted, but the degree of a source is zero, you can pass
+  an empty array as 
+<tt>MPI_WEIGHTS_EMPTY</tt>
+.
+<li>
+
+<tt>reorder</tt>
+ (
+<tt>int</tt>
+ in&nbsp;C, 
+<tt>LOGICAL</tt>
+ in&nbsp;Fortran) indicates
+  whether MPI is allowed to shuffle processes to achieve greater locality.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+The resulting communicator has all the processes of the original
+communicator, with the same ranks.
+In other words 
+<tt>MPI_Comm_size</tt>
+ and 
+<tt>MPI_Comm_rank</tt>
+gives the same values on the graph communicator, as on the intra-communicator
+that it is constructed from.
+To get information about the grouping,
+use 
+<tt>MPI_Dist_graph_neighbors</tt>
+and 
+<tt>MPI_Dist_graph_neighbors_count</tt>
+;
+section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html#Query">11.2.3</a>
+.
+</p>
+
+<!-- environment: pythonnote start embedded generator -->
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  Graph communicator creation is a method of the \plstinline{Comm} class,
+  and the graph communicator is a function return result:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+graph_comm = oldcomm.Create_dist_graph(sources, degrees, destinations)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  The weights, info, and reorder arguments have default values.
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+
+<p name="switchToTextMode">
+  The constructor 
+<tt>dist_graph_communicator</tt>
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+dist_graph_communicator
+   (const communicator &old_comm, const source_set &ss,
+    const dest_set &ds, bool reorder = true);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+is a wrapper around 
+<tt>MPI_Dist_graph_create_adjacent</tt>
+.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+
+<p name="switchToTextMode">
+  Methods 
+<tt>indegree</tt>
+<tt>outdegree</tt>
+  are wrappers around 
+<tt>MPI_Dist_graph_neighbors_count</tt>
+.
+  Sources and targets can be queried with
+<tt>inneighbors</tt>
+<tt>outneighbors</tt>
+  which are wrappers around 
+<tt>MPI_Dist_graph_neighbors</tt>
+.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Neighborcollectives">11.2.2</a> Neighbor collectives</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a> > <a href="mpi-topo.html#Neighborcollectives">Neighbor collectives</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+We can now use the graph topology to perform a gather or allgather
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Neighbor_allgather" aria-expanded="false" aria-controls="MPI_Neighbor_allgather">
+        Routine reference: MPI_Neighbor_allgather
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Neighbor_allgather" class="collapse">
+  <pre>
+Synopsis
+
+int MPI_Neighbor_allgather
+   (const void *sendbuf, int sendcount,MPI_Datatype sendtype,
+    void *recvbuf, int recvcount, MPI_Datatype recvtype,
+    MPI_Comm comm)
+
+Input Parameters:
+sendbuf : starting address of the send buffer (choice)
+sendcount : number of elements sent to each neighbor (non-negative integer)
+sendtype : data type of send buffer elements (handle)
+recvcount : number of elements received from each neighbor (non-negative integer)
+recvtype : data type of receive buffer elements (handle)
+comm : communicator (handle)
+
+Output Parameters
+recvbuf : starting address of the receive buffer (choice)
+</pre>
+</div>
+</div>
+<i>MPI_Neighbor_allgather</i>
+that combines only the processes directly connected to the calling
+process.
+</p>
+
+<p name="switchToTextMode">
+The neighbor collectives have the same argument list as the regular
+collectives, but they apply to a graph communicator.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/rightgraph.png" width=800></img>
+<p name="switchToTextMode">
+  \caption{Solving the right-send exercise with neighborhood
+    collectives}
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Revisit exercise&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Serialization">4.1.4.3</a>
+ and solve it using
+<tt>MPI_Dist_graph_create</tt>
+.
+  Use figure&nbsp;
+11.2
+ for inspiration.
+</p>
+
+<p name="switchToTextMode">
+  Use a degree value of&nbsp;1.
+<!-- skeleton start: rightgraph -->
+<button id="runBtn">rightgraph</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: rightgraph -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+The previous exercise can be done with a degree value of:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+1, reflecting that each process communicates with just 1 other; or
+<li>
+2, reflecting that you really gather from two processes.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+In the latter case, results do not wind up in the receive buffer
+in order of increasing process number as with a traditional gather.
+Rather, you need to use&nbsp;
+<tt>MPI_Dist_graph_neighbors</tt>
+to find their sequencing; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html#Query">11.2.3</a>
+.
+</p>
+
+<p name="switchToTextMode">
+Another neighbor collective is 
+<tt>MPI_Neighbor_alltoall</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+The vector variants are
+<tt>MPI_Neighbor_allgatherv</tt>
+and
+<tt>MPI_Neighbor_alltoallv</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+There is a heterogenous (multiple datatypes) variant:
+<tt>MPI_Neighbor_alltoallw</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+The list is: 
+<tt>MPI_Neighbor_allgather</tt>
+,
+<tt>MPI_Neighbor_allgatherv</tt>
+,
+<tt>MPI_Neighbor_alltoall</tt>
+,
+<tt>MPI_Neighbor_alltoallv</tt>
+,
+<tt>MPI_Neighbor_alltoallw</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Nonblocking:
+<tt>MPI_Ineighbor_allgather</tt>
+,
+<tt>MPI_Ineighbor_allgatherv</tt>
+,
+<tt>MPI_Ineighbor_alltoall</tt>
+,
+<tt>MPI_Ineighbor_alltoallv</tt>
+,
+<tt>MPI_Ineighbor_alltoallw</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+For unclear reasons there is no 
+<tt>MPI_Neighbor_allreduce</tt>
+.
+</p>
+
+<h3><a id="Query">11.2.3</a> Query</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a> > <a href="mpi-topo.html#Query">Query</a>
+</p>
+
+<p name="switchToTextMode">
+
+There are two routines for querying the neighbors of a process:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Dist_graph_neighbors_count" aria-expanded="false" aria-controls="MPI_Dist_graph_neighbors_count">
+        Routine reference: MPI_Dist_graph_neighbors_count
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Dist_graph_neighbors_count" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Dist_graph_neighbors_count</i>
+and
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Dist_graph_neighbors" aria-expanded="false" aria-controls="MPI_Dist_graph_neighbors">
+        Routine reference: MPI_Dist_graph_neighbors
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Dist_graph_neighbors" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Dist_graph_neighbors</i>
+.
+</p>
+
+<p name="switchToTextMode">
+While this information seems derivable from the graph construction,
+that is not entirely true for two reasons.
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+With the nonadjoint version 
+<tt>MPI_Dist_graph_create</tt>
+,
+  only outdegrees and destinations are specified; this call then supplies
+  the indegrees and sources;
+<li>
+As observed above, the order in which data is placed in the
+  receive buffer of a gather call is not determined by the create call,
+  but can only be queried this way.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Graphtopology(deprecated)">11.2.4</a> Graph topology (deprecated)</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a> > <a href="mpi-topo.html#Graphtopology(deprecated)">Graph topology (deprecated)</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+The original \mpistandard{1} had a graph topology interface
+<tt>MPI_Graph_create</tt>
+which required each process to specify the full process graph. Since
+this is not scalable, it should be considered deprecated. Use the
+distributed graph topology (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html#Distributedgraphtopology">11.2</a>
+) instead.
+</p>
+
+<p name="switchToTextMode">
+Other legacy routines:
+<tt>MPI_Graph_neighbors</tt>
+,
+<tt>MPI_Graph_neighbors_count</tt>
+,
+<tt>MPI_Graph_get</tt>
+,
+<tt>MPI_Graphdims_get</tt>
+.
+</p>
+
+<h3><a id="Re-ordering">11.2.5</a> Re-ordering</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-topo.html">mpi-topo</a> > <a href="mpi-topo.html#Distributedgraphtopology">Distributed graph topology</a> > <a href="mpi-topo.html#Re-ordering">Re-ordering</a>
+</p>
+<p name="switchToTextMode">
+
+The routine 
+<tt>MPI_Graph_map</tt>
+ gives a re-ordered rank
+for the calling process.
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

@@ -1,0 +1,8 @@
+43.1 : <a href="multiprocessing.html#Softwareandhardware">Software and hardware</a><br>
+43.2 : <a href="multiprocessing.html#Process">Process</a><br>
+43.2.1 : <a href="multiprocessing.html#Arguments">Arguments</a><br>
+43.2.2 : <a href="multiprocessing.html#Processdetails">Process details</a><br>
+43.3 : <a href="multiprocessing.html#Poolsandmapping">Pools and mapping</a><br>
+43.4 : <a href="multiprocessing.html#Shareddata">Shared data</a><br>
+43.4.1 : <a href="multiprocessing.html#Pipes">Pipes</a><br>
+43.4.2 : <a href="multiprocessing.html#Queues">Queues</a><br>

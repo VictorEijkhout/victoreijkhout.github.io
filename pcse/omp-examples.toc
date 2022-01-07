@@ -1,0 +1,6 @@
+31.1 : <a href="omp-examples.html#N-bodyproblems">N-body problems</a><br>
+31.1.1 : <a href="omp-examples.html#Solution1:noconflictingwrites">Solution 1: no conflicting writes</a><br>
+31.1.2 : <a href="omp-examples.html#Solution2:usingatomics">Solution 2: using atomics</a><br>
+31.1.3 : <a href="omp-examples.html#Solution3:allinteractionsatomic">Solution 3: all interactions atomic</a><br>
+31.2 : <a href="omp-examples.html#Treetraversal">Tree traversal</a><br>
+31.3 : <a href="omp-examples.html#Depth-firstsearch">Depth-first search</a><br>

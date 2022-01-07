@@ -1,0 +1,1187 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>MPI topic: Process management</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+8.1 : <a href="mpi-proc.html#Processspawning">Process spawning</a><br>
+8.1.1 : <a href="mpi-proc.html#MPMD">MPMD</a><br>
+8.2 : <a href="mpi-proc.html#Socket-stylecommunications">Socket-style communications</a><br>
+8.2.1 : <a href="mpi-proc.html#Servercalls">Server calls</a><br>
+8.2.2 : <a href="mpi-proc.html#Clientcalls">Client calls</a><br>
+8.2.3 : <a href="mpi-proc.html#Publishedservicenames">Published service names</a><br>
+8.2.4 : <a href="mpi-proc.html#Unixsockets">Unix sockets</a><br>
+8.3 : <a href="mpi-proc.html#Sessions">Sessions</a><br>
+8.3.1 : <a href="mpi-proc.html#Worldmodelversussessionsmodel">World model versus sessions model</a><br>
+8.3.2 : <a href="mpi-proc.html#Processsets">Process sets</a><br>
+8.4 : <a href="mpi-proc.html#Functionalityavailableoutsideinitfinalize">Functionality available outside init/finalize</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>8 MPI topic: Process management</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+In this course we have up to now only considered the 
+<span title="acronym" ><i>SPMD</i></span>
+ model
+of running MPI programs.  In some rare cases you may want to run in an
+<span title="acronym" ><i>MPMD</i></span>
+ mode, rather than 
+<span title="acronym" ><i>SPMD</i></span>
+. This can be achieved either on
+the 
+<span title="acronym" ><i>OS</i></span>
+ level, using options of the 
+<i>mpiexec</i>
+ mechanism,
+or you can use MPI's built-in process management. Read on if you're
+interested in the latter.
+</p>
+
+<h2><a id="Processspawning">8.1</a> Process spawning</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Processspawning">Process spawning</a>
+</p>
+
+<p name="switchToTextMode">
+
+The first version of MPI did not contain any process management
+routines, even though the earlier 
+<i>PVM</i>
+ project did have
+that functionality. Process management was later added with \mpistandard{2}.
+</p>
+
+<p name="switchToTextMode">
+Unlike what you might think, newly added processes do not become part
+of 
+<tt>MPI_COMM_WORLD</tt>
+; rather, they get their own communicator, and an
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Inter-communicators">7.6</a>
+)
+is established between this new group
+and the existing one. The first routine is
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_spawn" aria-expanded="false" aria-controls="MPI_Comm_spawn">
+        Routine reference: MPI_Comm_spawn
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_spawn" class="collapse">
+  <pre>
+Semantics:
+MPI_COMM_SPAWN(command, argv, maxprocs, info, root, comm,
+    intercomm,array_of_errcodes)
+
+IN command: name of program to be spawned
+    (string, significant only at root)
+IN argv: arguments to command
+    (array of strings, significant only at root)
+IN maxprocs: maximum number of processes to start
+    (integer, significant only at root)
+IN info: a set of key-value pairs telling the runtime system where and
+    how to start the processes (handle, significant only at root)
+IN root: rank of process in which previous arguments are examined
+    (integer)
+IN comm: intracommunicator containing group of spawning processes
+    (handle)
+OUT intercomm: intercommunicator between original group and the
+    newly spawned group (handle)
+OUT array_of_errcodes: one code per process (array of integer)
+
+C:
+int MPI_Comm_spawn(const char *command, char *argv[], int maxprocs,
+    MPI_Info info, int root, MPI_Comm comm,
+    MPI_Comm *intercomm, int array_of_errcodes[])
+
+Fortran:
+MPI_Comm_spawn(command, argv, maxprocs, info, root, comm, intercomm,
+array_of_errcodes, ierror)
+CHARACTER(LEN=*), INTENT(IN) :: command, argv(*)
+INTEGER, INTENT(IN) :: maxprocs, root
+TYPE(MPI_Info), INTENT(IN) :: info
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Comm), INTENT(OUT) :: intercomm
+INTEGER :: array_of_errcodes(*)
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+
+MPI.Intracomm.Spawn(self,
+    command, args=None, int maxprocs=1, Info info=INFO_NULL,
+    int root=0, errcodes=None)
+returns an intracommunicator
+
+</pre>
+</div>
+</div>
+<i>MPI_Comm_spawn</i>
+, which tries to fire up multiple copies
+of a single named executable. Errors in starting up these codes are returned in an array of integers, or
+if you're feeling sure of yourself, specify 
+<tt>MPI_ERRCODES_IGNORE</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+It is not immediately clear whether there is opportunity for spawning
+new executables; after all, 
+<tt>MPI_COMM_WORLD</tt>
+ contains all
+your available processors. You can probably tell your job starter to
+reserve space for a few extra processes, but that is
+installation-dependent (see below). However, there is a standard
+mechanism for querying whether such space has been reserved.  The
+attribute 
+<tt>MPI_UNIVERSE_SIZE</tt>
+, retrieved with
+<tt>MPI_Comm_get_attr</tt>
+ (section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Attributes">15.1.2</a>
+), will tell
+you to the total number of hosts available.
+</p>
+
+<p name="switchToTextMode">
+If this option is not supported, you can determine yourself how many
+processes you want to spawn. If you exceed the hardware resources,
+your multi-tasking operating system (which is some variant of Unix for
+almost everyone) will use 
+<i>time-slicing</i>
+ to start the
+spawned processes, but you will not gain any performance.
+</p>
+
+<p name="switchToTextMode">
+Here is an example of a work manager.
+First we query how much space we have for new processes:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#spawnmanagerq" aria-expanded="false" aria-controls="spawnmanagerq">
+        C Code: spawnmanagerq
+      </button>
+    </h5>
+  </div>
+  <div id="spawnmanagerq" class="collapse">
+  <pre>
+int universe_size, *universe_size_attr,uflag;
+MPI_Comm_get_attr
+  (comm_world,MPI_UNIVERSE_SIZE,
+   &universe_size_attr,&uflag);
+universe_size = *universe_size_attr;
+if (!uflag) universe_size = world_n;
+int work_n = universe_size - world_n;
+if (world_p==0) {
+  printf("A universe of size %d leaves room for %d workers\n",
+         universe_size,work_n);
+  printf(".. spawning from %s\n",procname);
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+(See section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Attributes">15.1.2</a>
+ for that dereference behavior.)
+</p>
+
+<p name="switchToTextMode">
+Use the flag to see if this option is supported:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#uverse" aria-expanded="false" aria-controls="uverse">
+        C Code: uverse
+      </button>
+    </h5>
+  </div>
+  <div id="uverse" class="collapse">
+  <pre>
+// spawnmanager.c
+if (!flag) {
+  if (manager_rank==0) {
+    printf("This MPI does not support UNIVERSE_SIZE.\nHow many processes total?");
+    scanf("%d", &universe_size);
+  }
+  MPI_Bcast(&universe_size,1,MPI_INTEGER,0,MPI_COMM_WORLD);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+Then we actually spawn the processes:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#spawnmanager" aria-expanded="false" aria-controls="spawnmanager">
+        C Code: spawnmanager
+      </button>
+    </h5>
+  </div>
+  <div id="spawnmanager" class="collapse">
+  <pre>
+const char *workerprogram = "./spawnapp";
+MPI_Comm_spawn(workerprogram,MPI_ARGV_NULL,
+               work_n,MPI_INFO_NULL,
+		   0,comm_world,&comm_inter,NULL);
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#spawnmanagerp" aria-expanded="false" aria-controls="spawnmanagerp">
+        Python Code: spawnmanagerp
+      </button>
+    </h5>
+  </div>
+  <div id="spawnmanagerp" class="collapse">
+  <pre>
+## spawnmanager.py
+try :
+    universe_size = comm.Get_attr(MPI.UNIVERSE_SIZE)
+    if universe_size is None:
+        print("Universe query returned None")
+        universe_size = nprocs + 4
+    else:
+        print("World has {} ranks in a universe of {}"\
+              .format(nprocs,universe_size))
+except :
+    print("Exception querying universe size")
+    universe_size = nprocs + 4
+nworkers = universe_size - nprocs
+
+itercomm = comm.Spawn("./spawn_worker.py", maxprocs=nworkers)
+</pre>
+</div>
+</div>
+You could start up a single copy of this program with
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+mpiexec -n 1 spawnmanager
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+but with a hostfile that has more than one host.
+</p>
+
+<p name="switchToTextMode">
+A process can detect whether it was a spawning or a spawned process
+by using 
+<tt>MPI_Comm_get_parent</tt>
+:
+the resulting inter-communicator is 
+<tt>MPI_COMM_NULL</tt>
+on the parent processes.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#commparentdetect" aria-expanded="false" aria-controls="commparentdetect">
+        C Code: commparentdetect
+      </button>
+    </h5>
+  </div>
+  <div id="commparentdetect" class="collapse">
+  <pre>
+// spawnapp.c
+MPI_Comm comm_parent;
+MPI_Comm_get_parent(&comm_parent);
+int is_child = (comm_parent!=MPI_COMM_NULL);
+if (is_child) {
+  int nworkers,workerno;
+  MPI_Comm_size(MPI_COMM_WORLD,&nworkers);
+  MPI_Comm_rank(MPI_COMM_WORLD,&workerno);
+  printf("I detect I am worker %d/%d running on %s\n",
+         workerno,nworkers,procname);
+</pre>
+</div>
+</div>
+</p>
+
+<!-- environment: taccnote start embedded generator -->
+<!-- environment block purpose: [[ environment=taccnote ]] -->
+<remark>
+<b>TACC note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+<i>Intel MPI</i>
+ requires you to pass an option 
+<tt>-usize</tt>
+ to
+
+<tt>mpiexec</tt>
+ indicating the size of the comm universe. With the TACC
+jobs starter 
+<tt>ibrun</tt>
+ do the following:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+export FI_MLX_ENABLE_SPAWN=yes
+# specific
+MY_MPIRUN_OPTIONS="-usize 8" ibrun -np 4 spawnmanager
+# more generic
+MY_MPIRUN_OPTIONS="-usize ${SLURM_NPROCS}" ibrun -np 4 spawnmanager
+# using mpiexec:
+mpiexec -np 2 -usize ${SLURM_NPROCS} spawnmanager
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</remark>
+<!-- environment: taccnote end embedded generator -->
+<p name="switchToTextMode">
+The spawned program looks very much like a regular MPI program, with
+its own initialization and finalize calls.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#spawnworker" aria-expanded="false" aria-controls="spawnworker">
+        C Code: spawnworker
+      </button>
+    </h5>
+  </div>
+  <div id="spawnworker" class="collapse">
+  <pre>
+// spawnworker.c
+MPI_Comm_size(MPI_COMM_WORLD,&nworkers);
+MPI_Comm_rank(MPI_COMM_WORLD,&workerno);
+MPI_Comm_get_parent(&parent);
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#spawnworkerp" aria-expanded="false" aria-controls="spawnworkerp">
+        Python Code: spawnworkerp
+      </button>
+    </h5>
+  </div>
+  <div id="spawnworkerp" class="collapse">
+  <pre>
+## spawnworker.py
+parentcomm = comm.Get_parent()
+nparents = parentcomm.Get_remote_size()
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Spawned processes wind up with a value of 
+<tt>MPI_COMM_WORLD</tt>
+ of their
+own, but managers and workers can find each other regardless.
+The spawn routine returns the intercommunicator to the parent; the children
+can find it through 
+<tt>MPI_Comm_get_parent</tt>
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Inter-communicatorquerying">7.6.3</a>
+).
+The number of spawning processes can be found through
+<tt>MPI_Comm_remote_size</tt>
+ on the parent communicator.
+</p>
+
+<!-- environment: verbatim start embedded generator -->
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+Running spawnapp with usize=12, wsize=4
+%%
+%% manager output
+%%
+A universe of size 12 leaves room for 8 workers
+.. spawning from c209-026.frontera.tacc.utexas.edu
+%%
+%% worker output
+%%
+Worker deduces 8 workers and 4 parents
+I detect I am worker 0/8 running on c209-027.frontera.tacc.utexas.edu
+I detect I am worker 1/8 running on c209-027.frontera.tacc.utexas.edu
+I detect I am worker 2/8 running on c209-027.frontera.tacc.utexas.edu
+I detect I am worker 3/8 running on c209-027.frontera.tacc.utexas.edu
+I detect I am worker 4/8 running on c209-028.frontera.tacc.utexas.edu
+I detect I am worker 5/8 running on c209-028.frontera.tacc.utexas.edu
+I detect I am worker 6/8 running on c209-028.frontera.tacc.utexas.edu
+I detect I am worker 7/8 running on c209-028.frontera.tacc.utexas.edu
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="MPMD">8.1.1</a> MPMD</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Processspawning">Process spawning</a> > <a href="mpi-proc.html#MPMD">MPMD</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Instead of spawning a single executable, you can spawn multiple with
+<tt>MPI_Comm_spawn_multiple</tt>
+.
+</p>
+
+<h2><a id="Socket-stylecommunications">8.2</a> Socket-style communications</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Socket-stylecommunications">Socket-style communications</a>
+</p>
+<p name="switchToTextMode">
+
+It is possible to establish connections with running MPI programs that
+have their own world communicator.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The 
+<i>server</i>
+ process establishes a port with
+<tt>MPI_Open_port</tt>
+, and calls 
+<tt>MPI_Comm_accept</tt>
+ to accept
+  connections to its port.
+<li>
+The 
+<i>client</i>
+ process specifies that port
+  in an 
+<tt>MPI_Comm_connect</tt>
+ call. This establishes the connection.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Servercalls">8.2.1</a> Server calls</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Socket-stylecommunications">Socket-style communications</a> > <a href="mpi-proc.html#Servercalls">Server calls</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The server calls 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Open_port" aria-expanded="false" aria-controls="MPI_Open_port">
+        Routine reference: MPI_Open_port
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Open_port" class="collapse">
+  <pre>
+C:
+#include <mpi.h>
+int MPI_Open_port(MPI_Info info, char *port_name)
+
+Input parameters:
+info : Options on how to establish an address (handle). No options currently supported.
+
+Output parameters:
+port_name : Newly established port (string).
+</pre>
+</div>
+</div>
+<i>MPI_Open_port</i>
+, yielding a port name.
+Port names are generated by the system and copied into a character
+buffer of length at most 
+<tt>MPI_MAX_PORT_NAME</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+The server then needs to call
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_accept" aria-expanded="false" aria-controls="MPI_Comm_accept">
+        Routine reference: MPI_Comm_accept
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_accept" class="collapse">
+  <pre>
+Synopsis:
+int MPI_Comm_accept
+   (const char *port_name, MPI_Info info, int root,
+    MPI_Comm comm, MPI_Comm *newcomm)
+
+Input parameters:
+port_name : Port name (string, used only on root).
+info : Options given by root for the accept (handle, used only on
+    root). No options currently supported.
+root : Rank in comm of root node (integer).
+comm : Intracommunicator over which call is collective (handle).
+
+Output parameters:
+newcomm : Intercommunicator with client as remote group (handle)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_accept</i>
+ prior to the client doing a connect call.
+This is collective over the calling communicator.
+It returns an intercommunicator (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Inter-communicators">7.6</a>
+)
+that allows communication with the client.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mpiportmanage" aria-expanded="false" aria-controls="mpiportmanage">
+        C++ Code: mpiportmanage
+      </button>
+    </h5>
+  </div>
+  <div id="mpiportmanage" class="collapse">
+  <pre>
+MPI_Comm intercomm;
+char myport[MPI_MAX_PORT_NAME];
+MPI_Open_port( MPI_INFO_NULL,myport );
+int portlen = strlen(myport);
+MPI_Send( myport,portlen+1,MPI_CHAR,1,0,comm_world );
+printf("Host sent port &lt;&lt;%s&gt;&gt;\n",myport);
+MPI_Comm_accept( myport,MPI_INFO_NULL,0,comm_self,&intercomm );
+printf("host accepted connection\n");
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+The port can be closed with
+<tt>MPI_Close_port</tt>
+.
+</p>
+
+<h3><a id="Clientcalls">8.2.2</a> Client calls</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Socket-stylecommunications">Socket-style communications</a> > <a href="mpi-proc.html#Clientcalls">Client calls</a>
+</p>
+<p name="switchToTextMode">
+
+After the server has generated a port name, the client
+needs to connect to it with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_connect" aria-expanded="false" aria-controls="MPI_Comm_connect">
+        Routine reference: MPI_Comm_connect
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_connect" class="collapse">
+  <pre>
+Synopsis
+int MPI_Comm_connect
+   (const char *port_name, MPI_Info info, int root,
+    MPI_Comm comm, MPI_Comm * newcomm)
+
+Input Parameters
+port_name : network address (string, used only on root)
+info : implementation-dependent information (handle, used only on root)
+root : rank in comm of root node (integer)
+comm : intracommunicator over which call is collective (handle)
+
+Output Parameters
+newcomm : intercommunicator with server as remote group (handle)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_connect</i>
+, again specifying the port through a character buffer.
+The connect call is collective over its communicator.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mpiportwork" aria-expanded="false" aria-controls="mpiportwork">
+        C++ Code: mpiportwork
+      </button>
+    </h5>
+  </div>
+  <div id="mpiportwork" class="collapse">
+  <pre>
+char myport[MPI_MAX_PORT_NAME];
+if (work_p==0) {
+  MPI_Recv( myport,MPI_MAX_PORT_NAME,MPI_CHAR,
+            MPI_ANY_SOURCE,0, comm_world,MPI_STATUS_IGNORE );
+  printf("Worker received port &lt;&lt;%s&gt;&gt;\n",myport);
+}
+MPI_Bcast( myport,MPI_MAX_PORT_NAME,MPI_CHAR,0,comm_work );
+
+/*
+ * The workers collective connect over the inter communicator
+ */
+MPI_Comm intercomm;
+MPI_Comm_connect( myport,MPI_INFO_NULL,0,comm_work,&intercomm );
+if (work_p==0) {
+  int manage_n;
+  MPI_Comm_remote_size(intercomm,&manage_n);
+  printf("%d workers connected to %d managers\n",work_n,manage_n);
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+If the named port does not exist (or has been closed),
+<tt>MPI_Comm_connect</tt>
+ raises an error of class 
+<tt>MPI_ERR_PORT</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+The client can sever the connection with
+<tt>MPI_Comm_disconnect</tt>
+</p>
+
+<p name="switchToTextMode">
+Running the above code on 5 processes gives:
+\begin{small}
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+# exchange port name:
+Host sent port &lt;&lt;tag#0$OFA#000010e1:0001cde9:0001cdee$rdma_port#1024$rdma_host#10:16:225:0:1:205:199:254:128:0:0:0:0:0:0$&gt;&gt;
+Worker received port &lt;&lt;tag#0$OFA#000010e1:0001cde9:0001cdee$rdma_port#1024$rdma_host#10:16:225:0:1:205:199:254:128:0:0:0:0:0:0$&gt;&gt;
+
+
+# Comm accept/connect
+host accepted connection
+4 workers connected to 1 managers
+
+
+# Send/recv over the intercommunicator
+Manager sent 4 items over intercomm
+Worker zero received data
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+\end{small}
+</p>
+
+<h3><a id="Publishedservicenames">8.2.3</a> Published service names</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Socket-stylecommunications">Socket-style communications</a> > <a href="mpi-proc.html#Publishedservicenames">Published service names</a>
+</p>
+
+<p name="switchToTextMode">
+
+More elegantly than the port mechanism above,
+it is possible to publish a named service,
+with 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Publish_name" aria-expanded="false" aria-controls="MPI_Publish_name">
+        Routine reference: MPI_Publish_name
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Publish_name" class="collapse">
+  <pre>
+Synopsis:
+MPI_Publish_name(service_name, info, port_name)
+
+Input parameters:
+service_name : a service name to associate with the port (string)
+info : implementation-specific information (handle)
+port_name : a port name (string)
+
+C:
+int MPI_Publish_name
+   (char *service_name, MPI_Info info, char *port_name)
+
+Fortran77:
+MPI_PUBLISH_NAME(SERVICE_NAME, INFO, PORT_NAME, IERROR)
+INTEGER INFO, IERROR
+CHARACTER*(*) SERVICE_NAME, PORT_NAME
+</pre>
+</div>
+</div>
+<i>MPI_Publish_name</i>
+,
+which can then be discovered by other processes.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#publishmanager" aria-expanded="false" aria-controls="publishmanager">
+        C Code: publishmanager
+      </button>
+    </h5>
+  </div>
+  <div id="publishmanager" class="collapse">
+  <pre>
+// publishapp.c
+MPI_Comm intercomm;
+char myport[MPI_MAX_PORT_NAME];
+MPI_Open_port( MPI_INFO_NULL,myport );
+MPI_Publish_name( service_name, MPI_INFO_NULL, myport );
+MPI_Comm_accept( myport,MPI_INFO_NULL,0,comm_self,&intercomm );
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Worker processes connect to the inter-communicator by
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#publishworker" aria-expanded="false" aria-controls="publishworker">
+        C Code: publishworker
+      </button>
+    </h5>
+  </div>
+  <div id="publishworker" class="collapse">
+  <pre>
+char myport[MPI_MAX_PORT_NAME];
+MPI_Lookup_name( service_name,MPI_INFO_NULL,myport );
+MPI_Comm intercomm;
+MPI_Comm_connect( myport,MPI_INFO_NULL,0,comm_work,&intercomm );
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+For this it is necessary to have a 
+<i>name server</i>
+ running.
+</p>
+
+<p name="switchToTextMode">
+\begin{intelnote}
+Start the 
+<i>hydra</i>
+ name server and use the corresponding mpi starter:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+hydra_nameserver &
+MPIEXEC=mpiexec.hydra
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+There is an environment variable, but that doesn't seem to be needed.
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+export I_MPI_HYDRA_NAMESERVER=`hostname`:8008
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+It is also possible to specify the name server as an argument to the job starter.
+\end{intelnote}
+</p>
+
+<p name="switchToTextMode">
+At the end of a run, the service should be unpublished with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Unpublish_name" aria-expanded="false" aria-controls="MPI_Unpublish_name">
+        Routine reference: MPI_Unpublish_name
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Unpublish_name" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Unpublish_name</i>
+.
+Unpublishing a nonexisting or already unpublished service gives an
+error code of 
+<tt>MPI_ERR_SERVICE</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+MPI provides no guarantee of fairness in servicing connection
+attempts. That is, connection attempts are not necessarily satisfied
+in the order in which they were initiated, and competition from other
+connection attempts may prevent a particular connection attempt from
+being satisfied.
+</p>
+
+<h3><a id="Unixsockets">8.2.4</a> Unix sockets</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Socket-stylecommunications">Socket-style communications</a> > <a href="mpi-proc.html#Unixsockets">Unix sockets</a>
+</p>
+<p name="switchToTextMode">
+
+It is also possible to create an
+<i>inter-communicator</i>
+<i>socket</i>
+<!-- index -->
+with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_join" aria-expanded="false" aria-controls="MPI_Comm_join">
+        Routine reference: MPI_Comm_join
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_join" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Comm_join</i>
+.
+</p>
+
+<h2><a id="Sessions">8.3</a> Sessions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Sessions">Sessions</a>
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: mpifour start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mpifour ]] -->
+<remark>
+<b>MPI 4 Standard only</b>
+<p name="remark">
+<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+</p>
+
+<p name="switchToTextMode">
+The most common way of initializing MPI,
+with 
+<tt>MPI_Init</tt>
+ (or 
+<tt>MPI_Init_thread</tt>
+) and 
+<tt>MPI_Finalize</tt>
+,
+is known as the 
+<i>world model</i>
+.
+Additionally, there is the 
+<i>session model</i>
+,
+which can be described as doing multiple initializations and finalizations.
+The two models can be used in the same program, but there are limitations
+on how they can mix.
+</p>
+
+<h3><a id="Worldmodelversussessionsmodel">8.3.1</a> World model versus sessions model</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Sessions">Sessions</a> > <a href="mpi-proc.html#Worldmodelversussessionsmodel">World model versus sessions model</a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<i>world model</i>
+ of using MPI can be described as:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+There is a single call to 
+<tt>MPI_Init</tt>
+ or 
+<tt>MPI_Init_thread</tt>
+;
+<li>
+There is a single call to 
+<tt>MPI_Finalize</tt>
+;
+<li>
+With very few exceptions, all MPI calls appear in between the initialize and finalize calls.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+In the 
+<i>session model</i>
+, the world model has become a single session,
+and it is possible to start multiple sessions, each on their own set of processes,
+possibly identical or overlapping.
+</p>
+
+<p name="switchToTextMode">
+An MPI 
+<i>session</i>
+ is initialized and finalized
+with 
+<tt>MPI_Session_init</tt>
+ and 
+<tt>MPI_Session_finalize</tt>
+,
+somewhat similar to 
+<tt>MPI_Init</tt>
+ and 
+<tt>MPI_Finalize</tt>
+.
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Info       info;
+MPI_Errhandler errhandler;
+MPI_Session    session;
+MPI_Session_init(info,errhandler,&session);
+
+
+MPI_Info info_used;
+MPI_Session_get_info(session,&info_used);
+MPI_Info_free(&info_used);
+
+
+MPI_Session_finalize(&session);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+The info object can contain implementation-specific data,
+but the key 
+<tt>mpi_thread_support_level</tt>
+ is pre-defined.
+</p>
+
+<p name="switchToTextMode">
+You can not mix in a single call objects
+from different sessions,
+from a session and from the world model,
+or from a session and from 
+<tt>MPI_Comm_get_parent</tt>
+or 
+<tt>MPI_Comm_join</tt>
+.
+</p>
+
+<h3><a id="Processsets">8.3.2</a> Process sets</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Sessions">Sessions</a> > <a href="mpi-proc.html#Processsets">Process sets</a>
+</p>
+<p name="switchToTextMode">
+
+Process sets are indicated with a 
+<span title="acronym" ><i>URI</i></span>
+,
+where the 
+<span title="acronym" ><i>URIs</i></span>
+<tt>mpi://WORLD</tt>
+ and 
+<tt>mpi://SELF</tt>
+are always defined.
+</p>
+
+<p name="switchToTextMode">
+The following partial code creates a communicator equivalent to 
+<tt>MPI_COMM_WORLD</tt>
+in the session model:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+const char pset_name[] = "mpi://WORLD";
+MPI_Group_from_session_pset
+   (lib_shandle,pset_name,&wgroup);
+MPI_Comm_create_from_group
+   (wgroup,"parcompbook-example",
+    MPI_INFO_NULL,MPI_ERRORS_RETURN,&world_comm);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Further process sets can be found: 
+<tt>MPI_Session_get_num_psets</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Get a specific one: 
+<tt>MPI_Session_get_nth_pset</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Get the info object (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Infoobjects">15.1.1</a>
+) from a process set:
+<tt>MPI_Session_get_pset_info</tt>
+.
+This info object always has the key 
+<tt>mpi_size</tt>
+.
+</p>
+
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+</p name="remark">
+<i>End of MPI 4 note</i>
+</remark>
+<!-- environment: mpifour end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Functionalityavailableoutsideinitfinalize">8.4</a> Functionality available outside init/finalize</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Functionalityavailableoutsideinitfinalize">Functionality available outside init/finalize</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+\begin{raggedlist}
+<tt>MPI_Initialized</tt>
+<tt>MPI_Finalized</tt>
+<tt>MPI_Get_version</tt>
+<tt>MPI_Get_library_version</tt>
+<tt>MPI_Info_create</tt>
+<tt>MPI_Info_create_env</tt>
+<tt>MPI_Info_set</tt>
+<tt>MPI_Info_delete</tt>
+<tt>MPI_Info_get</tt>
+<tt>MPI_Info_get_valuelen</tt>
+<tt>MPI_Info_get_nkeys</tt>
+<tt>MPI_Info_get_nthkey</tt>
+<tt>MPI_Info_dup</tt>
+<tt>MPI_Info_free</tt>
+<tt>MPI_Info_f2c</tt>
+<tt>MPI_Info_c2f</tt>
+<tt>MPI_Session_create_errhandler</tt>
+<tt>MPI_Session_call_errhandler</tt>
+<tt>MPI_Errhandler_free</tt>
+<tt>MPI_Errhandler_f2c</tt>
+<tt>MPI_Errhandler_c2f</tt>
+<tt>MPI_Error_string</tt>
+<tt>MPI_Error_class</tt>
+\end{raggedlist}
+Also all routines starting with 
+<tt>MPI_Txxx</tt>
+.
+</div>
+<a href="index.html">Back to Table of Contents</a>

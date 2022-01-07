@@ -1,0 +1,1920 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Managing projects with Make</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+24.1 : <a href="gnumake.html#Asimpleexample">A simple example</a><br>
+24.1.1 : <a href="gnumake.html#C">C</a><br>
+24.1.2 : <a href="gnumake.html#Fortran">Fortran</a><br>
+24.1.3 : <a href="gnumake.html#Aboutthemakefile">About the make file</a><br>
+24.2 : <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a><br>
+24.2.1 : <a href="gnumake.html#Makefilevariables">Makefile variables</a><br>
+24.2.2 : <a href="gnumake.html#Templaterules">Template rules</a><br>
+24.2.3 : <a href="gnumake.html#Wildcards">Wildcards</a><br>
+24.2.4 : <a href="gnumake.html#Morefunctions">More functions</a><br>
+24.2.5 : <a href="gnumake.html#Conditionals">Conditionals</a><br>
+24.3 : <a href="gnumake.html#Miscellania">Miscellania</a><br>
+24.3.1 : <a href="gnumake.html#Phonytargets">Phony targets</a><br>
+24.3.2 : <a href="gnumake.html#Directories">Directories</a><br>
+24.3.3 : <a href="gnumake.html#Usingthetargetasprerequisite">Using the target as prerequisite</a><br>
+24.3.4 : <a href="gnumake.html#Predefinedvariablesandrules">Predefined variables and rules</a><br>
+24.4 : <a href="gnumake.html#ShellscriptinginaMakefile">Shell scripting in a Makefile</a><br>
+24.5 : <a href="gnumake.html#PracticaltipsforusingMake">Practical tips for using Make</a><br>
+24.5.1 : <a href="gnumake.html#Whatdoesthismakefiledo?">What does this makefile do?</a><br>
+24.6 : <a href="gnumake.html#AMakefileforLaTeX">A Makefile for LaTeX</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>24 Managing projects with Make</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+The 
+<i>Make</i>
+ utility helps you manage the building of
+projects: its main task is to facilitate rebuilding only those parts
+of a multi-file project that need to be recompiled or rebuilt.
+This can save lots of time, since it
+can replace a minutes-long full installation by a single file
+compilation. 
+<i>Make</i>
+ can also help maintaining multiple
+installations of a program on a single machine, for instance compiling
+a library with more than one compiler, or compiling a program in debug
+and optimized mode.
+</p>
+
+<i>Make</i>
+<p name="switchToTextMode">
+there are variants with slightly different behavior,
+for instance on the various
+flavors of Unix such as HP-UX, AUX, IRIX.
+These days, it is advisable, no
+matter the platform, to use the GNU version of Make which has some
+very powerful extensions; it is available on all Unix platforms
+(on Linux it is the only available variant), and it is a 
+<i> de   facto</i>
+ standard. The manual is available at
+
+<a href=http://www.gnu.org/software/make/manual/make.html>http://www.gnu.org/software/make/manual/make.html</a>
+, or you can
+read the book~
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#OReilly-GnuMake">[OReilly-GnuMake]</a>
+.
+</p>
+
+<p name="switchToTextMode">
+There are other build systems, most notably 
+<i>Scons</i>
+ and
+<i>Bjam</i>
+. We will not discuss those here. The examples in this
+tutorial will be for the C and Fortran languages, but 
+<i>Make</i>
+ can
+work with any language, and in fact with things like TeX  that are
+not really a language at all; see section~
+24.6
+.
+</p>
+
+<h2><a id="Asimpleexample">24.1</a> A simple example</h2>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Asimpleexample">A simple example</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+In this section you will see a simple example, just to give the flavor of
+<i>Make</i>
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+The files for this section can be found in the repository in the
+directory
+
+<tt>tutorials/make_tutorial_files</tt>
+.
+</p>
+
+<h3><a id="C">24.1.1</a> C</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Asimpleexample">A simple example</a> > <a href="gnumake.html#C">C</a>
+</p>
+<p name="switchToTextMode">
+
+Make the following files:
+</p>
+
+<p name="switchToTextMode">
+File: tutorials/makefiles/1c/foo.c
+File: tutorials/makefiles/1c/bar.c
+File: tutorials/makefiles/1c/bar.h
+and a makefile:
+File: tutorials/makefiles/1c/Makefile
+</p>
+
+<p name="switchToTextMode">
+The makefile has a number of rules like
+<!-- environment: verbatim start embedded generator -->
+</p>
+foo.o : foo.c
+&lt;TAB&gt;cc -c foo.c
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+which have the general form
+<!-- environment: verbatim start embedded generator -->
+</p>
+target : prerequisite(s)
+&lt;TAB&gt;rule(s)
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+where the rule lines are indented by a 
+<tt>TAB</tt>
+ character.
+</p>
+
+<p name="switchToTextMode">
+A rule, such as above, states that a `target' file 
+<tt>foo.o</tt>
+ is made
+from a `prerequisite' 
+<tt>foo.c</tt>
+, namely by executing the command \n{cc
+  -c foo.c}. The precise definition of the rule is:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+if the target 
+<tt>foo.o</tt>
+ does not exist or is older than the
+  prerequisite 
+<tt>foo.c</tt>
+,
+<li>
+then the command part of the rule is executed: 
+<tt>cc -c foo.c</tt>
+
+<li>
+If the prerequisite is itself the target of another rule, than that
+  rule is executed first.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Probably the best way to interpret a rule is:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+if any prerequisite has changed,
+<li>
+then the target needs to be remade,
+<li>
+and that is done by executing the commands of the rule;
+<li>
+checking the prerequisite requires a recursive application of
+  make:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+if the prerequisite does not exist, find a rule to create it;
+<li>
+if the prerequisite already exists, check applicable rules to
+    see if it needs to be remade.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+If you call 
+<tt>make</tt>
+ without any arguments,
+the first rule in the makefile is evaluated. You can execute other
+rules by explicitly invoking them, for instance 
+<tt>make foo.o</tt>
+ to
+compile a single file.
+</p>
+
+<p name="switchToTextMode">
+\practical{Call 
+<tt>make</tt>
+.}
+  {The above rules are applied: 
+<tt>make</tt>
+ without arguments tries to
+    build the first target, 
+<tt>fooprog</tt>
+. In order to build this, it
+    needs the prerequisites 
+<tt>foo.o</tt>
+ and 
+<tt>bar.o</tt>
+, which do not
+    exist. However, there are rules for making them, which 
+<tt>make</tt>
+
+    recursively invokes. Hence you see two compilations, for 
+<tt>foo.o</tt>
+
+    and 
+<tt>bar.o</tt>
+, and a link command for 
+<tt>fooprog</tt>
+.}
+  {Typos in the makefile or in file names can cause various
+    errors. In particular, make sure you use tabs and not spaces for
+    the rule lines. Unfortunately, debugging a makefile is not simple.
+    
+<i>Make</i>
+'s error message will usually give
+    you the line number in the make file where the error was detected.}
+</p>
+
+<p name="switchToTextMode">
+\practical{Do 
+<tt>make clean</tt>
+, followed by 
+<tt>mv foo.c boo.c</tt>
+ and
+  
+<tt>make</tt>
+ again. Explain the error message. Restore the original file
+  name.}
+  {
+<i>Make</i>
+ will complain that there is no rule to make
+    
+<tt>foo.c</tt>
+. This error was caused when 
+<tt>foo.c</tt>
+ was a
+    prerequisite for making 
+<tt>foo.o</tt>
+, and was found not to exist.
+    
+<i>Make</i>
+ then went
+    looking for a rule to make it and no rule for creating 
+<tt>.c</tt>
+
+    files exists.}{}
+</p>
+
+<p name="switchToTextMode">
+Now add a second argument to the function 
+<tt>bar</tt>
+. This requires you
+to edit 
+<tt>bar.c</tt>
+ and 
+<tt>bar.h</tt>
+: go ahead and make these
+edits. However, it also requires you to edit 
+<tt>foo.c</tt>
+, but let us for
+now `forget' to do that. We will see how 
+<i>Make</i>
+ can help you find
+the resulting error.
+</p>
+
+<p name="switchToTextMode">
+\practical{Call 
+<tt>make</tt>
+ to recompile your program. Did it recompile
+  
+<tt>foo.c</tt>
+?}{Even through conceptually 
+<tt>foo.c</tt>
+ would need to be
+  recompiled since it uses the 
+<tt>bar</tt>
+ function,
+  
+<i>Make</i>
+ did not do so because the makefile had no
+  rule that forced it.}{}
+</p>
+
+<p name="switchToTextMode">
+In the makefile, change the line
+<!-- environment: verbatim start embedded generator -->
+</p>
+foo.o : foo.c
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+to
+<!-- environment: verbatim start embedded generator -->
+</p>
+foo.o : foo.c bar.h
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+which adds 
+<tt>bar.h</tt>
+ as a prerequisite for 
+<tt>foo.o</tt>
+. This means that,
+in this case where 
+<tt>foo.o</tt>
+ already exists, 
+<i>Make</i>
+ will check
+that 
+<tt>foo.o</tt>
+ is not older than any of its prerequisites. Since
+
+<tt>bar.h</tt>
+ has been edited, it is younger than 
+<tt>foo.o</tt>
+, so 
+<tt>foo.o</tt>
+
+needs to be reconstructed.
+</p>
+
+<p name="switchToTextMode">
+\practical{Confirm that the new makefile indeed causes 
+<tt>foo.o</tt>
+ to be
+  recompiled if 
+<tt>bar.h</tt>
+ is changed. This compilation will now give
+  an error, since you `forgot' to edit the use of the 
+<tt>bar</tt>
+ function.}{}{}
+</p>
+
+<h3><a id="Fortran">24.1.2</a> Fortran</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Asimpleexample">A simple example</a> > <a href="gnumake.html#Fortran">Fortran</a>
+</p>
+<p name="switchToTextMode">
+
+Make the following files:
+</p>
+
+<p name="switchToTextMode">
+File: tutorials/makefiles/1f/foomain.F
+File: tutorials/makefiles/1f/foomod.F
+and a makefile:
+File: tutorials/makefiles/1f/Makefile
+If you call 
+<tt>make</tt>
+, the first rule in the makefile is executed. Do
+this, and explain what happens.
+</p>
+
+<p name="switchToTextMode">
+\practical{Call 
+<tt>make</tt>
+.}
+  {The above rules are applied: 
+<tt>make</tt>
+ without arguments tries to
+    build the first target, 
+<tt>foomain</tt>
+. In order to build this, it
+    needs the prerequisites 
+<tt>foomain.o</tt>
+ and 
+<tt>foomod.o</tt>
+, which do not
+    exist. However, there are rules for making them, which 
+<tt>make</tt>
+
+    recursively invokes. Hence you see two compilations, for 
+<tt>foomain.o</tt>
+
+    and 
+<tt>foomod.o</tt>
+, and a link command for 
+<tt>fooprog</tt>
+.}
+  {Typos in the makefile or in file names can cause various
+    errors. Unfortunately, debugging a makefile is not simple. You
+    will just have to understand the errors, and make the
+    corrections.}
+</p>
+
+<p name="switchToTextMode">
+\practical{Do 
+<tt>make clean</tt>
+, followed by 
+<tt>mv foomod.c boomod.c</tt>
+ and
+  
+<tt>make</tt>
+ again. Explain the error message. Restore the original file
+  name.}
+  {
+<i>Make</i>
+ will complain that there is no rule to make
+    
+<tt>foomod.c</tt>
+. This error was caused when 
+<tt>foomod.c</tt>
+ was a
+    prerequisite for 
+<tt>foomod.o</tt>
+, and was found not to
+    exist. 
+<i>Make</i>
+ then went looking for a rule to make it, and no
+    rule for making 
+<tt>.F</tt>
+ files exists.}{}
+</p>
+
+<p name="switchToTextMode">
+Now add an extra
+parameter to 
+<tt>func</tt>
+ in 
+<tt>foomod.F</tt>
+ and recompile.
+</p>
+
+<p name="switchToTextMode">
+\practical{Call 
+<tt>make</tt>
+ to recompile your program. Did it recompile
+  
+<tt>foomain.F</tt>
+?}{Even through conceptually 
+<tt>foomain.F</tt>
+ would need to be
+  recompiled, 
+<i>Make</i>
+ did not do so because the makefile had no
+  rule that forced it.}{}
+</p>
+
+<p name="switchToTextMode">
+Change the line
+<!-- environment: verbatim start embedded generator -->
+</p>
+foomain.o : foomain.F
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+to
+<!-- environment: verbatim start embedded generator -->
+</p>
+foomain.o : foomain.F foomod.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+which adds 
+<tt>foomod.o</tt>
+ as a prerequisite for 
+<tt>foomain.o</tt>
+. This
+means that, in this case where 
+<tt>foomain.o</tt>
+ already exists,
+<i>Make</i>
+prerequisites. Recursively, 
+<i>Make</i>
+ will then check if
+
+<tt>foomode.o</tt>
+ needs to be updated, which is indeed the case.
+After recompiling 
+<tt>foomode.F</tt>
+, 
+<tt>foomode.o</tt>
+ is younger than
+
+<tt>foomain.o</tt>
+, so 
+<tt>foomain.o</tt>
+ will be reconstructed.
+</p>
+
+<p name="switchToTextMode">
+\practical{Confirm that the corrected makefile indeed causes
+  
+<tt>foomain.F</tt>
+ to be recompiled.}{}{}
+</p>
+
+<h3><a id="Aboutthemakefile">24.1.3</a> About the make file</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Asimpleexample">A simple example</a> > <a href="gnumake.html#Aboutthemakefile">About the make file</a>
+</p>
+<p name="switchToTextMode">
+
+The make file needs to be called 
+<tt>makefile</tt>
+ or
+
+<tt>Makefile</tt>
+; it is not a good idea to have files with both names in
+the same directory.
+If you want 
+<i>Make</i>
+ to use a different file as make file, use the
+syntax 
+<tt>make -f My_Makefile</tt>
+.
+</p>
+
+<h2><a id="Variablesandtemplaterules">24.2</a> Variables and template rules</h2>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will learn various work-saving mechanisms in
+  
+<i>Make</i>
+, such as the use of variables and of template rules.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Makefilevariables">24.2.1</a> Makefile variables</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a> > <a href="gnumake.html#Makefilevariables">Makefile variables</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+It is convenient to introduce variables in your makefile.
+For instance,
+instead of spelling out the compiler explicitly every time, introduce a
+variable in the makefile:
+<!-- environment: verbatim start embedded generator -->
+</p>
+CC = gcc
+FC = gfortran
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and use 
+ <tt>${CC}</tt>  or 
+ <tt>${FC}</tt>  on the compile lines:
+<!-- environment: verbatim start embedded generator -->
+</p>
+foo.o : foo.c
+        ${CC} -c foo.c
+foomain.o : foomain.F
+        ${FC} -c foomain.F
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+\practical{Edit your makefile as indicated. First do 
+<tt>make clean</tt>
+,
+  then 
+<tt>make foo</tt>
+ (C) or 
+<tt>make fooprog</tt>
+ (Fortran).}
+  {You should see the exact same compile and link lines as before.}
+  {Unlike in the shell, where braces are optional, variable names in a
+    makefile have to be in
+    braces or parentheses. Experiment with what happens if you forget
+    the braces around a variable name.}
+</p>
+
+<p name="switchToTextMode">
+One
+advantage of using variables is that you can now change the compiler
+from the commandline:
+<!-- environment: verbatim start embedded generator -->
+</p>
+make CC="icc -O2"
+make FC="gfortran -g"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+\practical{Invoke 
+<i>Make</i>
+ as suggested (after 
+<tt>make clean</tt>
+). Do
+  you see the difference in your screen output?}
+  {The compile lines now show the added compiler option 
+<tt>-O2</tt>
+ or 
+<tt>-g</tt>
+.}{}
+</p>
+
+<i>Make</i>
+<!-- index -->
+<p name="switchToTextMode">
+:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+[
+<tt>\$@</tt>
+] The target. Use this in the link line for the main
+  program. % (See section 
+sec:target-prereq
+ for some trickery
+ <tt>$@</tt> .)
+<li>
+[
+<tt>\$\char`\^</tt>
+] The list of prerequisites. Use this also in the link
+  line for the program.
+<li>
+[
+<tt>\$&lt;</tt>
+] The first prerequisite. Use this in the compile
+  commands for the individual object files.
+<li>
+[
+<tt>\$*</tt>
+] In 
+<i>template rules</i>
+
+<!-- index -->
+  (section&nbsp;
+24.2.2
+) this matches the template part,
+  the part corresponding to the&nbsp;
+<tt>\char37</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Using these variables, the rule for 
+<tt>fooprog</tt>
+ becomes
+<!-- environment: verbatim start embedded generator -->
+</p>
+fooprog : foo.o bar.o
+        ${CC} -o $@ $^
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and a typical compile line becomes
+<!-- environment: verbatim start embedded generator -->
+</p>
+foo.o : foo.c bar.h
+        ${CC} -c $&lt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+You can also declare a variable
+<!-- environment: verbatim start embedded generator -->
+</p>
+THEPROGRAM = fooprog
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and use this variable instead of the program name in your
+makefile. This makes it easier to change your mind about the name of
+the executable later.
+</p>
+
+<p name="switchToTextMode">
+\practical{Edit your makefile to add this variable definition, and use
+  it instead of the literal program name. Construct a commandline so
+  that your makefile will build the executable 
+<tt>fooprog\_v2</tt>
+.}{You
+  need to specify the 
+<tt>THEPROGRAM</tt>
+ variable on the commandline using
+  the syntax 
+<tt>make VAR=value</tt>
+.}  {Make sure that there are no spaces
+  around the equals sign in your commandline.}
+</p>
+
+<p name="switchToTextMode">
+The full list of these automatic variables can be found at
+
+<a href=https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html>https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html</a>
+.
+</p>
+
+<h3><a id="Templaterules">24.2.2</a> Template rules</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a> > <a href="gnumake.html#Templaterules">Template rules</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+So far, you wrote a separate rule for each file that
+needed to be compiled. However, the rules for the various 
+<tt>.c</tt>
+
+files are very similar:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the rule header (
+<tt>foo.o : foo.c</tt>
+) states that a source file is a
+  prerequisite for the object file with the same base name;
+<li>
+and the instructions for compiling (\n{\$\{CC\} -c \$&lt;})
+  are even character-for-character the
+  same, now that you are using 
+<i>Make</i>
+'s built-in variables;
+<li>
+the only rule with a difference is
+<!-- environment: verbatim start embedded generator -->
+</p>
+foo.o : foo.c bar.h
+        ${CC} -c $&lt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  where the object file depends on the source file and another file.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+We can take the commonalities and summarize them in one
+<i>template rule</i>
+<!-- index -->
+\footnote
+{This mechanism is the first instance you'll see that only exists in
+  GNU make, though in this particular case there is a similar
+  mechanism in standard make. That will not be the case for the
+  wildcard mechanism in the next section.}:
+<!-- environment: verbatim start embedded generator -->
+</p>
+%.o : %.c
+        ${CC} -c $&lt;
+%.o : %.F
+        ${FC} -c $&lt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This states that any object file depends on the C or Fortran file with
+the same base name. To regenerate the object file, invoke the C or
+Fortran compiler with the 
+<tt>-c</tt>
+ flag.
+These template rules can function as a replacement for the multiple
+specific targets in the makefiles above, except for the rule for 
+<tt>foo.o</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+The dependence of 
+<tt>foo.o</tt>
+ on 
+<tt>bar.h</tt>
+, or 
+<tt>foomain.o</tt>
+ on
+
+<tt>foomod.o</tt>
+, can be handled by adding a rule
+<!-- environment: verbatim start embedded generator -->
+</p>
+# C
+foo.o : bar.h
+# Fortran
+foomain.o : foomod.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+with no further instructions. This rule states, `if file
+
+<tt>bar.h</tt>
+ or 
+<tt>foomod.o</tt>
+ changed, file 
+<tt>foo.o</tt>
+ or 
+<tt>foomain.o</tt>
+
+needs updating' too. 
+<i>Make</i>
+ will
+then search the makefile for a different
+rule that states how this updating is done, and it will find the
+template rule.
+</p>
+
+<p name="switchToTextMode">
+\practical{Change your makefile to incorporate these ideas, and test.}{}{}
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/make-exercises.jpg" width=800></img>
+<p name="caption">
+FIGURE 24.1: File structure with main program and two library files
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<!-- environment: multicols start embedded generator -->
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+    Source file 
+<tt>mainprog.cxx</tt>
+:
+    \strippedinput{code/make}{mainprog.cxx}
+    Source file 
+<tt>libf.cxx</tt>
+:
+    \strippedinput{code/make}{libf.cxx}
+    Source file 
+<tt>libg.cxx</tt>
+:
+    \strippedinput{code/make}{libg.cxx}
+    Header file 
+<tt>api.h</tt>
+:
+    \strippedinput{code/make}{api.h}
+    Header file 
+<tt>impl.h</tt>
+:
+    \strippedinput{code/make}{impl.h}
+</p name="multicols">
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+  \caption{Source files for exercise&nbsp;
+24.2
+}
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Write a makefile for the following structure:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+There is one main file 
+<tt>libmain.cxx</tt>
+, and two library files
+    
+<tt>libf.cxx</tt>
+ 
+<tt>libg.cxx</tt>
+;
+<li>
+There is a header file 
+<tt>libapi.h</tt>
+ that gives the prototypes
+    for the functions in the library files;
+<li>
+There is a header file 
+<tt>libimpl.h</tt>
+ that gives implementation
+    details, only to be used in the library files.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+  This is illustrated in figure&nbsp;
+24.1
+.
+</p>
+
+<p name="switchToTextMode">
+  Here is how you can test it:
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+    \footnotesize
+    Changing a source file only recompiles that files:
+<!-- environment: verbatim start embedded generator -->
+</p>
+clang++ -c libf.cxx
+clang++ -o main libmain.o libf.o libg.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Changing the implementation header only recompiles the library:
+<!-- environment: verbatim start embedded generator -->
+</p>
+clang++ -c libf.cxx
+clang++ -c libg.cxx
+clang++ -o main libmain.o libf.o libg.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Changing the 
+<tt>libapi.h</tt>
+ recompiles everything:
+<!-- environment: verbatim start embedded generator -->
+</p>
+clang++ -c libmain.cxx
+clang++ -c libf.cxx
+clang++ -c libg.cxx
+clang++ -o main libmain.o libf.o libg.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</multicols>
+<!-- environment: multicols end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/make-exercises-f.png" width=800></img>
+<p name="caption">
+FIGURE 24.3: File structure with main program and two library files
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+For Fortran we don't have header files so
+we use 
+<i>modules</i>
+
+<!-- index -->
+everywhere; figure&nbsp;
+24.3
+.
+If you know how to use
+<i>submodules</i>
+<!-- index -->
+,
+a 
+<i>Fortran2008</i>
+ feature,
+you can make the next exercise as efficient
+as the C version.
+<!-- index -->
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Write a makefile for the following structure:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+There is one main file 
+<tt>libmain.f90</tt>
+,
+    that uses a module 
+<tt>api.f90</tt>
+;
+<li>
+There are two low level modules 
+<tt>libf.f90</tt>
+ 
+<tt>libg.f90</tt>
+
+    that are used in 
+<tt>api.f90</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+  If you use modules,
+  you'll likely be doing more compilation than needed.
+  For the optimal solution,
+  use submodules.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Wildcards">24.2.3</a> Wildcards</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a> > <a href="gnumake.html#Wildcards">Wildcards</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Your makefile now uses one general rule for compiling any source
+file. Often, your source files will be all the 
+<tt>.c</tt>
+ or 
+<tt>.F</tt>
+
+files in your directory, so is there a way to state `compile
+everything in this directory'? Indeed there is.
+</p>
+
+<p name="switchToTextMode">
+
+Add the following lines
+to your makefile, and use the variable 
+<tt>COBJECTS</tt>
+ or 
+<tt>FOBJECTS</tt>
+
+wherever appropriate.
+The command 
+<tt>wildcard</tt>
+ gives the result of 
+<tt>ls</tt>
+,
+and you can manipulate file names with 
+<tt>patsubst</tt>
+.
+<!-- environment: verbatim start embedded generator -->
+</p>
+# wildcard: find all files that match a pattern
+CSOURCES := ${wildcard *.c}
+# pattern substitution: replace one pattern string by another
+COBJECTS := ${patsubst %.c,%.o,${SRC}}
+
+
+FSOURCES := ${wildcard *.F}
+FOBJECTS := ${patsubst %.F,%.o,${SRC}}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Morefunctions">24.2.4</a> More functions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a> > <a href="gnumake.html#Morefunctions">More functions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+GNU make has more function that you can call inside the makefile.
+Some examples:
+<!-- environment: verbatim start embedded generator -->
+</p>
+HOSTNAME := $(shell hostname -f)
+SOURCES  := $(wildcard *.c)
+OBJECTS  := $(patsubst %.c,%.o,${SOURCES})
+RECURSIVE := $(foreach d,${DIRECTORIES},$(wildcard ${d}/*.c))
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+For the full list see 
+<a href=https://www.gnu.org/software/make/manual/html_node/Functions.html>https://www.gnu.org/software/make/manual/html_node/Functions.html</a>
+.
+</p>
+
+<p name="switchToTextMode">
+
+<h3><a id="Conditionals">24.2.5</a> Conditionals</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Variablesandtemplaterules">Variables and template rules</a> > <a href="gnumake.html#Conditionals">Conditionals</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+There are various ways of making the behavior of a makefile dynamic.
+You can for instance put a shell conditional in an action line.
+However, this can make for a cluttered makefile; an easier way is to use
+makefile conditionals. There are two types of conditionals: tests on string
+equality, and tests on environment variables.
+</p>
+
+<p name="switchToTextMode">
+The first type looks like
+<!-- environment: verbatim start embedded generator -->
+</p>
+ifeq "${HOME}" "/home/thisisme"
+  # case where the executing user is me
+else ifeq "${HOME}" "/home/buddyofmine"
+  # case for other user
+else
+  # case where it's someone else
+endif
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and in the second case the test looks like
+<!-- environment: verbatim start embedded generator -->
+</p>
+ifdef SOME_VARIABLE
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The text in the true and false part can be most any part of a
+makefile. For instance, it is possible to let one of the action lines
+in a rule be conditionally included. However, most of the times you
+will use conditionals to make the definition of variables dependent on
+some condition.
+</p>
+
+<p name="switchToTextMode">
+\practical{Let's say you want to use your makefile at home and at
+  work. At work, your employer has a paid license to the Intel
+  compiler 
+<tt>icc</tt>
+, but at home you use the open source Gnu compiler
+  
+<tt>gcc</tt>
+. Write a makefile that will work in both places, setting the
+  appropriate value for 
+<tt>CC</tt>
+.}{}{}
+<!-- environment: answer start embedded generator -->
+</p>
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Miscellania">24.3</a> Miscellania</h2>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Miscellania">Miscellania</a>
+</p>
+</p>
+
+<h3><a id="Phonytargets">24.3.1</a> Phony targets</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Miscellania">Miscellania</a> > <a href="gnumake.html#Phonytargets">Phony targets</a>
+</p>
+<p name="switchToTextMode">
+
+The example makefile contained a target 
+<tt>clean</tt>
+. This uses
+the 
+<i>Make</i>
+ mechanisms to accomplish some actions that are not
+related to file creation: calling 
+<tt>make clean</tt>
+ causes 
+<i>Make</i>
+ to
+reason `there is no file called 
+<tt>clean</tt>
+, so the following
+instructions need to be performed'. However, this does not actually
+cause a file 
+<tt>clean</tt>
+ to spring into being, so calling 
+<tt>make clean</tt>
+
+again will make the same instructions being executed.
+</p>
+
+<p name="switchToTextMode">
+To indicate that this rule does not actually make the target, you use
+the 
+<tt>.PHONY</tt>
+ keyword:
+<!-- environment: verbatim start embedded generator -->
+</p>
+.PHONY : clean
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Most of the time, the makefile will actually work fine without this
+declaration, but the main benefit of declaring a target to be phony is
+that the 
+<i>Make</i>
+ rule will still work, even if you have a file (or folder)
+named 
+<tt>clean</tt>
+.
+</p>
+
+<h3><a id="Directories">24.3.2</a> Directories</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Miscellania">Miscellania</a> > <a href="gnumake.html#Directories">Directories</a>
+</p>
+<p name="switchToTextMode">
+
+It's a common strategy to have a directory for temporary material
+such as object files. So you would have a rule
+<!-- environment: verbatim start embedded generator -->
+</p>
+obj/%.o : %.c
+    ${CC} -c $&lt; -o $@
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and to remove the temporaries:
+<!-- environment: verbatim start embedded generator -->
+</p>
+clean ::
+    rm -rf obj
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This raises the question how the 
+<tt>obj</tt>
+ directory is created.
+You could do:
+<!-- environment: verbatim start embedded generator -->
+</p>
+obj/%.o : %.c
+    mkdir -p obj
+    ${CC} -c $&lt; -o $@
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+but a better solution is to use
+<i>order-only prerequisite</i>
+s exist.
+<!-- environment: verbatim start embedded generator -->
+</p>
+obj :
+    mkdir -p obj
+obj/%.o : %.c | obj
+    ${CC} -c $&lt; -o $@
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+This only tests for the existence of the object directory,
+but not its timestamp.
+</p>
+
+<h3><a id="Usingthetargetasprerequisite">24.3.3</a> Using the target as prerequisite</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Miscellania">Miscellania</a> > <a href="gnumake.html#Usingthetargetasprerequisite">Using the target as prerequisite</a>
+</p>
+<p name="switchToTextMode">
+
+Suppose you have two different targets that are treated largely the
+same. You would want to write:
+<!-- environment: verbatim start embedded generator -->
+</p>
+PROGS = myfoo other
+${PROGS} : $@.o # this is wrong!!
+        ${CC} -o $@ $@.o ${list of libraries goes here}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and saying 
+<tt>make myfoo</tt>
+ would cause
+<!-- environment: verbatim start embedded generator -->
+</p>
+cc -c myfoo.c
+cc -o myfoo myfoo.o ${list of libraries}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and likewise for 
+<tt>make other</tt>
+. What goes wrong here is the use of
+ <tt>$@.o</tt>  as prerequisite. In Gnu Make, you can repair this as
+follows\footnote{Technical explanation: Make will now look at lines
+  twice: the first time 
+<tt>\$\$</tt>
+ gets converted to a single&nbsp;
+<tt>\$</tt>
+,
+  and in the second pass 
+<tt>\$@</tt>
+ becomes the name of the target.}:
+<!-- environment: verbatim start embedded generator -->
+</p>
+.SECONDEXPANSION:
+${PROGS} : $$@.o
+        ${CC} -o $@ $@.o ${list of libraries goes here}
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+\practical{Write a second main program 
+<tt>foosecond.c</tt>
+ or
+  
+<tt>foosecond.F</tt>
+, and change your makefile so that the calls
+  
+<tt>make foo</tt>
+ and 
+<tt>make foosecond</tt>
+ both use the same rule.}{}{}
+</p>
+
+<h3><a id="Predefinedvariablesandrules">24.3.4</a> Predefined variables and rules</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#Miscellania">Miscellania</a> > <a href="gnumake.html#Predefinedvariablesandrules">Predefined variables and rules</a>
+</p>
+<p name="switchToTextMode">
+
+Calling 
+<tt>make -p yourtarget</tt>
+ causes make to print out all its
+actions, as well as the values of all variables and rules, both in
+your makefile and ones that are predefined. If you do this in a
+directory where there is no makefile, you'll see that make actually
+already knows how to compile 
+<tt>.c</tt>
+ or 
+<tt>.F</tt>
+ files. Find this rule
+and find the definition of the variables in it.
+</p>
+
+<p name="switchToTextMode">
+You see that you can customize make by setting such variables as
+
+<tt>CFLAGS</tt>
+ or 
+<tt>FFLAGS</tt>
+. Confirm this with some experimentation. If
+you want to make a second makefile for the same sources, you can call
+
+<tt>make -f othermakefile</tt>
+ to use this instead of the default
+
+<tt>Makefile</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Note, by the way, that both 
+<tt>makefile</tt>
+ and 
+<tt>Makefile</tt>
+ are
+legitimate names for the default makefile. It is not a good idea to
+have both 
+<tt>makefile</tt>
+ and 
+<tt>Makefile</tt>
+ in your directory.
+</p>
+
+<h2><a id="ShellscriptinginaMakefile">24.4</a> Shell scripting in a Makefile</h2>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#ShellscriptinginaMakefile">Shell scripting in a Makefile</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: purpose start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator purpose ['purpose'] -->
+  In this section you will see an example of a longer shell script
+  appearing in a makefile rule.
+</p name="purpose">
+</purpose>
+<!-- environment: purpose end embedded generator -->
+<p name="switchToTextMode">
+
+In the makefiles you have seen so far, the command part was a single
+line. You can actually have as many lines there as you want.
+For example, let us make a rule for making backups of the program you
+are building.
+</p>
+
+<p name="switchToTextMode">
+Add a 
+<tt>backup</tt>
+  rule to your makefile. The first thing it needs to
+do is make a backup directory:
+<!-- environment: verbatim start embedded generator -->
+</p>
+.PHONY : backup
+backup :
+        if [ ! -d backup ] ; then
+          mkdir backup
+        fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Did you type this? Unfortunately it does not work: every line in the
+command part of a makefile rule gets executed as a single
+program. Therefore, you need to write the whole command on one line:
+<!-- environment: verbatim start embedded generator -->
+</p>
+backup :
+        if [ ! -d backup ] ; then mkdir backup ; fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+or if the line gets too long:
+<!-- environment: verbatim start embedded generator -->
+</p>
+backup :
+        if [ ! -d backup ] ; then \
+          mkdir backup ; \
+        fi
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Next we do the actual copy:
+<!-- environment: verbatim start embedded generator -->
+</p>
+backup :
+        if [ ! -d backup ] ; then mkdir backup ; fi
+        cp myprog backup/myprog
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+But this backup scheme only saves one version. Let us make a version
+that has the date in the name of the saved program.
+</p>
+
+<p name="switchToTextMode">
+The Unix 
+<tt>date</tt>
+ command can customize its output by accepting a
+format string. Type the following:
+ <tt>date </tt> %Y%m%d+.
+This can be used in the makefile.
+</p>
+
+<p name="switchToTextMode">
+\practical {Edit the {\tt cp} command line so that the name of the
+  backup file includes the current date.}{Hint: you need the
+  backquote. Consult the Unix tutorial, section&nbsp;
+22.4.2
+, if
+  you do not remember what backquotes do.}{}
+</p>
+
+<p name="switchToTextMode">
+If you are defining shell variables in the command section of a
+makefile rule, you need to be aware of the following. Extend your
+
+<tt>backup</tt>
+ rule with a loop to copy the object files:
+<!-- environment: verbatim start embedded generator -->
+</p>
+#### This Script Has An ERROR!
+backup :
+        if [ ! -d backup ] ; then mkdir backup ; fi
+        cp myprog backup/myprog
+        for f in ${OBJS} ; do \
+          cp $f backup ; \
+        done
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+(This is not the best way to copy, but we use it for the purpose of
+demonstration.) This leads to an error message, caused by the fact
+that 
+<i>Make</i>
+ interprets 
+ <tt>$f</tt>  as an environment variable of
+the outer process. What works is:
+<!-- environment: verbatim start embedded generator -->
+</p>
+backup :
+        if [ ! -d backup ] ; then mkdir backup ; fi
+        cp myprog backup/myprog
+        for f in ${OBJS} ; do \
+          cp $$f backup ; \
+        done
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+(In this case 
+<i>Make</i>
+ replaces the double dollar by a single one
+when it scans the commandline. During the execution of the
+commandline, 
+<tt>\$f</tt>
+ then expands to the proper filename.)
+</p>
+
+<h2><a id="PracticaltipsforusingMake">24.5</a> Practical tips for using Make</h2>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#PracticaltipsforusingMake">Practical tips for using Make</a>
+</p>
+<p name="switchToTextMode">
+Here are a couple of practical tips.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<i>Debugging</i>
+<!-- index -->
+ a makefile is often
+  frustratingly hard.  Just about the only tool is the 
+<tt>-p</tt>
+ option,
+  which prints out all the rules that Make is using, based on the
+  current makefile.
+<li>
+You will often find yourself first typing a make command, and
+  then invoking the program. Most Unix shells allow you to use
+  commands from the 
+<i>shell command history</i>
+ by using the
+  up arrow key. Still, this may get tiresome, so you may be tempted to
+  write
+<!-- environment: verbatim start embedded generator -->
+</p>
+make myprogram ; ./myprogram -options
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and keep repeating this.
+There is a danger in this: if the make fails, for instance because of
+compilation problems, your program will still be executed. Instead, write
+<!-- environment: verbatim start embedded generator -->
+</p>
+make myprogram && ./myprogram -options
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+which executes the program conditional upon make concluding successfully.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Whatdoesthismakefiledo?">24.5.1</a> What does this makefile do?</h3>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#PracticaltipsforusingMake">Practical tips for using Make</a> > <a href="gnumake.html#Whatdoesthismakefiledo?">What does this makefile do?</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Above you learned that issuing the 
+<tt>make</tt>
+ command will automatically
+execute the first rule in the makefile. This is convenient in one
+sense\footnote {There is a convention among software developers that a
+  package can be installed by the sequence \n{./configure ; make ;
+    make install}, meaning: Configure the build process for this
+  computer, Do the actual build, Copy files to some system directory
+  such as 
+<tt>/usr/bin</tt>
+.}, and inconvenient in another: the only way to
+find out what possible actions a makefile allows is to read the
+makefile itself, or the --&nbsp;usually insufficient&nbsp;-- documentation.
+</p>
+
+<p name="switchToTextMode">
+A better idea is to start the makefile with a target
+<!-- environment: verbatim start embedded generator -->
+</p>
+info :
+        @echo "The following are possible:"
+        @echo "  make"
+        @echo "  make clean"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Now 
+<tt>make</tt>
+ without explicit targets informs you of the capabilities
+of the makefile.
+</p>
+
+<p name="switchToTextMode">
+If your makefile gets longer, you might want to document each section
+like this. This runs into a problem: you can not have two rules with the same
+target, 
+<tt>info</tt>
+ in this case. However, if you use a double colon
+it 
+<i>is</i>
+ possible. Your makefile would have the following structure:
+<!-- environment: verbatim start embedded generator -->
+</p>
+info ::
+        @echo "The following target are available:"
+        @echo "  make install"
+install :
+        # ..... instructions for installing
+info ::
+       @echo "  make clean"
+clean :
+       # ..... instructions for cleaning
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="AMakefileforLaTeX">24.6</a> A Makefile for LaTeX</h2>
+<p name=crumbs>
+crumb trail:  > <a href="gnumake.html">gnumake</a> > <a href="gnumake.html#AMakefileforLaTeX">A Makefile for LaTeX</a>
+</p>
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+The 
+<i>Make</i>
+ utility is typically used for compiling programs, but
+other uses are possible too. In this section, we will discuss a
+makefile for LaTeX  documents.
+</p>
+
+<p name="switchToTextMode">
+We start with a very basic makefile:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/makefiles/tex/M0" aria-expanded="false" aria-controls="tutorials/makefiles/tex/M0">
+        Text: tutorials/makefiles/tex/M0
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/makefiles/tex/M0" class="collapse">
+  <pre>
+info :
+        @echo "Usage: make foo"
+        @echo "where foo.tex is a LaTeX input file"
+
+%.pdf : %.tex
+        pdflatex $&lt;
+
+</pre>
+</div>
+</div>
+The command 
+<tt>make myfile.pdf</tt>
+ will invoke 
+<tt>pdflatex myfile.tex</tt>
+,
+if needed, once. Next we repeat invoking 
+<tt>pdflatex</tt>
+ until the log file no
+longer reports that further runs are needed:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/makefiles/tex/M1" aria-expanded="false" aria-controls="tutorials/makefiles/tex/M1">
+        Text: tutorials/makefiles/tex/M1
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/makefiles/tex/M1" class="collapse">
+  <pre>
+%.pdf : %.tex
+        pdflatex $&lt;
+        while [ `cat ${basename $@}.log | grep "Rerun to get" \
+            | wc -l` -gt 0 ] ; do \
+          pdflatex $&lt; ; \
+        done
+
+</pre>
+</div>
+</div>
+We use the 
+ <tt>${basename fn}</tt>  macro to extract the base name
+without extension from the target name.
+</p>
+
+<p name="switchToTextMode">
+In case the document has a bibliography or index, we run 
+<tt>bibtex</tt>
+
+and 
+<tt>makeindex</tt>
+.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/makefiles/tex/M2" aria-expanded="false" aria-controls="tutorials/makefiles/tex/M2">
+        Text: tutorials/makefiles/tex/M2
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/makefiles/tex/M2" class="collapse">
+  <pre>
+%.pdf : %.tex
+        pdflatex ${basename $@}
+        -bibtex ${basename $@}
+        -makeindex ${basename $@}
+        while [ `cat ${basename $@}.log | grep "Rerun to get" \
+                 | wc -l` -gt 0 ] ; do \
+          pdflatex ${basename $@} ; \
+        done
+
+</pre>
+</div>
+</div>
+The minus sign at the start of the line means that
+<i>Make</i>
+</p>
+
+<p name="switchToTextMode">
+Finally, we would like to use 
+<i>Make</i>
+'s facility for taking
+dependencies into account.
+We could write a makefile that has
+the usual rules
+<!-- environment: verbatim start embedded generator -->
+</p>
+mainfile.pdf : mainfile.tex includefile.tex
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+but we can also discover the include files explicitly. The following
+makefile is invoked with
+<!-- environment: verbatim start embedded generator -->
+</p>
+  make pdf TEXTFILE=mainfile
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+The 
+<tt>pdf</tt>
+ rule then uses some shell scripting to discover the
+include files (but not recursively), and it calls 
+<i>Make</i>
+ again,
+invoking another rule, and passing the dependencies explicitly.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#tutorials/makefiles/tex/Makefile" aria-expanded="false" aria-controls="tutorials/makefiles/tex/Makefile">
+        Text: tutorials/makefiles/tex/Makefile
+      </button>
+    </h5>
+  </div>
+  <div id="tutorials/makefiles/tex/Makefile" class="collapse">
+  <pre>
+pdf :
+        export includes=`grep "^.input " ${TEXFILE}.tex \
+            | awk '{v=v FS $$2".tex"} END {print v}'` ; \
+        ${MAKE} ${TEXFILE}.pdf INCLUDES="$$includes"
+
+%.pdf : %.tex ${INCLUDES}
+        pdflatex $&lt; ; \
+        while [ `cat ${basename $@}.log \
+                | grep "Rerun to get" | wc -l` -gt 0 ] ; do \
+          pdflatex $&lt; ; \
+        done
+</pre>
+</div>
+</div>
+This shell scripting can also be done outside the makefile, generating
+the makefile dynamically.
+</p>
+
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

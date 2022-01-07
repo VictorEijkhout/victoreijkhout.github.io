@@ -1,0 +1,3 @@
+28.1.1 : <a href="omp-gpu.html#Targetsandtasks">Targets and tasks</a><br>
+28.2 : <a href="omp-gpu.html#Dataonthedevice">Data on the device</a><br>
+28.3 : <a href="omp-gpu.html#Executiononthedevice">Execution on the device</a><br>

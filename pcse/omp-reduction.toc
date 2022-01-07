@@ -1,0 +1,8 @@
+20.1 : <a href="omp-reduction.html#Reductions:why,what,how?">Reductions: why, what, how?</a><br>
+20.1.1 : <a href="omp-reduction.html#Codeyourownsolution">Code your own solution</a><br>
+20.1.2 : <a href="omp-reduction.html#Reductionclause">Reduction clause</a><br>
+20.2 : <a href="omp-reduction.html#Built-inreductionoperators">Built-in reduction operators</a><br>
+20.3 : <a href="omp-reduction.html#Supportedtypes">Supported types</a><br>
+20.4 : <a href="omp-reduction.html#Initialvalueforreductions">Initial value for reductions</a><br>
+20.5 : <a href="omp-reduction.html#User-definedreductions">User-defined reductions</a><br>
+20.6 : <a href="omp-reduction.html#Reductionsandfloating-pointmath">Reductions and floating-point math</a><br>

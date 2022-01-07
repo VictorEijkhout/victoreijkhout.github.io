@@ -1,0 +1,349 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Monte Carlo Methods</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+11.1 : <a href="montecarlo.html#Motivation">Motivation</a><br>
+11.1.1 : <a href="montecarlo.html#Whatistheattraction?">What is the attraction?</a><br>
+11.2 : <a href="montecarlo.html#Examples">Examples</a><br>
+11.2.1 : <a href="montecarlo.html#MonteCarlosimulationoftheIsingmodel">Monte Carlo simulation of the Ising model</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>11 Monte Carlo Methods</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Monte Carlo simulation is a broad term for methods that use random
+numbers and statistical sampling to solve problems, rather than exact
+modeling. From the nature of this sampling, the result will have some
+uncertainty, but the statistical `law of large numbers' will ensure
+that the uncertainty goes down as the number of samples grows.
+</p>
+
+<p name="switchToTextMode">
+An important tool for statistical sampling is a random number generator.
+See appendix~
+app:random
+ for random number generation.
+</p>
+
+<h2><a id="Motivation">11.1</a> Motivation</h2>
+<p name=crumbs>
+crumb trail:  > <a href="montecarlo.html">montecarlo</a> > <a href="montecarlo.html#Motivation">Motivation</a>
+</p>
+<p name="switchToTextMode">
+
+Let's start with a simple example: measuring an
+area, for instance, $\pi$~is the area of a circle inscribed
+in a square with sides~2. If you picked a random point in the square,
+the chance of it falling in the circle is~$\pi/4$, so you could
+estimate this ratio by taking many random points $(x,y)$ and seeing
+in what proportion their length $\sqrt{x^2+y^2}$ is less than~1.
+</p>
+
+<p name="switchToTextMode">
+You could even do this as a physical experiment:
+suppose you have a pond of an irregular shape in your backyard,
+and that the yard itself is rectangular with known dimensions. If you
+would now throw pebbles into your yard so that they are equally likely
+to land at any given spot, then the ratio of pebbles falling in the
+pond to those falling outside equals the ratio of the areas.
+</p>
+
+<p name="switchToTextMode">
+Less
+fanciful and more mathematically, we need to formalize the idea of
+falling inside or outside the shape you are measuring.
+Therefore, let $\Omega\in[0,1]^2$ be the shape, and let
+a function $f(\bar x)$ describe
+the boundary of~$\Omega$, that is
+\[
+\begin{cases}
+  f(\bar x)<0&x\not\in\Omega\\
+  f(\bar x)>0&x\in\Omega\\
+\end{cases}
+\]
+Now take random points $\bar x_0,\bar x_1,\bar x_2\in[0,1]^2$, then we
+can estimate the area of $\Omega$ by counting how often $f(\bar x_i)$
+is positive or negative.
+</p>
+
+<p name="switchToTextMode">
+We can extend this idea to integration. The average value of a
+function on an interval $(a,b)$ is defined as
+\[
+ \langle f\rangle = \frac1{b-a}\int_a^bf(x)dx 
+\]
+On the other hand, we can also estimate the average as
+\[
+ \langle f\rangle \approx \frac 1N\sum_{i=1}^nf(x_i) 
+\]
+if the points $x_i$ are reasonably distributed and the function $f$ is
+not too wild. This leads us to
+\[
+ \int_a^bf(x)dx  \approx (b-a) \frac 1N\sum_{i=1}^nf(x_i) 
+\]
+Statistical theory, that we will not go into,
+tells us that the uncertainty $\sigma_I$ in the integral is related to
+the standard deviation $\sigma_f$ by
+\[
+ \sigma_I\sim \frac1{\sqrt N}\sigma_f 
+\]
+for normal distributions.
+</p>
+
+<h3><a id="Whatistheattraction?">11.1.1</a> What is the attraction?</h3>
+<p name=crumbs>
+crumb trail:  > <a href="montecarlo.html">montecarlo</a> > <a href="montecarlo.html#Motivation">Motivation</a> > <a href="montecarlo.html#Whatistheattraction?">What is the attraction?</a>
+</p>
+<p name="switchToTextMode">
+
+So far, Monte Carlo integration does not look much different from
+classical integration by 
+<i>Riemann sums</i>
+.
+The difference appears when we go to higher
+dimensions. In that case, for classical integration we would need $N$
+points in each dimension, leading to $N^d$ points in $d$
+dimensions. In the Monte Carlo method, on the other hand, the points
+are taken at random from the $d$-dimensional space, and a much lower
+number of points suffices.
+</p>
+
+<p name="switchToTextMode">
+Computationally, Monte Carlo methods are attractive since all function
+evaluations can be performed in parallel.
+</p>
+
+<p name="switchToTextMode">
+The
+statistical law that underlies this is as follows: if $N$ independent
+observations are made of a quantity with standard deviation~$\sigma$,
+then the standard deviation of the mean is~$\sigma/\sqrt N$. This
+means that more observations will lead to more accuracy; what makes
+Monte Carlo methods interesting is that this gain in accuracy is not
+related to dimensionality of the original problem.
+</p>
+
+<p name="switchToTextMode">
+Monte Carlo techniques are of course natural candidatates for simulating
+phenomena that are statistical in nature, such as radioactive decay,
+or Brownian motion.
+Other problems where Monte Carlo
+simulation is attractive are outside the realm of scientific
+computing. For instance, the 
+<i>Black-Scholes model</i>
+ for stock
+<i>option pricing</i>
+~
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#BlackScholes">[BlackScholes]</a>
+ uses Monte Carlo simulation.
+</p>
+
+<p name="switchToTextMode">
+Some problems that you have seen before, such as solving a linear
+system of equations, can be tackled with Monte Carlo
+techniques. However, this is not a typical application. Below we will
+discuss two applications where exact methods
+would take far too much time to compute and where statistical sampling
+can quickly give a reasonably accurate answer.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Examples">11.2</a> Examples</h2>
+<p name=crumbs>
+crumb trail:  > <a href="montecarlo.html">montecarlo</a> > <a href="montecarlo.html#Examples">Examples</a>
+</p>
+</p>
+
+<h3><a id="MonteCarlosimulationoftheIsingmodel">11.2.1</a> Monte Carlo simulation of the Ising model</h3>
+<p name=crumbs>
+crumb trail:  > <a href="montecarlo.html">montecarlo</a> > <a href="montecarlo.html#Examples">Examples</a> > <a href="montecarlo.html#MonteCarlosimulationoftheIsingmodel">Monte Carlo simulation of the Ising model</a>
+</p>
+
+<!-- index -->
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+The Ising model (for an introduction, see~
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Cipra:Ising">[Cipra:Ising]</a>
+) was
+originally proposed to model ferromagnetism. Magnetism is the result
+of atoms aligning their `spin' direction: let's say spin can only be
+`up' or `down', then a material has magnetism if more atoms have spin
+up than down, or the other way around. The atoms are said to be in a
+structure called a `lattice'.
+</p>
+
+<p name="switchToTextMode">
+Now imagine heating up a material, which loosens up the atoms. If an
+external field is applied to the material, the atoms will start
+aligning with the field, and if the field is removed the magnetism
+disappears again. However, below a certain critical temperature the
+material will retain its magnetism.
+We will use Monte Carlo simulation to find the stable configurations
+that remain.
+</p>
+
+<p name="switchToTextMode">
+Let's say the lattice $\Lambda$ has $N$ atoms, and we denote a
+configuration of atoms as $\sigma=(\sigma_1,\ldots,\sigma_N)$ where
+each $\sigma_i=\pm1$.
+The energy of a lattice is modeled as
+\[
+ H=H(\sigma)=-J\sum_i\sigma_i-E\sum_{ij}\sigma_i\sigma_j. 
+\]
+The first term models the interaction of individual spins $\sigma_i$
+with an external field of strength~$J$. The second term, which sums
+over nearest neighbour pairs, models
+alignment of atom pairs: the product $\sigma_i\sigma_j$ is positive if
+the atoms have identical spin, and negative if opposite.
+</p>
+
+<p name="switchToTextMode">
+In 
+<i>statistical mechanics</i>
+, the probability of a
+configuration is
+\[
+ P(\sigma) = \exp(-H(\sigma))/Z 
+\]
+where the `partitioning function' $Z$ is defined as
+\[
+ Z = \sum_\sigma \exp(H(\sigma)) 
+\]
+where the sum runs over all $2^N$ configurations.
+</p>
+
+<p name="switchToTextMode">
+A configuration is stable if its energy does not decrease under small
+perturbations. To explore this, we iterate over the lattice, exploring
+whether altering the spin of atoms lowers the energy. We introduce an
+element of chance to prevent artificial solutions. (This is the
+<i>Metropolis algorithm</i>
+~
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Metropolis">[Metropolis]</a>
+.)
+</p>
+
+<!-- environment: displayalgorithm start embedded generator -->
+<p>\For{fixed number of iterations}{    \For{each atom $i$}{      {calculate the change $\Delta E$ from changing the sign of $\sigma\_i$}\;      \If{$\Delta E<$ or $\exp(-\Delta E)$ greater than some random number}{        accept the change}\</p>
+}  }
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+
+This algorithm can be parallelized, if we notice the similarity with
+the structure of the sparse matrix-vector product. In that algorithm too we
+compute a local quantity by combining inputs from a few nearest
+neighbours. This means we can partitioning the lattice, and compute
+the local updates after each processor collects a 
+  region}.
+</p>
+
+<p name="switchToTextMode">
+Having each processor iterate over local points in the lattice
+corresponds to a particular global ordering of the lattice; to make
+the parallel computation equivalent to a sequential one we also need a
+parallel random generator (section~
+18.3
+).
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

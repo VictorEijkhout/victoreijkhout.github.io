@@ -1,0 +1,11 @@
+23.1 : <a href="omp-sync.html#Barrier">Barrier</a><br>
+23.1.1 : <a href="omp-sync.html#Implicitbarriers">Implicit barriers</a><br>
+23.2 : <a href="omp-sync.html#Mutualexclusion">Mutual exclusion</a><br>
+23.2.1 : <a href="omp-sync.html#Whycriticalsections?">Why critical sections?</a><br>
+23.2.2 : <a href="omp-sync.html#<tt>critical<tt>and<tt>atomic<tt>"><tt>critical</tt> and <tt>atomic</tt></a><br>
+23.3 : <a href="omp-sync.html#Locks">Locks</a><br>
+23.3.1 : <a href="omp-sync.html#Nestedlocks">Nested locks</a><br>
+23.3.2 : <a href="omp-sync.html#Example:objectwithatomicupdate">Example: object with atomic update</a><br>
+23.4 : <a href="omp-sync.html#Example:Fibonaccicomputation">Example: Fibonacci computation</a><br>
+23.5 : <a href="omp-sync.html#Review">Review</a><br>
+23.6 : <a href="omp-sync.html#Reviewquestions">Review questions</a><br>

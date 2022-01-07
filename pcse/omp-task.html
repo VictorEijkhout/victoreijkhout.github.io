@@ -1,0 +1,1040 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP topic: Tasks</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+24.1 : <a href="omp-task.html#Taskdata">Task data</a><br>
+24.2 : <a href="omp-task.html#Tasksynchronization">Task synchronization</a><br>
+24.3 : <a href="omp-task.html#Taskdependencies">Task dependencies</a><br>
+24.4 : <a href="omp-task.html#More">More</a><br>
+24.4.1 : <a href="omp-task.html#Schedulingpoints">Scheduling points</a><br>
+24.4.2 : <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a><br>
+24.4.3 : <a href="omp-task.html#Taskcancelling">Task cancelling</a><br>
+24.5 : <a href="omp-task.html#Examples">Examples</a><br>
+24.5.1 : <a href="omp-task.html#Fibonacci">Fibonacci</a><br>
+24.5.2 : <a href="omp-task.html#Binomialcoefficients">Binomial coefficients</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>24 OpenMP topic: Tasks</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Tasks are a mechanism that OpenMP uses under the cover:
+if you specify something as being parallel, OpenMP will create
+a `block of work': a~section of code plus the data environment
+in which it occurred. This block is set aside for execution at some later point.
+</p>
+
+<p name="switchToTextMode">
+Let's look at a simple example using the 
+<tt>task</tt>
+ directive.
+<!-- environment: quotation start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=quotation ]] -->
+<quotation>
+
+<p name="quotation">
+<!-- TranslatingLineGenerator quotation ['quotation'] -->
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+    </td></tr>
+<tr><td>
+    Code</td><td>Execution</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    
+<tt> x = f();</tt>
+</td><td> the variable 
+<tt>x</tt>
+ gets a value</td></tr>
+<tr><td>
+    
+<tt>#pragma omp task</tt>
+</td><td>a task is created with the current value of 
+<tt>x</tt>
+</td></tr>
+<tr><td>
+    \n{ \{ y = g(x); \}}</td><td></td></tr>
+<tr><td>
+    
+<tt> z = h();</tt>
+</td><td> the variable 
+<tt>z</tt>
+ gets a value</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+</quotation>
+<!-- environment: quotation end embedded generator -->
+<p name="switchToTextMode">
+The thread that executes this code segment creates a task,
+which will later be executed, probably by a different thread.
+The exact timing of the execution of the task is up to a 
+<i>task scheduler</i>
+,
+which operates invisible to the user.
+</p>
+
+<p name="switchToTextMode">
+The task mechanism allows you to do things that are hard or impossible
+with the loop and section constructs. For instance, a 
+  loop} traversing a 
+<i>linked list</i>
+ can be implemented with tasks:
+<!-- environment: quotation start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=quotation ]] -->
+<quotation>
+
+<p name="quotation">
+<!-- TranslatingLineGenerator quotation ['quotation'] -->
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+    </td></tr>
+<tr><td>
+    Code</td><td>Execution</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    
+<tt>p = head_of_list();</tt>
+</td><td> one thread traverses the list</td></tr>
+<tr><td>
+    \n{while (!end_of_list(p)) \{}</td></tr>
+<tr><td>
+    
+<tt>#pragma omp task</tt>
+</td><td> a task is created,</td></tr>
+<tr><td>
+    
+<tt> process( p );</tt>
+</td><td> one for each element</td></tr>
+<tr><td>
+    
+<tt> p = next_element(p);</tt>
+</td><td> the generating thread goes on without waiting</td></tr>
+<tr><td>
+    
+<tt>\</tt>
+}</td><td>the tasks are executed while </td></tr>
+<tr><td>
+          </td><td>more are being generated.
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+</quotation>
+<!-- environment: quotation end embedded generator -->
+<p name="switchToTextMode">
+
+The way tasks and threads interact is different from the worksharing
+constructs you've seen so far. Typically, one thread will generate the
+tasks, adding them to a queue, from which all threads can take and
+execute them. This leads to the following idiom:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+#pragma omp single
+{
+  ...
+#pragma omp task
+  { ... }
+  ...
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: enumerate start embedded generator -->
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+A parallel region creates a team of threads;
+<li>
+a single thread then creates the tasks, adding them to a queue
+  that belongs to the team,
+<li>
+and all the threads in that team (possibly including the one
+  that generated the tasks)
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+With tasks it becomes possible to parallelize processes that did not
+fit the earlier OpenMP constructs. For instance, if a certain
+operation needs to be applied to all elements of a linked list, you
+can have one thread go down the list, generating a task for each
+element of the list.
+</p>
+
+<p name="switchToTextMode">
+Another concept that was hard to parallelize earlier is the `while
+loop'. This does not fit the requirement for OpenMP parallel loops
+that the loop bound needs to be known before the loop executes.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Use tasks to find the smallest factor of a large
+  number (using $2999\cdot 3001$ as test case): generate a task for each
+  trial factor. Start with this code:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  int factor=0;
+#pragma omp parallel
+#pragma omp single
+  for (int f=2; f&lt;4000; f++) {
+    { // see if `f' is a factor
+      if (N%f==0) { // found factor!
+        factor = f;
+      }
+    }
+    if (factor&gt;0)
+      break;
+  }
+  if (factor&gt;0)
+    printf("Found a factor: %d\n",factor);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Turn the factor finding block into a task.
+<li>
+Run your program a number of times:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+for i in `seq 1 1000` ; do ./taskfactor ; done | grep -v 2999
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+    Does it find the wrong factor? Why? Try to fix this.
+<li>
+Once a factor has been found, you should stop generating
+    tasks.
+    Let tasks that should not have been generated, meaning that they
+    test a candidate larger than the factor found, print out a message.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: answer start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Taskdata">24.1</a> Task data</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Taskdata">Task data</a>
+</p>
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Treatment of data in a task is somewhat subtle. The basic problem is
+that a task gets created at one time, and executed at another. Thus,
+if shared data is accessed, does the task see the value at creation
+time or at execution time? In fact, both possibilities make sense
+depending on the application, so we need to discuss the rules when
+which possibility applies.
+</p>
+
+<p name="switchToTextMode">
+The first rule is that shared data is shared in the task, but private
+data becomes 
+code fragments. In the first example:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int count = 100;
+#pragma omp parallel
+#pragma omp single
+{
+  while (count&gt;0) {
+#pragma omp task
+    {
+      int countcopy = count;
+      if (count==50) {
+        sleep(1);
+        printf("%d,%d\n",count,countcopy);
+      } // end if
+    }   // end task
+    count--;
+  }     // end while
+}       // end single
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+the variable 
+<tt>count</tt>
+ is declared outside the
+parallel region and is therefore shared. When the print statement is
+executed, all tasks will have been generated, and so 
+<tt>count</tt>
+ will be
+zero. Thus, the output will likely be 
+<tt>0,50</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+In the second example:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+#pragma omp single
+{
+  int count = 100;
+  while (count&gt;0) {
+#pragma omp task
+    {
+      int countcopy = count;
+      if (count==50) {
+        sleep(1);
+        printf("%d,%d\n",count,countcopy);
+      } // end if
+    }   // end task
+    count--;
+  }     // end while
+}       // end single
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+the 
+<tt>count</tt>
+ variable is private to the thread creating the tasks,
+and so it will be 
+<tt>firstprivate</tt>
+ in the task, preserving the value
+that was current when the task was created.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Tasksynchronization">24.2</a> Task synchronization</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Tasksynchronization">Task synchronization</a>
+</p>
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Even though the above segment looks like a linear set of statements,
+it is impossible to say when
+the code after the 
+<tt>task</tt>
+ directive will be executed.
+This means that the following code is incorrect:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  x = f();
+#pragma omp task
+  { y = g(x); }
+  z = h(y);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Explanation: when the statement computing 
+<tt>z</tt>
+ is executed, the task
+computing&nbsp;
+<tt>y</tt>
+ has only been scheduled;
+it has not necessarily been executed yet.
+</p>
+
+<p name="switchToTextMode">
+In order to have a guarantee that a task is finished,
+you need the 
+<tt>taskwait</tt>
+ directive.
+The following creates two tasks, which can be executed
+in parallel, and then waits for the results:
+<!-- environment: quotation start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=quotation ]] -->
+<quotation>
+
+<p name="quotation">
+<!-- TranslatingLineGenerator quotation ['quotation'] -->
+<!-- environment: tabular start embedded generator -->
+</p>
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+    </td></tr>
+<tr><td>
+    Code</td><td>Execution</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    
+<tt> x = f();</tt>
+</td><td> the variable 
+<tt>x</tt>
+ gets a value</td></tr>
+<tr><td>
+    
+<tt>#pragma omp task</tt>
+</td><td>\multirow{4}{*}{two tasks are created with the current value of 
+<tt>x</tt>
+}</td></tr>
+<tr><td>
+    \n{ \{ y1 = g1(x); \}}</td><td></td></tr>
+<tr><td>
+    
+<tt>#pragma omp task</tt>
+</td><td></td></tr>
+<tr><td>
+    \n{ \{ y2 = g2(x); \}}</td><td></td></tr>
+<tr><td>
+    
+<tt>#pragma omp taskwait</tt>
+</td><td> the thread waits until the tasks are finished</td></tr>
+<tr><td>
+    
+<tt> z = h(y1)+h(y2);</tt>
+</td><td> the variable 
+<tt>z</tt>
+ is computed using the task results</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+</quotation>
+<!-- environment: quotation end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>task</tt>
+ pragma is followed by a structured block.
+Each time the structured block is encountered, a new task is generated.
+On the other hand 
+<tt>taskwait</tt>
+ is a standalone directive;
+the code that follows is just code, it is not a structured block belonging
+to the directive.
+</p>
+
+<p name="switchToTextMode">
+Another aspect of the distinction between generating tasks and executing them:
+usually the tasks are generated by one thread, but executed by many threads.
+Thus, the typical idiom is:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+#pragma omp single
+{
+  // code that generates tasks
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+This makes it possible to execute loops in parallel
+that do not have the right kind of iteration structure
+for a 
+<tt>omp parallel for</tt>
+. As an example, you
+could traverse and process a linked list:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+#pragma omp single
+{
+  while (!tail(p)) {
+    p = p-&gt;next();
+#pragma omp task
+    process(p)
+  }
+#pragma omp taskwait
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+One task traverses the linked list creating an independent
+task for each element in the list. These tasks are then
+executed in parallel; their assignment to threads
+is done by the task scheduler.
+</p>
+
+<p name="switchToTextMode">
+You can indicate task dependencies in several ways:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Using the `task wait' directive you can explicitly indicate
+  the 
+<i>join</i>
+
+<!-- index -->
+ of the
+  
+<i>forked</i>
+ tasks. The instruction after the wait directive
+  will therefore be dependent on the spawned tasks.
+<li>
+The 
+<tt>taskgroup</tt>
+ directive, followed
+  by a structured block, ensures completion of all tasks
+  created in the block, even if recursively created.
+<li>
+Each OpenMP task can have a 
+  clause, indicating what 
+<i>data dependency</i>
+ of the task.
+  By indicating what data is produced or absorbed by the tasks,
+  the scheduler can construct the dependency graph for you.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+Another mechanism for dealing with tasks is the
+<tt>taskgroup</tt>
+: a task group is a code block that can
+contain 
+<tt>task</tt>
+ directives; all these tasks need to be
+finished before any statement after the block is executed.
+</p>
+
+<p name="switchToTextMode">
+A task group is somewhat similar to having a 
+<tt>taskwait</tt>
+directive after the block. The big difference is that that
+
+<tt>taskwait</tt>
+ directive does not wait for tasks that are recursively
+generated, while a 
+<tt>taskgroup</tt>
+ does.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Taskdependencies">24.3</a> Task dependencies</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Taskdependencies">Task dependencies</a>
+</p>
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+It is possible to put a partial ordering on
+tasks through use of the 
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp task
+  x = f()
+#pragma omp task
+  y = g(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+it is conceivable that the second task is executed before the first,
+possibly leading to an incorrect result. This is remedied by specifying:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp task depend(out:x)
+  x = f()
+#pragma omp task depend(in:x)
+  y = g(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Consider the following code:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for i in [1:N]:
+    x[0,i] = some_function_of(i)
+    x[i,0] = some_function_of(i)
+
+
+for i in [1:N]:
+    for j in [1:N]:
+        x[i,j] = x[i-1,j]+x[i,j-1]
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Observe that the second loop nest is not amenable to OpenMP loop
+  parallelism.
+<li>
+Can you think of a way to realize the computation with OpenMP
+  loop parallelism? Hint: you need to rewrite the code so that the
+  same operations are done in a different order.
+<li>
+Use tasks with dependencies to make this code parallel without
+  any rewriting: the only change is to add OpenMP directives.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+Tasks dependencies are used to indicated how two uses of one data item
+relate to each other. Since either use can be a read or a write,
+there are four types of dependencies.
+</p>
+
+<!-- environment: description start embedded generator -->
+<!-- environment block purpose: [[ environment=description ]] -->
+<description>
+<ul>
+<!-- TranslatingLineGenerator description ['description'] -->
+<li>
+[RaW (Read after Write)] The second task reads an item that the
+  first task writes. The second task has to be executed after the
+  first:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+... omp task depend(OUT:x)
+  foo(x)
+... omp task depend( IN:x)
+  foo(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+[WaR (Write after Read)] The first task reads and item, and the
+  second task overwrites it. The second task has to be executed second
+  to prevent overwriting the initial value:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+... omp task depend( IN:x)
+  foo(x)
+... omp task depend(OUT:x)
+  foo(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+[WaW (Write after Write)] Both tasks set the same variable. Since
+  the variable can be used by an intermediate task, the two writes
+  have to be executed in this order.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+... omp task depend(OUT:x)
+  foo(x)
+... omp task depend(OUT:x)
+  foo(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+[RaR (Read after Read)] Both tasks read a variable. Since neither
+  tasks has an `out' declaration, they can run in either order.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+... omp task depend(IN:x)
+  foo(x)
+... omp task depend(IN:x)
+  foo(x)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</ul>
+</description>
+<!-- environment: description end embedded generator -->
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="More">24.4</a> More</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a>
+</p>
+</p>
+
+<h3><a id="Schedulingpoints">24.4.1</a> Scheduling points</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Schedulingpoints">Scheduling points</a>
+</p>
+<p name="switchToTextMode">
+
+Normally, a task stays tied to the thread that first executes it.
+However, at a 
+<i>task scheduling point</i>
+ the thread may
+switch to the execution of another task created by the same team.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+There is a scheduling point after explicit task creation. This
+  means that, in the above examples, the thread creating the tasks can
+  also participate in executing them.
+<li>
+There is a scheduling point at 
+<tt>taskwait</tt>
+ and 
+<tt>taskyield</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+On the other hand a task created with them 
+on the task pragma is never tied to one thread. This means that after
+suspension at a scheduling point any thread can resume execution of
+the task.
+If you do this, beware
+that the value of a thread-id does not stay fixed. Also locks become a problem.
+</p>
+
+<p name="switchToTextMode">
+Example: if a thread is waiting for a lock, with a scheduling point it
+can suspend the task and work on another task.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+while (!omp_test_lock(lock))
+#pragma omp taskyield
+  ;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Avoidingsmalltasks">24.4.2</a> Avoiding small tasks</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+If a task involves only a small amount of work,
+the scheduling overhead may negate any performance gain.
+There are two ways of executing the task code directly:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The 
+<tt>if</tt>
+ clause will only create a task
+  if the test is true:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp task if (n&gt;100)
+  f(n)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+The 
+<tt>if</tt>
+ clause may still lead to recursively
+  generated tasks. On the other hand, 
+<tt>final</tt>
+  will execute the code, and will also skip any recursively created tasks:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp task final(level&lt;3)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Taskcancelling">24.4.3</a> Task cancelling</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Taskcancelling">Task cancelling</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+It is possible (in OpenMP-) to cancel
+tasks. This is useful when tasks are used to perform a search: the
+task that finds the result first can cancel any outstanding search
+tasks.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-parallel.html#Cancelparallelconstruct">18.3</a>
+ for details.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Modify the prime finding example to use 
+<tt>cancel</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Examples">24.5</a> Examples</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Examples">Examples</a>
+</p>
+</p>
+
+<h3><a id="Fibonacci">24.5.1</a> Fibonacci</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Examples">Examples</a> > <a href="omp-task.html#Fibonacci">Fibonacci</a>
+</p>
+<p name="switchToTextMode">
+
+As an example of the use of tasks, consider computing an array of Fibonacci values:
+\cverbatimsnippet[examples/omp/c/taskgroup0.c]{fiboarray}
+If you simply turn each calculation into a task, results will be
+unpredictable (confirm this!) since tasks can be executed in any sequence.
+To solve this, we put dependencies on the tasks:
+\cverbatimsnippet[examples/omp/c/taskgroup2.c]{fibotaskdepend}
+</p>
+
+<h3><a id="Binomialcoefficients">24.5.2</a> Binomial coefficients</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Examples">Examples</a> > <a href="omp-task.html#Binomialcoefficients">Binomial coefficients</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  An array of binomial coefficients can be computed as follows:
+  \cverbatimsnippet[code/omp/c/binomial1.c]{binomialarray}
+  Putting a single task group around the double loop, and use
+  
+<tt>depend</tt>
+ clauses to make the execution satisfy the proper dependencies.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

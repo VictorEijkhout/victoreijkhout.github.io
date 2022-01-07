@@ -1,0 +1,5112 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>MPI topic: Point-to-point</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+4.1 : <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a><br>
+4.1.1 : <a href="mpi-ptp.html#Example:ping-pong">Example: ping-pong</a><br>
+4.1.2 : <a href="mpi-ptp.html#Sendcall">Send call</a><br>
+4.1.3 : <a href="mpi-ptp.html#Receivecall">Receive call</a><br>
+4.1.4 : <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a><br>
+4.1.4.1 : <a href="mpi-ptp.html#Deadlock">Deadlock</a><br>
+4.1.4.2 : <a href="mpi-ptp.html#Eagerlimit">Eager limit</a><br>
+4.1.4.3 : <a href="mpi-ptp.html#Serialization">Serialization</a><br>
+4.1.5 : <a href="mpi-ptp.html#Bucketbrigade">Bucket brigade</a><br>
+4.1.6 : <a href="mpi-ptp.html#Pairwiseexchange">Pairwise exchange</a><br>
+4.2 : <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a><br>
+4.2.1 : <a href="mpi-ptp.html#Nonblockingsendandreceivecalls">Nonblocking send and receive calls</a><br>
+4.2.2 : <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a><br>
+4.2.2.1 : <a href="mpi-ptp.html#Waitforonerequest">Wait for one request</a><br>
+4.2.2.2 : <a href="mpi-ptp.html#Waitforallrequests">Wait for all requests</a><br>
+4.2.2.3 : <a href="mpi-ptp.html#Waitforanyrequests">Wait for any requests</a><br>
+4.2.2.4 : <a href="mpi-ptp.html#PollingwithMPIWaitany">Polling with MPI Wait any</a><br>
+4.2.2.5 : <a href="mpi-ptp.html#Waitforsomerequests">Wait for some requests</a><br>
+4.2.2.6 : <a href="mpi-ptp.html#Receivestatusofthewaitcalls">Receive status of the wait calls</a><br>
+4.2.2.7 : <a href="mpi-ptp.html#Latencyhidingoverlappingcommunicationandcomputation">Latency hiding / overlapping communication and computation</a><br>
+4.2.2.8 : <a href="mpi-ptp.html#Bufferissuesinnonblockingcommunication">Buffer issues in nonblocking communication</a><br>
+4.2.3 : <a href="mpi-ptp.html#Waitandtestcalls">Wait and test calls</a><br>
+4.2.4 : <a href="mpi-ptp.html#Moreaboutrequests">More about requests</a><br>
+4.3 : <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a><br>
+4.3.1 : <a href="mpi-ptp.html#Messageprobing">Message probing</a><br>
+4.3.2 : <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a><br>
+4.3.2.1 : <a href="mpi-ptp.html#Source">Source</a><br>
+4.3.2.2 : <a href="mpi-ptp.html#Tag">Tag</a><br>
+4.3.2.3 : <a href="mpi-ptp.html#Error">Error</a><br>
+4.3.2.4 : <a href="mpi-ptp.html#Count">Count</a><br>
+4.3.2.5 : <a href="mpi-ptp.html#Example:receivingfromanysource">Example: receiving from any source</a><br>
+4.4 : <a href="mpi-ptp.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>4 MPI topic: Point-to-point</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<h2><a id="Blockingpoint-to-pointoperations">4.1</a> Blocking point-to-point operations</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a>
+</p>
+<p name="switchToTextMode">
+
+Suppose you have an array of numbers $x_i\colon i=0,\ldots,N$
+and you want to compute
+\[
+ y_i=(x_{i-1}+x_i+x_{i+1})/3\colon i=1,\ldots,N-1. 
+\]
+As before (see figure~
+2.6
+), we give each processor
+a subset of the~$x_i$s and $y_i$s.
+Let's define $i_p$ as the first index of~$y$ that is
+computed by processor~$p$. (What is the last index computed by processor~$p$?
+How many indices are computed on that processor?)
+</p>
+
+<p name="switchToTextMode">
+We often talk about the 
+<i>owner computes</i>
+model of parallel computing: each processor `owns' certain data items,
+and it computes their value.
+</p>
+
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/threepoint-interior.jpeg" width=800></img>
+<p name="caption">
+FIGURE 4.1: Three point averaging in parallel
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+Now let's investigate how processor&nbsp;$p$ goes about computing&nbsp;$y_i$ for
+the $i$-values it owns. Let's assume that process&nbsp;$p$ also stores
+the values $x_i$ for these same indices.
+Now, for many values&nbsp;$i$ it can evalute the computation
+\[
+ y_{i} = (x_{i-1}+x_{i}+x_{i+1})/3 
+\]
+locally (figure&nbsp;
+4.1
+).
+</p>
+
+<p name="switchToTextMode">
+However, there is a problem with computing&nbsp;$y$
+in the first index $i_p$ on processor&nbsp;$p$:
+\[
+ y_{i_p} = (x_{i_p-1}+x_{i_p}+x_{i_p+1})/3 
+\]
+The point to the left, $x_{i_p-1}$,
+is not stored on process&nbsp;$p$
+(it is stored on&nbsp;$p-1$),
+so it is not immediately available for use by process&nbsp;$p$.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/threepoint-msg.jpeg" width=800></img>
+<p name="caption">
+FIGURE 4.2: Three point averaging in parallel, case of edge points
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+(figure&nbsp;
+4.2
+).
+There is a similar story with the last index that $p$ tries to compute:
+that involves a value that is only present on&nbsp;$p+1$.
+</p>
+
+<p name="switchToTextMode">
+You see that there is a need for processor-to-processor, or
+technically 
+<i>point-to-point</i>
+, information exchange.
+MPI realizes this through matched send and receive calls:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+One process does a send to a specific other process;
+<li>
+the other process does a specific receive from that source.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+We will now discuss the send and receive routines in detail.
+</p>
+
+<h3><a id="Example:ping-pong">4.1.1</a> Example: ping-pong</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Example:ping-pong">Example: ping-pong</a>
+</p>
+
+<p name="switchToTextMode">
+
+A simple scenario for information exchange between just two processes
+is the 
+<i>ping-pong</i>
+: process&nbsp;A sends data to process&nbsp;B, which
+sends data back to&nbsp;A. This means that process&nbsp;A executes the code
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Send( /* to: */ B ..... );
+MPI_Recv( /* from: */ B ... );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+while process&nbsp;B executes
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Recv( /* from: */ A ... );
+MPI_Send( /* to: */ A ..... );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Since we are programming in SPMD mode, this means our program looks like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+if ( /* I am process A */ ) {
+  MPI_Send( /* to: */ B ..... );
+  MPI_Recv( /* from: */ B ... );
+} else if ( /* I am process B */ ) {
+  MPI_Recv( /* from: */ A ... );
+  MPI_Send( /* to: */ A ..... );
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  The structure of the send and receive calls shows the symmetric nature of MPI: every
+  target process is reached with the same send call, no matter whether it's
+  running on the same multicore chip as the sender, or on a
+  computational node halfway across the machine room, taking
+  several network hops to reach. Of course, any
+  self-respecting MPI implementation optimizes for the case where sender
+  and receiver have access to the same shared memory.
+  This means that a send/recv pair is realized as
+  a copy operation from the sender buffer to the
+  receiver buffer, rather than a network transfer.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Sendcall">4.1.2</a> Send call</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Sendcall">Send call</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The blocking send command is
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Send" aria-expanded="false" aria-controls="MPI_Send">
+        Routine reference: MPI_Send
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Send" class="collapse">
+  <pre>
+C:
+int MPI_Send(
+  const void* buf, int count, MPI_Datatype datatype,
+  int dest, int tag, MPI_Comm comm)
+
+Semantics:
+IN buf: initial address of send buffer (choice)
+IN count: number of elements in send buffer (non-negative integer)
+IN datatype: datatype of each send buffer element (handle)
+IN dest: rank of destination (integer)
+IN tag: message tag (integer)
+IN comm: communicator (handle)
+
+Fortran:
+MPI_Send(buf, count, datatype, dest, tag, comm, ierror)
+TYPE(*), DIMENSION(..), INTENT(IN) :: buf
+INTEGER, INTENT(IN) :: count, dest, tag
+TYPE(MPI_Datatype), INTENT(IN) :: datatype
+TYPE(MPI_Comm), INTENT(IN) :: comm
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+MPI.Comm.send(self, obj, int dest, int tag=0)
+Python numpy:
+MPI.Comm.Send(self, buf, int dest, int tag=0)
+
+MPL:
+template<typename T >
+void mpl::communicator::send
+   ( const T scalar&,int dest,tag = tag(0) ) const
+T : scalar type
+   ( const T *buffer,const layout< T > &,int dest,tag = tag(0) ) const
+   ( iterT begin,iterT end,int dest,tag = tag(0) ) const
+begin : begin iterator
+end : end iterator
+</pre>
+</div>
+</div>
+<i>MPI_Send</i>
+.
+Example:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sendexample" aria-expanded="false" aria-controls="sendexample">
+        C Code: sendexample
+      </button>
+    </h5>
+  </div>
+  <div id="sendexample" class="collapse">
+  <pre>
+// sendandrecv.c
+double send_data = 1.;
+MPI_Send
+  ( /* send buffer/count/type: */ &send_data,1,MPI_DOUBLE,
+    /* to: */ receiver, /* tag: */ 0,
+    /* communicator: */ comm);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+The send call has the following elements.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Buffer</b><br>
+
+The 
+<i>send buffer</i>
+ is described by a trio of buffer/count/datatype.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-collective.html#Databuffers">3.2.4</a>
+ for discussion.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Target</b><br>
+
+The  
+explicit process rank to send to.  This rank is a number from zero up
+to the result of 
+<tt>MPI_Comm_size</tt>
+.
+It is allowed for a process to send to itself, but
+this may lead to a runtime 
+<i>deadlock</i>
+;
+see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Problemswithblockingcommunication">4.1.4</a>
+ for discussion.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Tag</b><br>
+
+Next, a message can have a
+<i>tag</i>
+<!-- index -->
+<!-- index -->
+.
+Many applications have each sender send only one message at a time
+to a given receiver.
+For the case where there are
+multiple simultaneous messages between the same sender&nbsp;/ receiver pair,
+the tag can be used to disambiguate between
+the messages.
+</p>
+
+<p name="switchToTextMode">
+Often, a tag value of zero is safe to use.
+Indeed, 
+<span title="acronym" ><i>OO</i></span>
+ interfaces to MPI typically have  the tag
+as an optional parameter with value zero.
+If you do
+use tag values, you can use the key 
+<tt>MPI_TAG_UB</tt>
+ to query
+what the maximum value is that can be used; see
+section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Attributes">15.1.2</a>
+.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Communicator</b><br>
+
+Finally, in common with the vast majority of MPI calls,
+there is a communicator argument that provides a context for the send transaction.
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<span title="acronym" ><i>MPL</i></span>
+<p name="switchToTextMode">
+ uses a default value for the tag, and it can deduce the type
+  of the buffer. Sending a scalar becomes:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplsendscalar" aria-expanded="false" aria-controls="mplsendscalar">
+        C++ Code: mplsendscalar
+      </button>
+    </h5>
+  </div>
+  <div id="mplsendscalar" class="collapse">
+  <pre>
+// sendscalar.cxx
+if (comm_world.rank()==0) {
+  double pi=3.14;
+  comm_world.send(pi, 1);  // send to rank 1
+  cout &lt;&lt; "sent: " &lt;&lt; pi &lt;&lt; '\n';
+} else if (comm_world.rank()==1) {
+  double pi=0;
+  comm_world.recv(pi, 0);  // receive from rank 0
+  cout &lt;&lt; "got : " &lt;&lt; pi &lt;&lt; '\n';
+}
+</pre>
+</div>
+</div>
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<span title="acronym" ><i>MPL</i></span>
+<p name="switchToTextMode">
+ can send 
+<i>static array</i>
+s
+  without further layout specification:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplsendarray" aria-expanded="false" aria-controls="mplsendarray">
+        C++ Code: mplsendarray
+      </button>
+    </h5>
+  </div>
+  <div id="mplsendarray" class="collapse">
+  <pre>
+// sendarray.cxx
+double v[2][2][2];
+  comm_world.send(v, 1);  // send to rank 1
+  comm_world.recv(v, 0);  // receive from rank 0
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+  Sending vectors uses a general mechanism:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplsendbuffer" aria-expanded="false" aria-controls="mplsendbuffer">
+        C++ Code: mplsendbuffer
+      </button>
+    </h5>
+  </div>
+  <div id="mplsendbuffer" class="collapse">
+  <pre>
+// sendbuffer.cxx
+std::vector&lt;double&gt; v(8);
+mpl::contiguous_layout&lt;double&gt; v_layout(v.size());
+  comm_world.send(v.data(), v_layout, 1);  // send to rank 1
+  comm_world.recv(v.data(), v_layout, 0);  // receive from rank 0
+</pre>
+</div>
+</div>
+</p>
+
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+  It is possible to to send containers by iterators
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplsendrange" aria-expanded="false" aria-controls="mplsendrange">
+        C++ Code: mplsendrange
+      </button>
+    </h5>
+  </div>
+  <div id="mplsendrange" class="collapse">
+  <pre>
+// sendrange.cxx
+vector&lt;double&gt; v(15);
+  comm_world.send(v.begin(), v.end(), 1);  // send to rank 1
+  comm_world.recv(v.begin(), v.end(), 0);  // receive from rank 0
+</pre>
+</div>
+</div>
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+  Noncontiguous iteratable objects can be send with a
+<tt>iterator_layout</tt>
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+std::list&lt;int&gt; v(20, 0);
+mpl::iterator_layout&lt;int&gt; l(v.begin(), v.end());
+comm_world.recv(&(*v.begin()), l, 0);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Receivecall">4.1.3</a> Receive call</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Receivecall">Receive call</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The basic blocking receive command is
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Recv" aria-expanded="false" aria-controls="MPI_Recv">
+        Routine reference: MPI_Recv
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Recv" class="collapse">
+  <pre>
+C:
+int MPI_Recv(
+  void* buf, int count, MPI_Datatype datatype,
+  int source, int tag, MPI_Comm comm, MPI_Status *status)
+
+Semantics:
+OUT buf: initial address of receive buffer (choice)
+IN count: number of elements in receive buffer (non-negative integer)
+IN datatype: datatype of each receive buffer element (handle)
+IN source: rank of source or MPI_ANY_SOURCE (integer)
+IN tag: message tag or MPI_ANY_TAG (integer)
+IN comm: communicator (handle)
+OUT status: status object (Status)
+
+Fortran:
+MPI_Recv(buf, count, datatype, source, tag, comm, status, ierror)
+TYPE(*), DIMENSION(..) :: buf
+INTEGER, INTENT(IN) :: count, source, tag
+TYPE(MPI_Datatype), INTENT(IN) :: datatype
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Status) :: status
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python native:
+recvbuf = Comm.recv(self, buf=None, int source=ANY_SOURCE, int tag=ANY_TAG,
+    Status status=None)
+Python numpy:
+Comm.Recv(self, buf, int source=ANY_SOURCE, int tag=ANY_TAG,
+    Status status=None)
+
+MPL:
+
+template<typename T >
+status mpl::communicator::recv
+   ( T &,int,tag = tag(0) ) const inline
+   ( T *,const layout< T > &,int,tag = tag(0) ) const
+   ( iterT  begin,iterT  end,int  source, tag  t = tag(0) ) const
+</pre>
+</div>
+</div>
+<i>MPI_Recv</i>
+.
+</p>
+
+<p name="switchToTextMode">
+An example:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#recvexample" aria-expanded="false" aria-controls="recvexample">
+        C Code: recvexample
+      </button>
+    </h5>
+  </div>
+  <div id="recvexample" class="collapse">
+  <pre>
+double recv_data;
+MPI_Recv
+  ( /* recv buffer/count/type: */ &recv_data,1,MPI_DOUBLE,
+    /* from: */ sender, /* tag: */ 0,
+    /* communicator: */ comm,
+    /* recv status: */ MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+This is similar in structure to the send call, with some exceptions.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Buffer</b><br>
+
+The 
+<i>receive buffer</i>
+ has the same buffer/count/data parameters as the send
+call.
+However,
+the 
+<tt>count</tt>
+ argument here indicates the size of the buffer,
+rather than the actual length of a message.
+This sets an upper bound on the length of the incoming message.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+For receiving messages with unknown length, use 
+<tt>MPI_Probe</tt>
+;
+  section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Messageprobing">4.3.1</a>
+.
+<li>
+A message longer than the buffer size will give an overflow error,
+  either returning an error, or ending your program; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Errorhandling">15.2.2</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+The length of the received message can be determined
+from the status object; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#TheStatusobjectandwildcards">4.3.2</a>
+ for more detail.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Source</b><br>
+
+Mirroring the target argument of the 
+<tt>MPI_Send</tt>
+ call,
+<tt>MPI_Recv</tt>
+ has a 
+argument.
+This can be either a specific rank, or it can be the
+<tt>MPI_ANY_SOURCE</tt>
+ wildcard. In the latter case, the actual
+source can be determined after the message has been received;
+see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#TheStatusobjectandwildcards">4.3.2</a>
+.
+A&nbsp;source value of 
+<tt>MPI_PROC_NULL</tt>
+ is also allowed,
+which makes the receive succeed immediately with no data received.
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+  The constant  <tt>mpl::</tt> 
+<tt>any_source</tt>
+<p name="switchToTextMode">
+  equals 
+<tt>MPI_ANY_SOURCE</tt>
+ (by  <tt>constexpr</tt> ).
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+
+<b>Tag</b><br>
+
+Similar to the messsage source, the message tag of a receive call can
+be a specific value or a wildcard, in this case
+<tt>MPI_ANY_TAG</tt>
+.
+Again, see below.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Communicator</b><br>
+
+The communicator argument almost goes without remarking.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Status</b><br>
+
+The 
+<tt>MPI_Recv</tt>
+ command has one parameter that
+the send call lacks: the 
+<tt>MPI_Status</tt>
+ object,
+describing the 
+<i>message status</i>
+.
+This gives information about the message received,
+for instance if you used wildcards for source or tag.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#TheStatusobjectandwildcards">4.3.2</a>
+for more about the status object.
+</p>
+
+<!-- environment: remark start embedded generator -->
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  If you're not interested in the status,
+  as is the case in many examples in this book,
+  specify the constant 
+<tt>MPI_STATUS_IGNORE</tt>
+.
+  Note that the signature of 
+<tt>MPI_Recv</tt>
+ lists the status parameter
+  as `output'; this `direction' of the parameter of course only applies
+  if you do not specify this constant.
+  (See also section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#MPIconstants">15.11.1</a>
+.)
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Implement the ping-pong program. Add a timer using 
+<tt>MPI_Wtime</tt>
+.
+  For the 
+<tt>status</tt>
+ argument of the receive call, use
+<tt>MPI_STATUS_IGNORE</tt>
+.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Run multiple ping-pongs (say a thousand) and put the timer
+    around the loop. The first run may take longer; try to discard it.
+<li>
+Run your code with the two communicating processes first on
+    the same node, then on different nodes. Do you see a difference?
+<li>
+Then modify the program
+    to use longer messages. How does the timing increase with message size?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+  For bonus points, can you do a regression to determine&nbsp;$\alpha,\beta$?
+<!-- skeleton start: pingpong -->
+<button id="runBtn">pingpong</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: pingpong -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Take your pingpong program and modify it
+  to let half the processors
+  be source and the other half the targets. Does the pingpong time increase?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Problemswithblockingcommunication">4.1.4</a> Problems with blocking communication</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a>
+</p>
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+You may be tempted to think that the send call puts the data somewhere
+in the network, and the sending code can progress,
+as in figure&nbsp;
+4.3
+, left.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<p name="switchToTextMode">
+\leavevmode
+<img src="graphics/send-ideal.jpeg" width=800></img>
+<img src="graphics/send-blocking.jpeg" width=800></img>
+<p name="caption">
+FIGURE 4.3: Illustration of an ideal (left) and actual (right) send-receive interaction
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+But this ideal scenario is not realistic: it assumes that somewhere
+in the network there is buffer capacity for all messages that are in
+transit.
+This is not the case: data resides on the sender, and the sending call blocks,
+until the receiver has received all of it. (There is a exception for
+small messages, as explained in the next section.)
+</p>
+
+<p name="switchToTextMode">
+The use of 
+<tt>MPI_Send</tt>
+ and 
+<tt>MPI_Recv</tt>
+is known as 
+<i>blocking communication</i>
+: when your code reaches a
+send or receive call, it blocks until the call is succesfully completed.
+</p>
+
+<p name="switchToTextMode">
+Technically, blocking operations are called
+<i>non-local</i>
+<!-- index -->
+ since their execution
+depends on factors that are not local to the process.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Localandnonlocaloperations">5.4</a>
+.
+</p>
+
+<p name="switchToTextMode">
+For a receive call it is clear that the receiving code will wait until
+the data has actually come in, but for a send call this is more subtle.
+</p>
+
+<h4><a id="Deadlock">4.1.4.1</a> Deadlock</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a> > <a href="mpi-ptp.html#Deadlock">Deadlock</a>
+</p>
+<p name="switchToTextMode">
+
+Suppose two process need to exchange data, and consider the following
+pseudo-code, which purports to exchange data between processes 0 and&nbsp;1:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+other = 1-mytid; /* if I am 0, other is 1; and vice versa */
+receive(source=other);
+send(target=other);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Imagine that the two processes execute this code. They both issue the
+send call&hellip;\ and then can't go on, because they are both waiting
+for the other to issue the send call corresponding to their receive call.
+This is known as 
+<i>deadlock</i>
+.
+</p>
+
+<h4><a id="Eagerlimit">4.1.4.2</a> Eager limit</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a> > <a href="mpi-ptp.html#Eagerlimit">Eager limit</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+If you reverse the send and receive call:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+other = 1-mytid; /* if I am 0, other is 1; and vice versa */
+send(target=other);
+receive(source=other);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+you should get deadlock,
+since the send calls will be waiting for the receive operation to be posted.
+</p>
+
+<p name="switchToTextMode">
+In practice, however, this code will often work. The reason is that
+MPI implementations sometimes send small messages regardless of whether
+the receive has been posted. This relies on the availability of
+some amount of available buffer space. The size under which this behavior
+is used is sometimes referred to as the 
+<i>eager limit</i>
+.
+</p>
+
+<p name="switchToTextMode">
+The following code is guaranteed to block, since a 
+<tt>MPI_Recv</tt>
+always blocks:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#recvblock" aria-expanded="false" aria-controls="recvblock">
+        C Code: recvblock
+      </button>
+    </h5>
+  </div>
+  <div id="recvblock" class="collapse">
+  <pre>
+// recvblock.c
+other = 1-procno;
+MPI_Recv(&recvbuf,1,MPI_INT,other,0,comm,&status);
+MPI_Send(&sendbuf,1,MPI_INT,other,0,comm);
+printf("This statement will not be reached on %d\n",procno);
+</pre>
+</div>
+</div>
+On the other hand, if we put the send call before the receive,
+code may not block for small messages
+that fall under the eager limit.
+</p>
+
+<p name="switchToTextMode">
+To illustrate eager and blocking behavior in 
+<tt>MPI_Send</tt>
+,
+consider an example where we send
+gradually larger messages. From the screen output you can see what
+the largest message was that fell under the eager limit; after that the code
+hangs because of a deadlock.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sendblock" aria-expanded="false" aria-controls="sendblock">
+        C Code: sendblock
+      </button>
+    </h5>
+  </div>
+  <div id="sendblock" class="collapse">
+  <pre>
+// sendblock.c
+other = 1-procno;
+/* loop over increasingly large messages */
+for (int size=1; size&lt;2000000000; size*=10) {
+  sendbuf = (int*) malloc(size*sizeof(int));
+  recvbuf = (int*) malloc(size*sizeof(int));
+  if (!sendbuf || !recvbuf) {
+    printf("Out of memory\n"); MPI_Abort(comm,1);
+  }
+  MPI_Send(sendbuf,size,MPI_INT,other,0,comm);
+  MPI_Recv(recvbuf,size,MPI_INT,other,0,comm,&status);
+  /* If control reaches this point, the send call
+     did not block. If the send call blocks,
+     we do not reach this point, and the program will hang.
+  */
+  if (procno==0)
+    printf("Send did not block for size %d\n",size);
+  free(sendbuf); free(recvbuf);
+}
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sendblock-f" aria-expanded="false" aria-controls="sendblock-f">
+        Fortran Code: sendblock-f
+      </button>
+    </h5>
+  </div>
+  <div id="sendblock-f" class="collapse">
+  <pre>
+!! sendblock.F90
+     other = 1-mytid
+     size = 1
+     do
+        allocate(sendbuf(size)); allocate(recvbuf(size))
+        print *,size
+        call MPI_Send(sendbuf,size,MPI_INTEGER,other,0,comm,err)
+        call MPI_Recv(recvbuf,size,MPI_INTEGER,other,0,comm,status,err)
+        if (mytid==0) then
+           print *,"MPI_Send did not block for size",size
+        end if
+        deallocate(sendbuf); deallocate(recvbuf)
+        size = size*10
+        if (size&gt;2000000000) goto 20
+     end do
+20   continue
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sendblockp" aria-expanded="false" aria-controls="sendblockp">
+        Python Code: sendblockp
+      </button>
+    </h5>
+  </div>
+  <div id="sendblockp" class="collapse">
+  <pre>
+## sendblock.py
+size = 1
+while size&lt;2000000000:
+    sendbuf = np.empty(size, dtype=np.int)
+    recvbuf = np.empty(size, dtype=np.int)
+    comm.Send(sendbuf,dest=other)
+    comm.Recv(sendbuf,source=other)
+    if procid&lt;other:
+        print("Send did not block for",size)
+    size *= 10
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+If you want a code to exhibit the same blocking behavior for  all message sizes,
+you force the send call to be blocking by using
+<tt>MPI_Ssend</tt>
+, which has the same calling sequence as 
+<tt>MPI_Send</tt>
+,
+but which does not allow eager sends.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ssendblock" aria-expanded="false" aria-controls="ssendblock">
+        C Code: ssendblock
+      </button>
+    </h5>
+  </div>
+  <div id="ssendblock" class="collapse">
+  <pre>
+// ssendblock.c
+other = 1-procno;
+sendbuf = (int*) malloc(sizeof(int));
+recvbuf = (int*) malloc(sizeof(int));
+size = 1;
+MPI_Ssend(sendbuf,size,MPI_INT,other,0,comm);
+MPI_Recv(recvbuf,size,MPI_INT,other,0,comm,&status);
+printf("This statement is not reached\n");
+</pre>
+</div>
+</div>
+Formally you can describe deadlock as follows. Draw up a graph where
+every process is a node, and draw a directed arc from process&nbsp;A to&nbsp;B if
+A is waiting for&nbsp;B. There is deadlock if this directed graph has a
+loop.
+</p>
+
+<p name="switchToTextMode">
+The solution to the deadlock in the above example is to first do the
+send from 0 to&nbsp;1, and then from 1 to&nbsp;0 (or the other way around). So
+the code would look like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+if ( /* I am processor 0 */ ) {
+  send(target=other);
+  receive(source=other);
+} else {
+  receive(source=other);
+  send(target=other);
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+The eager limit is implementation-specific. For instance, for
+<i>Intel MPI</i>
+ there is a variable
+<tt>I_MPI_EAGER_THRESHOLD</tt>
+, for 
+<i>mvapich2</i>
+ it is
+<tt>MV2_IBA_EAGER_THRESHOLD</tt>
+, and for 
+<i>OpenMPI</i>
+ the
+
+<tt>--mca</tt>
+ options 
+<tt>btl_openib_eager_limit</tt>
+ and
+<tt>btl_openib_rndv_eager_limit</tt>
+.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h4><a id="Serialization">4.1.4.3</a> Serialization</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a> > <a href="mpi-ptp.html#Serialization">Serialization</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+There is a second, even more subtle problem with blocking
+communication. Consider the scenario where every processor needs to
+pass data to its successor, that is, the processor with the next
+higher rank. The basic idea would be to first send to your successor,
+then receive from your predecessor. Since the last processor does not
+have a successor it skips the send, and likewise the first processor
+skips the receive. The pseudo-code looks like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+successor = mytid+1; predecessor = mytid-1;
+if ( /* I am not the last processor */ )
+  send(target=successor);
+if ( /* I am not the first processor */ )
+  receive(source=predecessor)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  (Classroom exercise) Each student holds a piece of paper
+  in the right hand --&nbsp;keep your left hand behind your back&nbsp;--
+  and we want to execute:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Give the paper to your right neighbor;
+<li>
+Accept the paper from your left neighbor.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+  Including boundary conditions for first and last process, that becomes
+  the following program:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+If you are not the rightmost student, turn to the right
+    and give the paper to your right neighbor.
+<li>
+If you are not the leftmost student, turn to your left and
+    accept the paper from your left neighbor.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+This code does not deadlock. All processors but the last one block on
+the send call, but the last processor executes the receive call. Thus,
+the processor before the last one can do its send, and subsequently
+continue to its receive, which enables another send, et cetera.
+</p>
+
+<p name="switchToTextMode">
+In one way this code does what you intended to do:
+it will terminate (instead of hanging forever on a
+deadlock) and exchange data the right way. However, the execution
+now suffers from unexpected 
+<i>serialization</i>
+: only
+one processor is active at any time, so what should have been a
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/linear-serial.jpg" width=800></img>
+<p name="caption">
+FIGURE 4.4: Trace of a simple send-recv code
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+parallel operation becomes a sequential one. This is illustrated in
+figure&nbsp;
+4.4
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Implement the above algorithm using 
+<tt>MPI_Send</tt>
+ and 
+<tt>MPI_Recv</tt>
+ calls.
+  Run the code, and use TAU to reproduce the trace output
+  of figure&nbsp;
+4.4
+.
+  If you don't have TAU, can you show this serialization
+  behavior using timings, for instance running it on an increasing number of processes?
+<!-- skeleton start: rightsend -->
+<button id="runBtn">rightsend</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: rightsend -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+It is possible to orchestrate your processes to get an efficient and
+deadlock-free execution, but doing so is a bit cumbersome.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  The above solution treated every processor equally. Can you come up
+  with a solution that uses blocking sends and receives, but does not
+  suffer from the serialization behavior?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+There are better solutions which we will
+explore in the next section.
+</p>
+
+<h3><a id="Bucketbrigade">4.1.5</a> Bucket brigade</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Bucketbrigade">Bucket brigade</a>
+</p>
+
+<p name="switchToTextMode">
+
+The problem with the previous exercise was that an operation that was
+conceptually parallel, became serial in execution. On the other hand,
+sometimes the operation is actually serial in nature. One example is
+the 
+<i>bucket brigade</i>
+ operation, where a piece of data is
+successively passed down a sequence of processors.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Take the code of exercise&nbsp;
+4.4
+ and modify it
+  so that the data from process zero gets propagated to every
+  process. Specifically, compute all partial sums $\sum_{i=0}^pi^2$:
+\[
+\begin{cases}
+    x_0 = 1&\hbox{on process zero}\\
+    x_p = x_{p-1}+(p+1)^2 & \hbox{on process $p$}\\
+\end{cases}
+\]
+  Use 
+<tt>MPI_Send</tt>
+ and 
+<tt>MPI_Recv</tt>
+; make sure to get the order right.
+</p>
+
+<p name="switchToTextMode">
+  Food for thought: all quantities involved here are integers. Is it a good idea to
+  use the integer datatype here?
+</p>
+
+<p name="switchToTextMode">
+  Question: could you have done this with a collective call?
+<!-- skeleton start: bucketblock -->
+<button id="runBtn">bucketblock</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: bucketblock -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  There is an 
+<tt>MPI_Scan</tt>
+ routine (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-collective.html#Scanoperations">3.4</a>
+)
+  that performs the same computation,
+  but computationally more efficiently. Thus, this exercise only serves to illustrate
+  the principle.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h3><a id="Pairwiseexchange">4.1.6</a> Pairwise exchange</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Pairwiseexchange">Pairwise exchange</a>
+</p>
+
+<p name="switchToTextMode">
+
+Above you saw that with blocking sends the precise ordering of the
+send and receive calls is crucial. Use the wrong ordering and you get
+either deadlock, or something that is not efficient at all in
+parallel. MPI has a way out of this problem that is sufficient for
+many purposes: the combined send/recv call 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Sendrecv" aria-expanded="false" aria-controls="MPI_Sendrecv">
+        Routine reference: MPI_Sendrecv
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Sendrecv" class="collapse">
+  <pre>
+Semantics:
+
+MPI_SENDRECV(
+    sendbuf, sendcount, sendtype, dest, sendtag,
+    recvbuf, recvcount, recvtype, source, recvtag,
+    comm, status)
+IN sendbuf: initial address of send buffer (choice)
+IN sendcount: number of elements in send buffer (non-negative integer)
+IN sendtype: type of elements in send buffer (handle)
+IN dest: rank of destination (integer)
+IN sendtag: send tag (integer)
+OUT recvbuf: initial address of receive buffer (choice)
+IN recvcount: number of elements in receive buffer (non-negative integer)
+IN recvtype: type of elements in receive buffer (handle)
+IN source: rank of source or MPI_ANY_SOURCE (integer)
+IN recvtag: receive tag or MPI_ANY_TAG (integer)
+IN comm: communicator (handle)
+OUT status: status object (Status)
+
+C:
+int MPI_Sendrecv(
+    const void *sendbuf, int sendcount, MPI_Datatype sendtype,
+    int dest, int sendtag,
+    void *recvbuf, int recvcount, MPI_Datatype recvtype,
+    int source, int recvtag,
+    MPI_Comm comm, MPI_Status *status)
+
+Fortran:
+MPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf,
+recvcount, recvtype, source, recvtag, comm, status, ierror)
+TYPE(*), DIMENSION(..), INTENT(IN) :: sendbuf
+TYPE(*), DIMENSION(..) :: recvbuf
+INTEGER, INTENT(IN) :: sendcount, dest, sendtag, recvcount, source,
+recvtag
+TYPE(MPI_Datatype), INTENT(IN) :: sendtype, recvtype
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Status) :: status
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+Sendrecv(self,
+    sendbuf, int dest, int sendtag=0,
+    recvbuf=None, int source=ANY_SOURCE, int recvtag=ANY_TAG,
+    Status status=None)
+
+MPL:
+template<typename T >
+status mpl::communicator::sendrecv
+   ( const T & senddata, int dest,   tag sendtag,
+           T & recvdata, int source, tag recvtag
+   ) const
+   ( const T * senddata, const layout< T > & sendl, int dest,   tag sendtag,
+           T * recvdata, const layout< T > & recvl, int source, tag recvtag
+   ) const
+   ( iterT1 begin1, iterT1 end1, int dest,   tag sendtag,
+     iterT2 begin2, iterT2 end2, int source, tag recvtag
+   ) const
+</pre>
+</div>
+</div>
+<i>MPI_Sendrecv</i>
+.
+</p>
+
+<p name="switchToTextMode">
+The sendrecv call works great if every process is paired up.
+You would then write
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+sendrecv( ....from... ...to... );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+with the right choice of source and destination. For instance, to send
+data to your right neighbor:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_rank(comm,&procno);
+MPI_Sendrecv( ....
+    /* from: */ procno-1
+     ... ...
+    /* to:   */ procno+1
+     ... );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This scheme is correct for all processes but the first and last.
+In order to use the sendrecv call on these processes,
+we use 
+<tt>MPI_PROC_NULL</tt>
+ for the non-existing
+processes that the endpoints communicate with.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_rank( .... &mytid );
+if ( /* I am not the first processor */ )
+  predecessor = mytid-1;
+else
+  predecessor = MPI_PROC_NULL;
+if ( /* I am not the last processor */ )
+  successor = mytid+1;
+else
+  successor = MPI_PROC_NULL;
+sendrecv(from=predecessor,to=successor);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+where the sendrecv call is executed by all processors.
+</p>
+
+<p name="switchToTextMode">
+All processors but the last one send to their neighbor; the target
+value of 
+<tt>MPI_PROC_NULL</tt>
+ for
+the last processor means a `send to the null processor': no actual
+send is done.
+The null processor value is also of use with the
+<tt>MPI_Sendrecv</tt>
+ call; section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Pairwiseexchange">4.1.6</a>
+.
+</p>
+
+<p name="switchToTextMode">
+Likewise, receive from 
+<tt>MPI_PROC_NULL</tt>
+ succeeds without
+altering the receive buffer.  The corresponding
+<tt>MPI_Status</tt>
+ object has source
+<tt>MPI_PROC_NULL</tt>
+, tag 
+<tt>MPI_ANY_TAG</tt>
+, and
+count zero.
+</p>
+
+<!-- environment: remark start embedded generator -->
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  The 
+<tt>MPI_Sendrecv</tt>
+ can inter-operate with
+  the normal send and receive calls, both blocking and non-blocking.
+  Thus it would also be possible to replace the 
+<tt>MPI_Sendrecv</tt>
+  calls at the end points by simple sends or receives.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+  The send-recv call in 
+<span title="acronym" ><i>MPL</i></span>
+ has the same possibilities
+  for specifying the send and receive buffer as the separate send and recv calls:
+  scalar, layout, iterator. However, out of the nine conceivably possible
+  routine signatures, only the versions are available where the send and receive buffer
+  are specified the same way.
+  Also, the send and receive tag need to be specified; they do not have default values.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplsendrecv" aria-expanded="false" aria-controls="mplsendrecv">
+        C++ Code: mplsendrecv
+      </button>
+    </h5>
+  </div>
+  <div id="mplsendrecv" class="collapse">
+  <pre>
+// sendrecv.cxx
+mpl::tag t0(0);
+comm_world.sendrecv
+  ( mydata,sendto,t0,
+    leftdata,recvfrom,t0 );
+</pre>
+</div>
+</div>
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Revisit exercise&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Serialization">4.1.4.3</a>
+ and solve it using
+<tt>MPI_Sendrecv</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+  If you have TAU installed, make a trace. Does it look different
+  from the serialized send/recv code? If you don't have TAU, run your
+  code with different numbers of processes and show that the runtime
+  is essentially constant.
+<!-- skeleton start: rightsend -->
+<button id="runBtn">rightsend</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: rightsend -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+This call makes it easy to exchange data between two processors: both
+specify the other as both target and source. However, there need not
+be any such relation between target and source: it is possible to
+receive from a predecessor in some ordering, and send to a successor
+in that ordering; see figure&nbsp;
+4.5
+.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/sendrecv-right.png" width=800></img>
+<p name="caption">
+FIGURE 4.5: An MPI Sendrecv call
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/sendrecv-steps.png" width=800></img>
+<p name="caption">
+FIGURE 4.6: Two steps of send/recv to do a three-point combination
+</p>
+
+<p name="switchToTextMode">
+.
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+For the above three-point combination scheme you need to move data
+both left right, so you need two 
+<tt>MPI_Sendrecv</tt>
+ calls;
+see figure&nbsp;
+4.6
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Implement the above three-point combination scheme using 
+<tt>MPI_Sendrecv</tt>
+;
+  every processor only has a single number to send to its neighbor.
+<!-- skeleton start: sendrecv -->
+<button id="runBtn">sendrecv</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: sendrecv -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+Hints for this exercise:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Each process does one send and one receive; if a process needs
+  to skip one or the other, you can specify
+<tt>MPI_PROC_NULL</tt>
+ as the other process in the send or
+  receive specification. In that case the corresponding action
+  is not taken.
+<li>
+As with the simple send/recv calls, processes have to match up:
+  if process&nbsp;$p$ specifies $p'$ as the destination of the send part of
+  the call, $p'$&nbsp;needs to specify $p$ as the source of the recv part.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+The following exercise lets you implement a sorting algorithm with the
+send-receive call\footnote {There is an 
+<tt>MPI\_Compare\_and\_swap</tt>
+
+  call. Do not use that.}.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/swapsort1.png" width=800></img>
+<p name="caption">
+FIGURE 4.7: Odd-even transposition sort on 4 elements.
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  A very simple sorting algorithm is 
+<i>swap sort</i>
+ or
+<i>odd-even transposition sort</i>
+:
+  pairs of processors compare data, and if necessary exchange. The
+  elementary step is called a 
+<i>compare-and-swap</i>
+: in a pair
+  of processors each sends their data to the other; one keeps the
+  minimum values, and the other the maximum.
+  For simplicity, in this exercise we give each processor just a single number.
+</p>
+
+<p name="switchToTextMode">
+  The exchange sort algorithm is split in even and odd stages, where
+  in the even stage, processors $2i$ and $2i+1$ compare and swap data,
+  and in the odd stage, processors $2i+1$ and $2i+2$ compare and swap.
+  You need to repeat this $P/2$ times, where $P$&nbsp;is the number of
+  processors; see figure&nbsp;
+4.7
+.
+</p>
+
+<p name="switchToTextMode">
+  Implement this algorithm using 
+<tt>MPI_Sendrecv</tt>
+. (Use
+<tt>MPI_PROC_NULL</tt>
+ for the edge cases if needed.)
+  Use a gather call to print the global state of the distributed array
+  at the beginning and end of the sorting process.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/swapsort2.png" width=800></img>
+<p name="caption">
+FIGURE 4.8: Odd-even transposition sort on 4 processes, holding 2 elements each.
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  It is not possible to use 
+<tt>MPI_IN_PLACE</tt>
+ for the buffers.
+  Instead, the routine 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Sendrecv_replace" aria-expanded="false" aria-controls="MPI_Sendrecv_replace">
+        Routine reference: MPI_Sendrecv_replace
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Sendrecv_replace" class="collapse">
+  <pre>
+C:
+int MPI_Sendrecv_replace(
+    void *buf, int count, MPI_Datatype datatype,
+    int dest, int sendtag, int source, int recvtag,
+    MPI_Comm comm, MPI_Status *status)
+
+Fortran:
+MPI_SENDRECV_REPLACE(
+    BUF, COUNT, DATATYPE,
+    DEST, SENDTAG, SOURCE,RECVTAG,
+    COMM, STATUS, IERROR)
+<type>    BUF(*)
+INTEGER :: COUNT, DATATYPE, DEST, SENDTAG
+INTEGER :: SOURCE, RECVTAG, COMM
+INTEGER    STATUS(MPI_STATUS_SIZE), IERROR
+
+Input/output parameter:
+buf : Initial address of send and receive buffer (choice).
+
+Input parameters:
+count : Number of elements in send and receive buffer (integer).
+datatype : Type of elements to send and receive (handle).
+dest : Rank of destination (integer).
+sendtag : Send message tag (integer).
+source : Rank of source (integer).
+recvtag : Receive message tag (integer).
+comm : Communicator (handle).
+
+Output parameters:
+
+status : Status object (status).
+IERROR : Fortran only: Error status (integer).
+</pre>
+</div>
+</div>
+<i>MPI_Sendrecv_replace</i>
+ has only one buffer,
+  used as both send and receive buffer.
+  Of course, this requires the send and receive messages
+  to fit in that one buffer.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Extend this exercise to the case where each process hold an equal
+  number of elements, more than&nbsp;1. Consider figure&nbsp;
+4.8
+  for inspiration. Is it coincidence that the algorithm takes the same
+  number of steps as in the single scalar case?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mpifour start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mpifour ]] -->
+<remark>
+<b>MPI 4 Standard only</b>
+<p name="remark">
+<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+  There are
+  
+<i>non-blocking</i>
+
+<!-- index -->
+  and
+  
+<i>persistent</i>
+
+<!-- index -->
+  versions of this routine:
+<tt>MPI_Isendrecv</tt>
+, 
+<tt>MPI_Sendrecv_init</tt>
+,
+<tt>MPI_Isendrecv_replace</tt>
+, 
+<tt>MPI_Sendrecv_replace_init</tt>
+.
+</p name="remark">
+<i>End of MPI 4 note</i>
+</remark>
+<!-- environment: mpifour end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<h2><a id="Nonblockingpoint-to-pointoperations">4.2</a> Nonblocking point-to-point operations</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a>
+</p>
+
+<p name="switchToTextMode">
+
+The structure of communication is often a reflection of the structure
+of the operation.
+With some regular applications we also get a regular communication pattern.
+Consider again the above operation:
+\[
+ y_i=x_{i-1}+x_i+x_{i+1}\colon i=1,\ldots,N-1 
+\]
+Doing this in parallel induces communication, as pictured in figure~
+4.1
+.
+</p>
+
+<p name="switchToTextMode">
+
+We note:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The data is one-dimensional, and we have a linear ordering of the processors.
+<li>
+The operation involves neighboring data points, and we communicate
+  with neighboring processors.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Above you saw how you can use information exchange between pairs of processors
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+using 
+<tt>MPI_Send</tt>
+ and 
+<tt>MPI_Recv</tt>
+, if you are careful; or
+<li>
+using 
+<tt>MPI_Sendrecv</tt>
+, as long as there is indeed some sort of pairing of processors.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+However, there are circumstances where it is not possible, not efficient, or simply not
+convenient, to have such a deterministic setup of the send and receive calls.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/graphsend.jpeg" width=800></img>
+<p name="caption">
+FIGURE 4.9: Processors with unbalanced send/receive patterns
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+Figure~
+4.9
+ illustrates such a case, where processors are
+organized in a general graph pattern. Here, the numbers of sends and receive
+of a processor do not need to match.
+</p>
+
+<p name="switchToTextMode">
+In such cases, one wants a possibility to state `these are the expected incoming
+messages', without having to wait for them in sequence. Likewise, one wants to declare
+the outgoing messages without having to do them in any particular sequence.
+Imposing any sequence on the sends and receives is likely to run into the serialization
+behavior observed above, or at least be inefficient since processors will be
+waiting for messages.
+</p>
+
+<h3><a id="Nonblockingsendandreceivecalls">4.2.1</a> Nonblocking send and receive calls</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Nonblockingsendandreceivecalls">Nonblocking send and receive calls</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+In the previous section you saw that blocking communication makes
+programming tricky if you want to avoid 
+<i>deadlock</i>
+ and performance
+problems. The main advantage of these routines is that you have full
+control about where the data is: if the send call returns
+the data has been successfully received, and the send buffer can be used for
+other purposes or de-allocated.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/send-nonblocking.jpeg" width=800></img>
+<p name="caption">
+FIGURE 4.10: Nonblocking send
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+By contrast, the nonblocking calls
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Isend" aria-expanded="false" aria-controls="MPI_Isend">
+        Routine reference: MPI_Isend
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Isend" class="collapse">
+  <pre>
+C:
+int MPI_Isend(void *buf,
+  int count, MPI_Datatype datatype, int dest, int tag,
+  MPI_Comm comm, MPI_Request *request)
+
+Fortran:
+the request parameter is an integer
+
+Python:
+request = MPI.Comm.Isend(self, buf, int dest, int tag=0)
+
+MPL:
+template<typename T >
+irequest mpl::communicator::isend
+   ( const T & data, int dest, tag t = tag(0) ) const;
+   ( const T * data, const layout< T > &  l, int  dest, tag  t = tag(0) ) const;
+   ( iterT  begin, iterT  end, int  dest, tag  t = tag(0) ) const;
+</pre>
+</div>
+</div>
+<i>MPI_Isend</i>
+ and 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Irecv" aria-expanded="false" aria-controls="MPI_Irecv">
+        Routine reference: MPI_Irecv
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Irecv" class="collapse">
+  <pre>
+C:
+int MPI_Irecv(
+  void* buf, int count, MPI_Datatype datatype,
+  int source, int tag, MPI_Comm comm, MPI_Request *request)
+
+Semantics:
+OUT buf: initial address of receive buffer (choice)
+IN count: number of elements in receive buffer (non-negative integer)
+IN datatype: datatype of each receive buffer element (handle)
+IN source: rank of source or MPI_ANY_SOURCE (integer)
+IN tag: message tag or MPI_ANY_TAG (integer)
+IN comm: communicator (handle)
+OUT request: request object (Request)
+
+Fortran:
+MPI_Irecv(buf, count, datatype, source, tag, comm, request, ierror)
+TYPE(*), DIMENSION(..) :: buf
+INTEGER, INTENT(IN) :: count, source, tag
+TYPE(MPI_Datatype), INTENT(IN) :: datatype
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Request), INTENT(out) :: request
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python native:
+recvbuf = Comm.irecv(self, buf=None, int source=ANY_SOURCE, int tag=ANY_TAG,
+    Request request=None)
+Python numpy:
+Comm.Irecv(self, buf, int source=ANY_SOURCE, int tag=ANY_TAG,
+    Request status=None)
+
+MPL:
+template<typename T >
+irequest mpl::communicator::irecv
+   ( const T & data, int src, tag t = tag(0) ) const;
+   ( const T * data, const layout< T > &  l, int  src, tag  t = tag(0) ) const;
+   ( iterT  begin, iterT  end, int  src, tag  t = tag(0) ) const;
+</pre>
+</div>
+</div>
+<i>MPI_Irecv</i>
+(where the `I' stands for
+`
+<i>immediate</i>
+'
+<!-- index -->
+or
+`
+<i>incomplete</i>
+'
+<!-- index -->
+)
+do not wait for their counterpart: in effect
+they tell the runtime system `here is some data and please send it as
+follows' or `here is some buffer space, and expect such-and-such data
+to come'.  This is illustrated in figure~
+4.10
+.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#isendexample" aria-expanded="false" aria-controls="isendexample">
+        C Code: isendexample
+      </button>
+    </h5>
+  </div>
+  <div id="isendexample" class="collapse">
+  <pre>
+// isendandirecv.c
+double send_data = 1.;
+MPI_Request request;
+MPI_Isend
+  ( /* send buffer/count/type: */ &send_data,1,MPI_DOUBLE,
+	/* to: */ receiver, /* tag: */ 0,
+	/* communicator: */ comm,
+	/* request: */ &request);
+MPI_Wait(&request,MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#irecvexample" aria-expanded="false" aria-controls="irecvexample">
+        C Code: irecvexample
+      </button>
+    </h5>
+  </div>
+  <div id="irecvexample" class="collapse">
+  <pre>
+double recv_data;
+MPI_Request request;
+MPI_Irecv
+  ( /* recv buffer/count/type: */ &recv_data,1,MPI_DOUBLE,
+	/* from: */ sender, /* tag: */ 0,
+	/* communicator: */ comm,
+	/* request: */ &request);
+MPI_Wait(&request,MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+Issuing the 
+<tt>MPI_Isend</tt>
+~/ 
+<tt>MPI_Irecv</tt>
+call is sometimes referred to as
+<i>posting</i>
+<!-- index -->
+a send/receive.
+</p>
+
+<h3><a id="Requestcompletion:waitcalls">4.2.2</a> Request completion: wait calls</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a>
+</p>
+
+<p name="switchToTextMode">
+
+From the definition of 
+<tt>MPI_Isend</tt>
+~/
+<tt>MPI_Irecv</tt>
+, you seen that nonblocking routine yields
+an 
+<tt>MPI_Request</tt>
+ object. This request can then be used to
+query whether the operation has concluded. You may also notice that
+the 
+<tt>MPI_Irecv</tt>
+ routine does not yield an
+<tt>MPI_Status</tt>
+ object.  This makes sense: the status object
+describes the actually received data, and at the completion of the
+<tt>MPI_Irecv</tt>
+ call there is no received data yet.
+</p>
+
+<p name="switchToTextMode">
+Waiting for the request is done with a number of routines. We first
+consider 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Wait" aria-expanded="false" aria-controls="MPI_Wait">
+        Routine reference: MPI_Wait
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Wait" class="collapse">
+  <pre>
+Semantics:
+MPI_Wait( request, status)
+
+INOUT request: request object (handle)
+OUT status: status objects (handle)
+
+C:
+int MPI_Wait(
+    MPI_Request *requests,
+    MPI_Status *statuses)
+
+Fortran:
+MPI_Wait( request, status, ierror)
+TYPE(MPI_Request), INTENT(INOUT) :: requests
+TYPE(MPI_Status),INTENT(OUT) :: statuses
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+MPI.Request.Wait(type cls, request, status=None)
+
+Use MPI_STATUS_IGNORE to ignore
+</pre>
+</div>
+</div>
+<i>MPI_Wait</i>
+. It takes the request as input, and
+gives an 
+<tt>MPI_Status</tt>
+ as output. If you don't need the
+status object, you can pass 
+<tt>MPI_STATUS_IGNORE</tt>
+.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#bcastsendwait" aria-expanded="false" aria-controls="bcastsendwait">
+        C Code: bcastsendwait
+      </button>
+    </h5>
+  </div>
+  <div id="bcastsendwait" class="collapse">
+  <pre>
+// hangwait.c
+if (procno==sender) {
+  for (int p=0; p&lt;nprocs-1; p++) {
+    double send = 1.;
+    MPI_Send( &send,1,MPI_DOUBLE,p,0,comm);
+  }
+} else {
+  double recv=0.;
+  MPI_Request request;
+  MPI_Irecv( &recv,1,MPI_DOUBLE,sender,0,comm,&request);
+  MPI_Wait(&request,MPI_STATUS_IGNORE);
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+The request is passed by reference, so that the wait routine
+can free it:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The wait call deallocates the request object, and
+<li>
+sets the value of the variable to 
+<tt>MPI_REQUEST_NULL</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+(See section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Moreaboutrequests">4.2.4</a>
+ for details.)
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+
+<p name="switchToTextMode">
+  Nonblocking routines have an 
+<tt>irequest</tt>
+  Note: not a parameter passed by reference, as in the C~interface.
+  The various wait calls are methods of the 
+<tt>irequest</tt>
+  class.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#irecvexamplempl" aria-expanded="false" aria-controls="irecvexamplempl">
+        C++ Code: irecvexamplempl
+      </button>
+    </h5>
+  </div>
+  <div id="irecvexamplempl" class="collapse">
+  <pre>
+double recv_data;
+mpl::irequest recv_request =
+  comm_world.irecv( recv_data,sender );
+recv_request.wait();
+</pre>
+</div>
+</div>
+  You can not default-construct the request variable:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+// DOES NOT COMPILE:
+mpl::irequest recv_request;
+recv_request = comm.irecv( ... );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This means that the normal sequence of first declaring, and then filling in,
+the request variable is not possible.
+</p>
+
+<!-- environment: mplimpl start embedded generator -->
+<!-- environment block purpose: [[ environment=mplimpl ]] -->
+<remark>
+
+<!-- TranslatingLineGenerator mplimpl ['mplimpl'] -->
+<p name="switchToTextMode">
+  The wait call always returns a 
+<tt>status</tt>
+  not assigning it means that the destructor is called on it.
+</remark>
+<!-- environment: mplimpl end embedded generator -->
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+Here we discuss in some detail the various wait calls.
+These are blocking; for the nonblocking versions
+see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Waitandtestcalls">4.2.3</a>
+.
+</p>
+
+<h4><a id="Waitforonerequest">4.2.2.1</a> Wait for one request</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Waitforonerequest">Wait for one request</a>
+</p>
+<p name="switchToTextMode">
+
+<tt>MPI_Wait</tt>
+ waits for a a single request. If you are
+indeed waiting for a single nonblocking communication to complete,
+this is the right routine. If you are waiting for multiple requests
+you could call this routine in a loop.
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for (p=0; p&lt;nrequests ; p++) // Not efficient!
+  MPI_Wait(&request[p],&(status[p]));
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+However, this would be inefficient if the first request is fulfilled
+much later than the others: your waiting process would have lots of
+idle time. In that case, use one of the following routines.
+</p>
+
+<h4><a id="Waitforallrequests">4.2.2.2</a> Wait for all requests</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Waitforallrequests">Wait for all requests</a>
+</p>
+<p name="switchToTextMode">
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Waitall" aria-expanded="false" aria-controls="MPI_Waitall">
+        Routine reference: MPI_Waitall
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Waitall" class="collapse">
+  <pre>
+Semantics:
+MPI_WAITALL( count, array_of_requests, array_of_statuses)
+IN count: lists length (non-negative integer)
+INOUT array_of_requests: array of requests (array of handles)
+OUT array_of_statuses: array of status objects (array of Status)
+
+C:
+int MPI_Waitall(
+    int count, MPI_Request array_of_requests[],
+    MPI_Status array_of_statuses[])
+
+Fortran:
+MPI_Waitall(count, array_of_requests, array_of_statuses, ierror)
+INTEGER, INTENT(IN) :: count
+TYPE(MPI_Request), INTENT(INOUT) :: array_of_requests(count)
+TYPE(MPI_Status) :: array_of_statuses(*)
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+MPI.Request.Waitall(type cls, requests, statuses=None)
+
+Use MPI_STATUSES_IGNORE to ignore
+</pre>
+</div>
+</div>
+<i>MPI_Waitall</i>
+ allows you to wait for a number of
+requests, and it does not matter in what sequence they are
+satisfied. Using this routine is easier to code than the loop above,
+and it could be more efficient.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#irecvloop" aria-expanded="false" aria-controls="irecvloop">
+        C Code: irecvloop
+      </button>
+    </h5>
+  </div>
+  <div id="irecvloop" class="collapse">
+  <pre>
+// irecvloop.c
+MPI_Request requests =
+  (MPI_Request*) malloc( 2*nprocs*sizeof(MPI_Request) );
+recv_buffers = (int*) malloc( nprocs*sizeof(int) );
+send_buffers = (int*) malloc( nprocs*sizeof(int) );
+for (int p=0; p&lt;nprocs; p++) {
+  int
+    left_p  = (p-1+nprocs) % nprocs,
+    right_p = (p+1) % nprocs;
+  send_buffer[p] = nprocs-p;
+  MPI_Isend(sendbuffer+p,1,MPI_INT, right_p,0, requests+2*p);
+  MPI_Irecv(recvbuffer+p,1,MPI_INT, left_p,0, requests+2*p+1);
+}
+/* your useful code here */
+MPI_Waitall(2*nprocs,requests,MPI_STATUSES_IGNORE);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+The output argument is an array or 
+<tt>MPI_Status</tt>
+ object.
+If you don't need the status objects, you can pass
+<tt>MPI_STATUSES_IGNORE</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Revisit exercise&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Bucketbrigade">4.1.5</a>
+ and consider replacing the
+  blocking calls by nonblocking ones. How far apart can you put the
+  
+<tt>MPI_Isend</tt>
+&nbsp;/ 
+<tt>MPI_Irecv</tt>
+ calls and the
+  corresponding 
+<tt>MPI_Wait</tt>
+s?
+<!-- skeleton start: bucketpipenonblock -->
+<button id="runBtn">bucketpipenonblock</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: bucketpipenonblock -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Create two distributed arrays of positive integers.
+  Take the set difference of the two:
+  the first array needs to be transformed to remove from it those numbers
+  that are in the second array.
+</p>
+
+  How could you solve this with an  <tt>MPI_Allgather</tt>  call?
+<p name="switchToTextMode">
+  Why is it not a good idea to do so?
+  Solve this exercise instead with a circular bucket brigade algorithm.
+<!-- skeleton start: setdiff -->
+<button id="runBtn">setdiff</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: setdiff -->
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: pythonnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  In python creating the array for the returned requests is somewhat
+  tricky.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#irecvallp" aria-expanded="false" aria-controls="irecvallp">
+        Python Code: irecvallp
+      </button>
+    </h5>
+  </div>
+  <div id="irecvallp" class="collapse">
+  <pre>
+## irecvloop.py
+requests = [ None ] * (2*nprocs)
+sendbuffer = np.empty( nprocs, dtype=np.int )
+recvbuffer = np.empty( nprocs, dtype=np.int )
+
+for p in range(nprocs):
+    left_p = (p-1) % nprocs
+    right_p = (p+1) % nprocs
+    requests[2*p] = comm.Isend\
+        ( sendbuffer[p:p+1],dest=left_p)
+    requests[2*p+1] = comm.Irecv\
+        ( sendbuffer[p:p+1],source=right_p)
+MPI.Request.Waitall(requests)
+</pre>
+</div>
+</div>
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Waitforanyrequests">4.2.2.3</a> Wait for any requests</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Waitforanyrequests">Wait for any requests</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The `waitall' routine is good if you need all nonblocking
+communications to be finished before you can proceed with the rest of
+the program. However, sometimes it is possible to take action as each
+request is satisfied. In that case you could use
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Waitany" aria-expanded="false" aria-controls="MPI_Waitany">
+        Routine reference: MPI_Waitany
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Waitany" class="collapse">
+  <pre>
+Semantics:
+int MPI_Waitany(
+    int count, MPI_Request array_of_requests[], int *index,
+    MPI_Status *status)
+
+IN count: list length (non-negative integer)
+INOUT array_of_requests: array of requests (array of handles)
+OUT index: index of handle for operation that completed (integer)
+OUT status: status object (Status)
+
+C:
+MPI_Waitany(count, array_of_requests, index, status, ierror)
+
+Fortran:
+INTEGER, INTENT(IN) :: count
+TYPE(MPI_Request), INTENT(INOUT) :: array_of_requests(count)
+INTEGER, INTENT(OUT) :: index
+TYPE(MPI_Status) :: status
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+MPI.Request.Waitany( requests,status=None )
+class method, returns index
+</pre>
+</div>
+</div>
+<i>MPI_Waitany</i>
+ and write:
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for (p=0; p&lt;nrequests; p++) {
+  MPI_Irecv(buffer+index, /* ... */, requests+index);
+}
+for (p=0; p&lt;nrequests; p++) {
+  MPI_Waitany(nrequests,request_array,&index,&status);
+  // operate on buffer[index]
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Note that this routine takes a single status argument, passed by
+reference, and not an array of statuses!
+</p>
+
+<!-- environment: fortrannote start embedded generator -->
+<!-- environment block purpose: [[ environment=fortrannote ]] -->
+<remark>
+<b>Fortran note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
+  The 
+<tt>index</tt>
+ parameter is the index in the array of requests,
+  so it uses 
+<i>1-based indexing</i>
+
+<!-- index -->
+.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#waitforany-f" aria-expanded="false" aria-controls="waitforany-f">
+        Fortran Code: waitforany-f
+      </button>
+    </h5>
+  </div>
+  <div id="waitforany-f" class="collapse">
+  <pre>
+!! irecvsource.F90
+  if (mytid==ntids-1) then
+     do p=1,ntids-1
+        print *,"post"
+        call MPI_Irecv(recv_buffer(p),1,MPI_INTEGER,p-1,0,comm,&
+             requests(p),err)
+     end do
+     do p=1,ntids-1
+        call MPI_Waitany(ntids-1,requests,index,MPI_STATUS_IGNORE,err)
+        write(*,'("Message from",i3,":",i5)') index,recv_buffer(index)
+     end do
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#waitany0f" aria-expanded="false" aria-controls="waitany0f">
+        Fortran Code: waitany0f
+      </button>
+    </h5>
+  </div>
+  <div id="waitany0f" class="collapse">
+  <pre>
+!! waitnull.F90
+  Type(MPI_Request),dimension(:),allocatable :: requests
+  allocate(requests(ntids-1))
+        call MPI_Waitany(ntids-1,requests,index,MPI_STATUS_IGNORE)
+        if ( .not. requests(index)==MPI_REQUEST_NULL) then
+             print *,"This request should be null:",index
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#waitany0f" aria-expanded="false" aria-controls="waitany0f">
+        Fortran Code: waitany0f
+      </button>
+    </h5>
+  </div>
+  <div id="waitany0f" class="collapse">
+  <pre>
+!! waitnull.F90
+  Type(MPI_Request),dimension(:),allocatable :: requests
+  allocate(requests(ntids-1))
+        call MPI_Waitany(ntids-1,requests,index,MPI_STATUS_IGNORE)
+        if ( .not. requests(index)==MPI_REQUEST_NULL) then
+             print *,"This request should be null:",index
+</pre>
+</div>
+</div>
+</remark>
+<!-- environment: fortrannote end embedded generator -->
+<p name="switchToTextMode">
+{Index of requests}
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+
+<p name="switchToTextMode">
+  Instead of an array of requests,
+  use an 
+<tt>irequest_pool</tt>
+  which acts like a vector of requests,
+  meaning that you can  <tt>push</tt>  onto it.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mpirequestpush" aria-expanded="false" aria-controls="mpirequestpush">
+        C++ Code: mpirequestpush
+      </button>
+    </h5>
+  </div>
+  <div id="mpirequestpush" class="collapse">
+  <pre>
+// irecvsource.cxx
+mpl::irequest_pool recv_requests;
+for (int p=0; p&lt;nprocs-1; p++) {
+  recv_requests.push( comm_world.irecv( recv_buffer[p], p ) );
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+  You can not declare a pool of a fixed size and assign elements.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+  The 
+<tt>irequest_pool</tt>
+ class has methods
+<tt>waitany</tt>
+<tt>waitall</tt>
+<tt>testany</tt>
+<tt>testall</tt>
+<tt>waitsome</tt>
+<tt>testsome</tt>
+</p>
+
+  The `any' methods return a  <tt>std::pair&lt;bool,size_t&gt;</tt> ,
+  with \lstinline{false} meaning  <tt>index==MPI_UNDEFINED</tt> 
+<p name="switchToTextMode">
+  meaning no more requests to be satisfied.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#waitforanympl" aria-expanded="false" aria-controls="waitforanympl">
+        C++ Code: waitforanympl
+      </button>
+    </h5>
+  </div>
+  <div id="waitforanympl" class="collapse">
+  <pre>
+  auto [success,index] = recv_requests.waitany();
+  if (success) {
+	auto recv_status = recv_requests.get_status(index);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+  Same for 
+<tt>testany</tt>
+, then false means no requests test true.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="PollingwithMPIWaitany">4.2.2.4</a> Polling with MPI Wait any</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#PollingwithMPIWaitany">Polling with MPI Wait any</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>MPI_Waitany</tt>
+ routine can be used to implement
+<i>polling</i>
+: occasionally check for incoming messages while
+other work is going on.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#waitforany" aria-expanded="false" aria-controls="waitforany">
+        C Code: waitforany
+      </button>
+    </h5>
+  </div>
+  <div id="waitforany" class="collapse">
+  <pre>
+// irecvsource.c
+if (procno==nprocs-1) {
+  int *recv_buffer;
+  MPI_Request *request; MPI_Status status;
+  recv_buffer = (int*) malloc((nprocs-1)*sizeof(int));
+  request = (MPI_Request*) malloc((nprocs-1)*sizeof(MPI_Request));
+
+  for (int p=0; p&lt;nprocs-1; p++) {
+    ierr = MPI_Irecv(recv_buffer+p,1,MPI_INT, p,0,comm,
+		      request+p); CHK(ierr);
+  }
+  for (int p=0; p&lt;nprocs-1; p++) {
+    int index,sender;
+    MPI_Waitany(nprocs-1,request,&index,&status); //MPI_STATUS_IGNORE);
+    if (index!=status.MPI_SOURCE)
+	printf("Mismatch index %d vs source %d\n",index,status.MPI_SOURCE);
+    printf("Message from %d: %d\n",index,recv_buffer[index]);
+  }
+} else {
+  ierr = MPI_Send(&procno,1,MPI_INT, nprocs-1,0,comm); CHK(ierr);
+}
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#waitforanyp" aria-expanded="false" aria-controls="waitforanyp">
+        Python Code: waitforanyp
+      </button>
+    </h5>
+  </div>
+  <div id="waitforanyp" class="collapse">
+  <pre>
+## irecvsource.py
+if procid==nprocs-1:
+    receive_buffer = np.empty(nprocs-1,dtype=np.int)
+    requests = [ None ] * (nprocs-1)
+    for sender in range(nprocs-1):
+        requests[sender] = comm.Irecv(receive_buffer[sender:sender+1],source=sender)
+    # alternatively: requests = [ comm.Irecv(s) for s in .... ]
+    status = MPI.Status()
+    for sender in range(nprocs-1):
+        ind = MPI.Request.Waitany(requests,status=status)
+        if ind!=status.Get_source():
+            print("sender mismatch: %d vs %d" % (ind,status.Get_source()))
+        print("received from",ind)
+else:
+    mywait = random.randint(1,2*nprocs)
+    print("[%d] wait for %d seconds" % (procid,mywait))
+    time.sleep(mywait)
+    mydata = np.empty(1,dtype=np.int)
+    mydata[0] = procid
+    comm.Send([mydata,MPI.INT],dest=nprocs-1)
+</pre>
+</div>
+</div>
+Each process except for the root does a blocking send; the root
+posts 
+<tt>MPI_Irecv</tt>
+ from all other processors, then loops
+with 
+<tt>MPI_Waitany</tt>
+ until all requests have come in. Use
+<tt>MPI_SOURCE</tt>
+ to test the index parameter of the wait
+call.
+</p>
+
+<p name="switchToTextMode">
+Note the 
+<tt>MPI_STATUS_IGNORE</tt>
+ parameter: we know everything
+about the incoming message, so we do not need to query a status object.
+Contrast this with the example in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Source">4.3.2.1</a>
+.
+</p>
+
+<h4><a id="Waitforsomerequests">4.2.2.5</a> Wait for some requests</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Waitforsomerequests">Wait for some requests</a>
+</p>
+<p name="switchToTextMode">
+
+Finally, 
+<tt>MPI_Waitsome</tt>
+ is very much like 
+<tt>MPI_Waitany</tt>
+,
+except that it returns multiple numbers, if multiple requests are
+satisfied. Now the status argument is an array of 
+<tt>MPI_Status</tt>
+objects.
+</p>
+
+<p name="switchToTextMode">
+Figure&nbsp;
+4.11
+ shows the trace of a nonblocking execution
+using 
+<tt>MPI_Waitall</tt>
+.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/linear-nonblock.jpg" width=800></img>
+<p name="caption">
+FIGURE 4.11: A trace of a nonblocking send between neighboring processors
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Receivestatusofthewaitcalls">4.2.2.6</a> Receive status of the wait calls</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Receivestatusofthewaitcalls">Receive status of the wait calls</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>MPI_Wait...</tt>
+ routines have the 
+<tt>MPI_Status</tt>
+objects as output.
+If you are not interested in
+the status information, you can use the values
+<tt>MPI_STATUS_IGNORE</tt>
+ for 
+<tt>MPI_Wait</tt>
+ and
+<tt>MPI_Waitany</tt>
+,
+or 
+<tt>MPI_STATUSES_IGNORE</tt>
+for 
+<tt>MPI_Waitall</tt>
+, 
+<tt>MPI_Waitsome</tt>
+,
+<tt>MPI_Testall</tt>
+, 
+<tt>MPI_Testsome</tt>
+.
+</p>
+
+<!-- environment: remark start embedded generator -->
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  The routines that can return multiple statuses,
+  can return the error condition 
+<tt>MPI_ERR_IN_STATUS</tt>
+,
+  indicating that one of the statuses was in error.
+  See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Error">4.3.2.3</a>
+.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+<!-- skeleton start: isendirecv -->
+<button id="runBtn">isendirecv</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: isendirecv -->
+  Now use nonblocking send/receive routines to implement
+  the three-point averaging operation
+\[
+ y_i=\bigl( x_{i-1}+x_i+x_{i+1} \bigr)/3\colon i=1,&hellip;,N-1 
+\]
+  on a distributed array. (Hint: use 
+<tt>MPI_PROC_NULL</tt>
+ at the ends.)
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Latencyhidingoverlappingcommunicationandcomputation">4.2.2.7</a> Latency hiding / overlapping communication and computation</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Latencyhidingoverlappingcommunicationandcomputation">Latency hiding / overlapping communication and computation</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+There is a second motivation for the 
+<tt>Isend/Irecv</tt>
+ calls:
+if your hardware supports it, the communication can
+happen
+while your program can continue to do useful work:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+// start nonblocking communication
+MPI_Isend( ... ); MPI_Irecv( ... );
+// do work that does not depend on incoming data
+....
+// wait for the Isend/Irecv calls to finish
+MPI_Wait( ... );
+// now do the work that absolutely needs the incoming data
+....
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This is known as 
+<i>overlapping computation and communication</i>
+, or
+<!-- index -->
+See also 
+<i>asynchronous progress</i>
+; section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Progress">15.4</a>
+.
+</p>
+
+<p name="switchToTextMode">
+Unfortunately, a&nbsp;lot of this
+communication involves activity in user space, so the solution would
+have been to let it be handled by a separate thread. Until recently,
+processors were not efficient at doing such multi-threading, so true
+overlap stayed a promise for the future. Some network cards have
+support for this overlap, but it requires a nontrivial combination of
+hardware, firmware, and MPI implementation.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+<!-- skeleton start: isendirecvarray -->
+<button id="runBtn">isendirecvarray</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: isendirecvarray -->
+  Take your code of exercise&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Receivestatusofthewaitcalls">4.2.2.6</a>
+ and modify it to use
+  latency hiding. Operations that can be performed without needing
+  data from neighbors should be performed in between the
+  
+<tt>MPI_Isend</tt>
+&nbsp;/ 
+<tt>MPI_Irecv</tt>
+ calls and the
+  corresponding 
+<tt>MPI_Wait</tt>
+ calls.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  You have now seen various send types: blocking, nonblocking, synchronous.
+  Can a receiver see what kind of message was sent? Are different receive
+  routines needed?
+  The answer is that, on the receiving end, there is nothing to distinguish
+  a nonblocking or
+  synchronous message. The 
+<tt>MPI_Recv</tt>
+ call can match any of the
+  send routines you have seen so far (but not 
+<tt>MPI_Sendrecv</tt>
+), and
+  conversely a message sent with 
+<tt>MPI_Send</tt>
+  can be received by 
+<tt>MPI_Irecv</tt>
+.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Bufferissuesinnonblockingcommunication">4.2.2.8</a> Buffer issues in nonblocking communication</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Requestcompletion:waitcalls">Request completion: wait calls</a> > <a href="mpi-ptp.html#Bufferissuesinnonblockingcommunication">Buffer issues in nonblocking communication</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+While the use of nonblocking routines prevents deadlock, it
+introduces problems of its own.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+With a blocking send call, you could repeatedly fill the send
+  buffer and send it off.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+double *buffer;
+for ( ... p ... ) {
+   buffer = // fill in the data
+   MPI_Send( buffer, ... /* to: */ p );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+On the other hand, when a nonblocking send call returns,
+  the actual send may not have been executed,
+  so the send buffer may not be safe to overwrite.
+  Similarly, when the recv call returns, you do not know for sure that
+  the expected data is in it. Only after the corresponding wait call
+  are you use that the buffer has been sent, or has received its contents.
+<li>
+  To send multiple messages with nonblocking calls
+  you therefore have to allocate multiple buffers.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+double **buffers;
+for ( ... p ... ) {
+   buffers[p] = // fill in the data
+   MPI_Send( buffers[p], ... /* to: */ p );
+}
+MPI_Wait( /* the requests */ );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#irecvloop" aria-expanded="false" aria-controls="irecvloop">
+        C Code: irecvloop
+      </button>
+    </h5>
+  </div>
+  <div id="irecvloop" class="collapse">
+  <pre>
+// irecvloop.c
+MPI_Request requests =
+  (MPI_Request*) malloc( 2*nprocs*sizeof(MPI_Request) );
+recv_buffers = (int*) malloc( nprocs*sizeof(int) );
+send_buffers = (int*) malloc( nprocs*sizeof(int) );
+for (int p=0; p&lt;nprocs; p++) {
+  int
+    left_p  = (p-1+nprocs) % nprocs,
+    right_p = (p+1) % nprocs;
+  send_buffer[p] = nprocs-p;
+  MPI_Isend(sendbuffer+p,1,MPI_INT, right_p,0, requests+2*p);
+  MPI_Irecv(recvbuffer+p,1,MPI_INT, left_p,0, requests+2*p+1);
+}
+/* your useful code here */
+MPI_Waitall(2*nprocs,requests,MPI_STATUSES_IGNORE);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+The last example we explicitly noted the possibility of
+overlapping computation and communication.
+</p>
+
+<h3><a id="Waitandtestcalls">4.2.3</a> Wait and test calls</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Waitandtestcalls">Wait and test calls</a>
+</p>
+
+
+<p name="switchToTextMode">
+
+The 
+<tt>MPI_Wait...</tt>
+ routines are blocking. Thus, they are a good solution if
+the receiving process can not do anything until the data
+(or at least 
+<i>some</i>
+ data) is actually received.
+The 
+<tt>MPI_Test...</tt>
+ calls are themselves nonblocking: they
+test for whether one or more requests have been
+fullfilled, but otherwise immediately return.
+It is also a 
+<i>local operation</i>
+: it does not force progress.
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>MPI_Test</tt>
+ call can be used in the
+<i>manager-worker</i>
+ model: the manager process creates tasks, and
+sends them to whichever worker process has finished its work.
+(This uses a receive from 
+<tt>MPI_ANY_SOURCE</tt>
+, and a
+subsequent test on the 
+<tt>MPI_SOURCE</tt>
+ field of the receive status.)
+While waiting for the workers, the manager can do useful work too,
+which requires a periodic check on incoming message.
+</p>
+
+<p name="switchToTextMode">
+Pseudo-code:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+while ( not done ) {
+  // create new inputs for a while
+  ....
+  // see if anyone has finished
+  MPI_Test( .... &index, &flag );
+  if ( flag ) {
+    // receive processed data and send new
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+If the test is true, the request is deallocated and set to 
+<tt>MPI_REQUEST_NULL</tt>
+,
+or, in the case of an active persistent request, set to inactive.
+</p>
+
+<p name="switchToTextMode">
+Analogous to 
+<tt>MPI_Wait</tt>
+, 
+<tt>MPI_Waitany</tt>
+,
+<tt>MPI_Waitall</tt>
+, 
+<tt>MPI_Waitsome</tt>
+,
+there are
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Test" aria-expanded="false" aria-controls="MPI_Test">
+        Routine reference: MPI_Test
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Test" class="collapse">
+  <pre>
+C:
+int MPI_Test(MPI_Request *request, int *flag, MPI_Status *status)
+
+Input Parameters
+request : MPI request (handle)
+
+Output Parameters
+flag : true if operation completed (logical)
+status : status object (Status). May be MPI_STATUS_IGNORE.
+
+Python:
+reqest.Test()
+</pre>
+</div>
+</div>
+<i>MPI_Test</i>
+,
+<tt>MPI_Testany</tt>
+,
+<tt>MPI_Testall</tt>
+,
+<tt>MPI_Testsome</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Read section&nbsp;
+<i>Eijkhout:IntroHPC</i>
+ and give pseudo-code for the
+    distributed sparse matrix-vector product using the above idiom for
+    using 
+<tt>MPI_Test...</tt>
+ calls. Discuss the advantages and
+    disadvantages of this approach. The answer is not going to be
+    black and white: discuss when you expect which approach to be
+    preferable.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Moreaboutrequests">4.2.4</a> More about requests</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a> > <a href="mpi-ptp.html#Moreaboutrequests">More about requests</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Every nonblocking call allocates an 
+<tt>MPI_Request</tt>
+object.
+Unlike 
+<tt>MPI_Status</tt>
+,
+an 
+<tt>MPI_Request</tt>
+ variable is not actually an object,
+but instead it is an (opaque) pointer.
+This meeans that when you call, for instance, 
+<tt>MPI_Irecv</tt>
+,
+MPI will allocate an actual request object, and return its
+address in the 
+<tt>MPI_Request</tt>
+ variable.
+</p>
+
+<p name="switchToTextMode">
+Correspondingly, calls to 
+<tt>MPI_Wait</tt>
+ or 
+<tt>MPI_Test</tt>
+free this object,
+setting the handle to 
+<tt>MPI_REQUEST_NULL</tt>
+.
+(There is an exception for persistent communications where
+the request is only set to `inactive'; section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunicationrequests">5.1</a>
+.)
+Thus, it is wise to issue wait calls even
+if you know that the operation has succeeded. For instance, if all
+receive calls are concluded, you know that the corresponding send
+calls are finished and there is no strict need to wait for their
+requests. However, omitting the wait calls would lead to a
+<i>memory leak</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Another way around this is to call 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Request_free" aria-expanded="false" aria-controls="MPI_Request_free">
+        Routine reference: MPI_Request_free
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Request_free" class="collapse">
+  <pre>
+C:
+#include <mpi.h>
+int MPI_Request_free(MPI_Request *request)
+
+Fortran2008:
+USE mpi_f08
+MPI_Request_free(request, ierror)
+TYPE(MPI_Request), INTENT(INOUT) :: request
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Fortran legacy:
+INCLUDE ’mpif.h’
+MPI_REQUEST_FREE(REQUEST, IERROR)
+INTEGER    REQUEST, IERROR
+
+Input/output parameter:
+request : Communication request (handle).
+</pre>
+</div>
+</div>
+<i>MPI_Request_free</i>
+,
+which sets the request variable to 
+<tt>MPI_REQUEST_NULL</tt>
+,
+and marks the object for deallocation after completion of the
+operation. Conceivably, one could issue a nonblocking call,
+and immediately call 
+<tt>MPI_Request_free</tt>
+, dispensing
+with any wait call. However, this makes it hard to know when the operation
+is concluded and when the buffer is safe to reuse&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/bibliography.html#Squyres:evilrequest">[Squyres:evilrequest]</a>
+.
+</p>
+
+<p name="switchToTextMode">
+You can inspect the status of a request without freeing the request object
+with 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Request_get_status" aria-expanded="false" aria-controls="MPI_Request_get_status">
+        Routine reference: MPI_Request_get_status
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Request_get_status" class="collapse">
+  <pre>
+int MPI_Request_get_status(
+  MPI_Request request,
+  int *flag,
+  MPI_Status *status
+);
+
+</pre>
+</div>
+</div>
+<i>MPI_Request_get_status</i>
+.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+
+<h2><a id="Moreaboutpoint-to-pointcommunication">4.3</a> More about point-to-point communication</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a>
+</p>
+</p>
+
+<h3><a id="Messageprobing">4.3.1</a> Message probing</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#Messageprobing">Message probing</a>
+</p>
+
+<p name="switchToTextMode">
+
+MPI receive calls specify a receive buffer, and its size has to be
+enough for any data sent. In case you really have no idea how much data
+is being sent, and you don't want to overallocate the receive buffer,
+you can use a `probe' call.
+</p>
+
+<p name="switchToTextMode">
+The routines 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Probe" aria-expanded="false" aria-controls="MPI_Probe">
+        Routine reference: MPI_Probe
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Probe" class="collapse">
+  <pre>
+int MPI_Probe
+   ( int source, int tag, MPI_Comm comm,
+    MPI_Status *status )
+int MPI_Iprobe
+   (int source, int tag, MPI_Comm comm, int *flag,
+    MPI_Status *status)
+
+Input parameters:
+source : source rank, or MPI_ANY_SOURCE (integer)
+tag    : tag value or MPI_ANY_TAG (integer)
+comm   : communicator (handle)
+
+Output parameter:
+flag   : True if a message with the specified
+         source, tag, and communicator is available
+status : message status
+</pre>
+</div>
+</div>
+<i>MPI_Probe</i>
+ and 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Iprobe" aria-expanded="false" aria-controls="MPI_Iprobe">
+        Routine reference: MPI_Iprobe
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Iprobe" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Iprobe</i>
+(for which see also section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Progress">15.4</a>
+)
+accept a message but do not copy the data.
+Instead, when probing tells you that there is a
+message, you can use 
+<tt>MPI_Get_count</tt>
+ to determine its size,
+allocate a large enough receive buffer, and do a regular receive to
+have the data copied.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#probe" aria-expanded="false" aria-controls="probe">
+        C Code: probe
+      </button>
+    </h5>
+  </div>
+  <div id="probe" class="collapse">
+  <pre>
+// probe.c
+if (procno==receiver) {
+  MPI_Status status;
+  MPI_Probe(sender,0,comm,&status);
+  int count;
+  MPI_Get_count(&status,MPI_FLOAT,&count);
+  float recv_buffer[count];
+  MPI_Recv(recv_buffer,count,MPI_FLOAT, sender,0,comm,MPI_STATUS_IGNORE);
+} else if (procno==sender) {
+  float buffer[buffer_size];
+  ierr = MPI_Send(buffer,buffer_size,MPI_FLOAT, receiver,0,comm); CHK(ierr);
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+There is a problem with the 
+<tt>MPI_Probe</tt>
+ call in a
+multithreaded environment: the following scenario can happen.
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+A thread determines by probing that a certain message has come
+  in.
+<li>
+It issues a blocking receive call for that message
+&hellip;
+<li>
+But in between the probe and the receive call another thread
+  has already received the message.
+<li>
+&hellip;
+~Leaving the first thread in a blocked state with not
+  message to receive.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+This is solved by 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Mprobe" aria-expanded="false" aria-controls="MPI_Mprobe">
+        Routine reference: MPI_Mprobe
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Mprobe" class="collapse">
+  <pre>
+int MPI_Mprobe(int source, int tag, MPI_Comm comm,
+    MPI_Message *message, MPI_Status *status)
+
+Input Parameters:
+source - rank of source or MPI_ANY_SOURCE (integer)
+tag    - message tag or MPI_ANY_TAG (integer)
+comm   - communicator (handle)
+
+Output Parameters:
+
+message - returned message (handle)
+status  - status object (status)
+</pre>
+</div>
+</div>
+<i>MPI_Mprobe</i>
+, which after a successful
+probe removes the message from the 
+<i>matching queue</i>
+: the
+list of messages that can be matched by a receive call. The thread
+that matched the probe now issues an 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Mrecv" aria-expanded="false" aria-controls="MPI_Mrecv">
+        Routine reference: MPI_Mrecv
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Mrecv" class="collapse">
+  <pre>
+int MPI_Mrecv(void *buf, int count, MPI_Datatype type,
+    MPI_Message *message, MPI_Status *status)
+
+Input Parameters:
+count    - Number of elements to receive (nonnegative integer).
+datatype - Datatype of each send buffer element (handle).
+message  - Message (handle).
+
+Output Parameters:
+buf    - Initial address of receive buffer (choice).
+status - Status object (status).
+IERROR - Fortran only: Error status (integer).
+
+MPI_MRECV(BUF, COUNT, DATATYPE, MESSAGE, STATUS, IERROR)
+    <type>    BUF(*)
+INTEGER    COUNT, DATATYPE, MESSAGE
+INTEGER    STATUS(MPI_STATUS_SIZE), IERROR
+</pre>
+</div>
+</div>
+<i>MPI_Mrecv</i>
+ call on
+that message through an object of type 
+<tt>MPI_Message</tt>
+.
+</p>
+
+<h3><a id="TheStatusobjectandwildcards">4.3.2</a> The Status object and wildcards</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a>
+</p>
+
+
+<!-- index -->
+<p name="switchToTextMode">
+
+In section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Example:ping-pong">4.1.1</a>
+you saw that 
+<tt>MPI_Recv</tt>
+ has a `status' argument
+of type 
+<tt>MPI_Status</tt>
+ that 
+<tt>MPI_Send</tt>
+ lacks.
+(The various 
+<tt>MPI_Wait...</tt>
+  routines also have a status
+argument; see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Nonblockingsendandreceivecalls">4.2.1</a>
+.)
+Often you specify 
+<tt>MPI_STATUS_IGNORE</tt>
+for this argument: commonly you know
+what data is coming in and where it is coming from.
+</p>
+
+<p name="switchToTextMode">
+However, in some circumstances the recipient may not know all details of a
+message when you make the receive call, so MPI has a way of querying
+the 
+<i>status</i>
+
+<!-- index -->
+ of the message:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+If you are expecting multiple incoming messages, it may be most
+  efficient to deal with them in the order in which they arrive. So,
+  instead of waiting for specific message, you would specify
+<tt>MPI_ANY_SOURCE</tt>
+ or 
+<tt>MPI_ANY_TAG</tt>
+ in
+  the description of the receive message.
+  Now you have to be able to ask `who did this message come from,
+  and what is in it'.
+<li>
+Maybe you know the sender of a message, but the amount of data
+  is unknown. In that case you can overallocate your receive buffer,
+  and after the message is received ask how big it was, or you can
+  `probe' an incoming message and allocate enough data when you find
+  out how much data is being sent.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+To do this, the receive call has a 
+<tt>MPI_Status</tt>
+ parameter.
+The 
+<tt>MPI_Status</tt>
+ object
+is a structure (in~C a 
+<tt>struct</tt>
+, in~F90 an array, in~F2008 a derived type)
+with freely accessible members:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_ERROR</tt>
+ gives the error status of the receive call;
+  see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Error">4.3.2.3</a>
+.
+<li>
+<tt>MPI_SOURCE</tt>
+ gives the source of the message;
+  see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Source">4.3.2.1</a>
+.
+<li>
+<tt>MPI_TAG</tt>
+ gives the tag with which the message was received;
+  see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Tag">4.3.2.2</a>
+.
+<li>
+The number if items in the message can be deduced from the status object,
+  but through a function call to 
+<tt>MPI_Get_count</tt>
+,
+  not as a structure member;
+  see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Count">4.3.2.4</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: fortrannote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=fortrannote ]] -->
+<remark>
+<b>Fortran note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
+  The 
+<tt>mpi_f08</tt>
+ module turns many handles
+  (such as communicators)
+  from Fortran 
+<tt>Integer</tt>
+s into 
+<tt>Type</tt>
+s.
+  Retrieving the integer from the type is usually done
+val+ member,
+  but for the status object this is more difficult.
+  The routines 
+<tt>MPI_Status_f2f08</tt>
+ and 
+<tt>MPI_Status_f082f</tt>
+  convert between these.
+  (Remarkably, these routines are even available in~C,
+  where they operate on 
+<tt>MPI_Fint</tt>
+, 
+<tt>MPI_F08_status</tt>
+ arguments.)
+</p name="remark">
+</remark>
+<!-- environment: fortrannote end embedded generator -->
+<p name="switchToTextMode">
+{Status object in f08}
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+  The  <tt>mpl::status_t</tt>  object is created by the receive
+<p name="switchToTextMode">
+  (or wait) call:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplstatuscreate" aria-expanded="false" aria-controls="mplstatuscreate">
+        C++ Code: mplstatuscreate
+      </button>
+    </h5>
+  </div>
+  <div id="mplstatuscreate" class="collapse">
+  <pre>
+mpl::contiguous_layout&lt;double&gt; target_layout(count);
+mpl::status_t recv_status =
+  comm_world.recv(target.data(),target_layout, the_other);
+recv_count = recv_status.get_count&lt;double&gt;();
+</pre>
+</div>
+</div>
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Source">4.3.2.1</a> Source</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a> > <a href="mpi-ptp.html#Source">Source</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+In some applications it makes sense that a message can come from
+one of a number of processes. In this case, it is possible to specify
+<tt>MPI_ANY_SOURCE</tt>
+ as the source.
+To find out the 
+<i>source</i>
+
+<!-- index -->
+where the message actually came from,
+you would use the 
+<tt>MPI_SOURCE</tt>
+ field of the status object
+that is delivered by 
+<tt>MPI_Recv</tt>
+or the 
+<tt>MPI_Wait...</tt>
+ call after an 
+<tt>MPI_Irecv</tt>
+.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Recv(recv_buffer+p,1,MPI_INT, MPI_ANY_SOURCE,0,comm,
+         &status);
+sender = status.MPI_SOURCE;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+There are various scenarios where receiving from `any source' makes sense.
+One is that of the 
+<i>manager-worker</i>
+ model. The manager task would first send
+data to the worker tasks, then issues a blocking wait for the data of whichever process
+finishes first.
+</p>
+
+<p name="switchToTextMode">
+This code snippet is a simple model for this: all workers processes wait
+a random amount of time. For efficiency, the manager process accepts message from any source.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#anysource" aria-expanded="false" aria-controls="anysource">
+        C Code: anysource
+      </button>
+    </h5>
+  </div>
+  <div id="anysource" class="collapse">
+  <pre>
+// anysource.c
+if (procno==nprocs-1) {
+  /*
+   * The last process receives from every other process
+   */
+  int *recv_buffer;
+  recv_buffer = (int*) malloc((nprocs-1)*sizeof(int));
+
+  /*
+   * Messages can come in in any order, so use MPI_ANY_SOURCE
+   */
+  MPI_Status status;
+  for (int p=0; p&lt;nprocs-1; p++) {
+    err = MPI_Recv(recv_buffer+p,1,MPI_INT, MPI_ANY_SOURCE,0,comm,
+		      &status); CHK(err);
+    int sender = status.MPI_SOURCE;
+    printf("Message from sender=%d: %d\n",
+	     sender,recv_buffer[p]);
+  }
+  free(recv_buffer);
+} else {
+  /*
+   * Each rank waits an unpredictable amount of time,
+   * then sends to the last process in line.
+   */
+  float randomfraction = (rand() / (double)RAND_MAX);
+  int randomwait = (int) ( nprocs * randomfraction );
+  printf("process %d waits for %e/%d=%d\n",
+	   procno,randomfraction,nprocs,randomwait);
+  sleep(randomwait);
+  err = MPI_Send(&randomwait,1,MPI_INT, nprocs-1,0,comm); CHK(err);
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+In Fortran2008 style, the source is a member of the \flstinline{Status} type.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#anysource-f08" aria-expanded="false" aria-controls="anysource-f08">
+        Fortran Code: anysource-f08
+      </button>
+    </h5>
+  </div>
+  <div id="anysource-f08" class="collapse">
+  <pre>
+!! anysource.F90
+         allocate(recv_buffer(ntids-1))
+         do p=0,ntids-2
+            call MPI_Recv(recv_buffer(p+1),1,MPI_INTEGER,&
+                 MPI_ANY_SOURCE,0,comm,status)
+            sender = status%MPI_SOURCE
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+In Fortran90 style, the source is an index in the \flstinline{Status} array.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#anysource-f" aria-expanded="false" aria-controls="anysource-f">
+        Fortran Code: anysource-f
+      </button>
+    </h5>
+  </div>
+  <div id="anysource-f" class="collapse">
+  <pre>
+!! anysource.F90
+         allocate(recv_buffer(ntids-1))
+         do p=0,ntids-2
+            call MPI_Recv(recv_buffer(p+1),1,MPI_INTEGER,&
+                 MPI_ANY_SOURCE,0,comm,status,err)
+            sender = status(MPI_SOURCE)
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+The 
+<tt>status</tt>
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int source = recv_status.source();
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Tag">4.3.2.2</a> Tag</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a> > <a href="mpi-ptp.html#Tag">Tag</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+If a processor is expecting more than one messsage from a single other processor,
+message tags are used to distinguish between them. In that case,
+a value of 
+<tt>MPI_ANY_TAG</tt>
+ can be used, and the actual
+<i>tag</i>
+<!-- index -->
+of a message can be retrieved as the
+<tt>MPI_TAG</tt>
+member in the status structure.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Source">4.3.2.1</a>
+ about \clstinline+MPI_SOURCE+
+for how to use this.
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<span title="acronym" ><i>MPL</i></span>
+<p name="switchToTextMode">
+ differs from other 
+<span title="acronym" ><i>APIs</i></span>
+ in its treatment of tags:
+  a&nbsp;tag is not directly an integer, but an object of class 
+<tt>tag</tt>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplsendrecv" aria-expanded="false" aria-controls="mplsendrecv">
+        C++ Code: mplsendrecv
+      </button>
+    </h5>
+  </div>
+  <div id="mplsendrecv" class="collapse">
+  <pre>
+// sendrecv.cxx
+mpl::tag t0(0);
+comm_world.sendrecv
+  ( mydata,sendto,t0,
+    leftdata,recvfrom,t0 );
+</pre>
+</div>
+</div>
+  The 
+<tt>tag</tt>
+   <tt>mpl::</tt> 
+<tt>tag::any</tt>
+  (for the 
+<tt>MPI_ANY_TAG</tt>
+ wildcard in receive calls)
+  and
+   <tt>mpl::</tt> 
+<tt>tag::up</tt>
+  (maximal tag, found from the 
+<tt>MPI_TAG_UB</tt>
+ attribute).
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Error">4.3.2.3</a> Error</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a> > <a href="mpi-ptp.html#Error">Error</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Any 
+<i>errors</i>
+
+<!-- index -->
+during the receive operation can be found as the
+<tt>MPI_ERROR</tt>
+member of the status structure.
+This field is only set by functions that return multiple statuses,
+such as 
+<tt>MPI_Waitall</tt>
+.
+For functions that return a single status, any error is returned
+as the function result.
+For a function returning multiple statuses, the presence of any error
+is indicated by a result of 
+<tt>MPI_ERR_IN_STATUS</tt>
+;
+section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Receivestatusofthewaitcalls">4.2.2.6</a>
+.
+</p>
+
+<h4><a id="Count">4.3.2.4</a> Count</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a> > <a href="mpi-ptp.html#Count">Count</a>
+</p>
+
+<p name="switchToTextMode">
+
+If the amount of data received is not known a&nbsp;priori, the
+<i>count</i>
+<!-- index -->
+ of elements received
+can be found by
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Get_count" aria-expanded="false" aria-controls="MPI_Get_count">
+        Routine reference: MPI_Get_count
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Get_count" class="collapse">
+  <pre>
+// C:
+int MPI_Get_count(MPI_Status *status,MPI_Datatype datatype,
+    int *count)
+
+! Fortran:
+MPI_Get_count(INTEGER status(MPI_STATUS_SIZE),INTEGER datatype,
+    INTEGER count,INTEGER ierror)
+
+Python:
+status.Get_count( Datatype datatype=BYTE )
+
+MPL:
+template<typename T>
+int mpl::status::get_count () const
+
+template<typename T>
+int mpl::status::get_count (const layout<T> &l) const
+</pre>
+</div>
+</div>
+<i>MPI_Get_count</i>
+:
+</p>
+
+<p name="switchToTextMode">
+This may be necessary since the 
+<tt>count</tt>
+ argument to 
+<tt>MPI_Recv</tt>
+ is
+the buffer size, not an indication of the actually received number of
+data items.
+</p>
+
+<p name="switchToTextMode">
+Remarks.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Unlike the above, this is not directly a member of the status
+  structure.
+<li>
+The `count' returned is the number of elements of the specified
+  datatype. If this is a derived type
+  (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-data.html#Deriveddatatypes">6.3</a>
+) this is not the same as the number
+  of elementary datatype elements. For that, use
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Get_elements" aria-expanded="false" aria-controls="MPI_Get_elements">
+        Routine reference: MPI_Get_elements
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Get_elements" class="collapse">
+  <pre>
+Synopsis
+Returns the number of basic elements in a datatype
+
+int MPI_Get_elements
+    (const MPI_Status *status, MPI_Datatype datatype, int *count)
+int MPI_Get_elements_x
+    (const MPI_Status *status, MPI_Datatype datatype, MPI_Count *count)
+
+Input Parameters:
+status : return status of receive operation (Status)
+datatype : datatype used by receive operation (handle)
+
+Output Parameters:
+count : number of received basic elements (integer/MPI_Count)
+</pre>
+</div>
+</div>
+<i>MPI_Get_elements</i>
+ or
+<tt>MPI_Get_elements_x</tt>
+  which returns the number of basic elements.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+  The  <tt>get_count</tt>  function is a method of the status object.
+<p name="switchToTextMode">
+  The argument type is handled through templating:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#mplrecvcount" aria-expanded="false" aria-controls="mplrecvcount">
+        C++ Code: mplrecvcount
+      </button>
+    </h5>
+  </div>
+  <div id="mplrecvcount" class="collapse">
+  <pre>
+// recvstatus.cxx
+double pi=0;
+auto s = comm_world.recv(pi, 0);  // receive from rank 0
+int c = s.get_count&lt;double&gt;();
+std::cout &lt;&lt; "got : " &lt;&lt; c &lt;&lt; " scalar(s): " &lt;&lt; pi &lt;&lt; '\n';
+</pre>
+</div>
+</div>
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Example:receivingfromanysource">4.3.2.5</a> Example: receiving from any source</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#TheStatusobjectandwildcards">The Status object and wildcards</a> > <a href="mpi-ptp.html#Example:receivingfromanysource">Example: receiving from any source</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Consider an example where the last process receives from every other process.
+We could implement this as a loop
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for (int p=0; p&lt;nprocs-1; p++)
+  MPI_Recv( /* from source= */ p );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+but this may incur idle time if the messages arrive out of order.
+</p>
+
+<p name="switchToTextMode">
+Instead, we use the  
+<tt>MPI_ANY_SOURCE</tt>
+ specifier to give a wildcard
+behavior to the receive call: using this value for the `source' value
+means that we accept mesages from any source within the communicator,
+and messages are only matched by tag value.
+(Note that size and type of the receive buffer are not used for message matching!)
+</p>
+
+<p name="switchToTextMode">
+We then retrieve the
+actual source from the 
+<tt>MPI_Status</tt>
+ object through the
+<tt>MPI_SOURCE</tt>
+ field.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#anysource" aria-expanded="false" aria-controls="anysource">
+        C Code: anysource
+      </button>
+    </h5>
+  </div>
+  <div id="anysource" class="collapse">
+  <pre>
+// anysource.c
+if (procno==nprocs-1) {
+  /*
+   * The last process receives from every other process
+   */
+  int *recv_buffer;
+  recv_buffer = (int*) malloc((nprocs-1)*sizeof(int));
+
+  /*
+   * Messages can come in in any order, so use MPI_ANY_SOURCE
+   */
+  MPI_Status status;
+  for (int p=0; p&lt;nprocs-1; p++) {
+    err = MPI_Recv(recv_buffer+p,1,MPI_INT, MPI_ANY_SOURCE,0,comm,
+		      &status); CHK(err);
+    int sender = status.MPI_SOURCE;
+    printf("Message from sender=%d: %d\n",
+	     sender,recv_buffer[p]);
+  }
+  free(recv_buffer);
+} else {
+  /*
+   * Each rank waits an unpredictable amount of time,
+   * then sends to the last process in line.
+   */
+  float randomfraction = (rand() / (double)RAND_MAX);
+  int randomwait = (int) ( nprocs * randomfraction );
+  printf("process %d waits for %e/%d=%d\n",
+	   procno,randomfraction,nprocs,randomwait);
+  sleep(randomwait);
+  err = MPI_Send(&randomwait,1,MPI_INT, nprocs-1,0,comm); CHK(err);
+}
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#anysourcep" aria-expanded="false" aria-controls="anysourcep">
+        Python Code: anysourcep
+      </button>
+    </h5>
+  </div>
+  <div id="anysourcep" class="collapse">
+  <pre>
+## anysource.py
+rstatus = MPI.Status()
+comm.Recv(rbuf,source=MPI.ANY_SOURCE,status=rstatus)
+print("Message came from %d" % rstatus.Get_source())
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+In sections and&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Waitandtestcalls">4.2.3</a>
+ we explained
+the 
+<i>manager-worker</i>
+ model
+(and in chapter&nbsp;
+ you can do programming project with it).
+This design patterns offers an opportunity for inspecting the
+<tt>MPI_SOURCE</tt>
+ field of the 
+<tt>MPI_Status</tt>
+object describing the data that was received.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Reviewquestions">4.4</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Reviewquestions">Review questions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+For all true/false questions, if you answer that a statement is false,
+give a one-line explanation.
+</p>
+
+<!-- environment: review start embedded generator -->
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  Describe a deadlock scenario involving three processors.
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  True or false: a message sent with 
+<tt>MPI_Isend</tt>
+ from one processor can be
+  received with an 
+<tt>MPI_Recv</tt>
+ call on another processor.
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  True or false: a message sent with 
+<tt>MPI_Send</tt>
+ from one processor can be
+  received with an 
+<tt>MPI_Irecv</tt>
+ on another processor.
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  Why does the 
+<tt>MPI_Irecv</tt>
+ call not have an 
+<tt>MPI_Status</tt>
+ argument?
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  Suppose you are testing ping-pong timings.
+  Why is it generally not a good idea to use processes 0 and&nbsp;1 for the
+  source and target processor?  Can you come up with a better guess?
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  What is the relation between the concepts of `origin', `target', `fence',
+  and `window' in one-sided communication.
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  What are the three routines for one-sided data transfer?
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+  style=reviewcode,
+  language=C,
+}
+</p>
+
+<!-- environment: review start embedded generator -->
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  In the following fragments % in figures&nbsp;
+,
+,
+  assume that all buffers have been
+  allocated with sufficient size. For each fragment note whether it
+  deadlocks or not. Discuss performance issues.
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm);
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Recv(rbuffer,buflen,MPI_INT,p,0,comm,MPI_STATUS_IGNORE);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+˜    %% \lstinputlisting{qblock2}
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Recv(rbuffer,buflen,MPI_INT,p,0,comm,MPI_STATUS_IGNORE);
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int ireq = 0;
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Isend(sbuffers[p],buflen,MPI_INT,p,0,comm,&(requests[ireq++]));
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Recv(rbuffer,buflen,MPI_INT,p,0,comm,MPI_STATUS_IGNORE);
+MPI_Waitall(nprocs-1,requests,MPI_STATUSES_IGNORE);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int ireq = 0;
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Irecv(rbuffers[p],buflen,MPI_INT,p,0,comm,&(requests[ireq++]));
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm);
+MPI_Waitall(nprocs-1,requests,MPI_STATUSES_IGNORE);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int ireq = 0;
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Irecv(rbuffers[p],buflen,MPI_INT,p,0,comm,&(requests[ireq++]));
+MPI_Waitall(nprocs-1,requests,MPI_STATUSES_IGNORE);
+for (int p=0; p&lt;nprocs; p++)
+  if (p!=procid)
+    MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+    Fortran codes:
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm,ierr)
+   end if
+end do
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Recv(rbuffer,buflen,MPI_INT,p,0,comm,MPI_STATUS_IGNORE,ierr)
+   end if
+end do
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Recv(rbuffer,buflen,MPI_INT,p,0,comm,MPI_STATUS_IGNORE,ierr)
+   end if
+end do
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm,ierr)
+   end if
+end do
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+ireq = 0
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Isend(sbuffers(1,p+1),buflen,MPI_INT,p,0,comm,&
+           requests(ireq+1),ierr)
+      ireq = ireq+1
+   end if
+end do
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Recv(rbuffer,buflen,MPI_INT,p,0,comm,MPI_STATUS_IGNORE,ierr)
+   end if
+end do
+call MPI_Waitall(nprocs-1,requests,MPI_STATUSES_IGNORE,ierr)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+ireq = 0
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Irecv(rbuffers(1,p+1),buflen,MPI_INT,p,0,comm,&
+           requests(ireq+1),ierr)
+      ireq = ireq+1
+   end if
+end do
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm,ierr)
+   end if
+end do
+call MPI_Waitall(nprocs-1,requests,MPI_STATUSES_IGNORE,ierr)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+// block5.F90
+ireq = 0
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Irecv(rbuffers(1,p+1),buflen,MPI_INT,p,0,comm,&
+           requests(ireq+1),ierr)
+      ireq = ireq+1
+   end if
+end do
+call MPI_Waitall(nprocs-1,requests,MPI_STATUSES_IGNORE,ierr)
+do p=0,nprocs-1
+   if (p/=procid) then
+      call MPI_Send(sbuffer,buflen,MPI_INT,p,0,comm,ierr)
+   end if
+end do
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  Consider a ring-wise communication where
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+    int
+    next = (mytid+1) % ntids,
+    prev = (mytid+ntids-1) % ntids;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  and each process sends to 
+<tt>next</tt>
+, and receives from 
+<tt>prev</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+  The normal solution for preventing deadlock is to use both
+<tt>MPI_Isend</tt>
+ and 
+<tt>MPI_Irecv</tt>
+. The send and
+  receive complete at the wait call. But does it matter in what
+  sequence you do the wait calls?
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ring3" aria-expanded="false" aria-controls="ring3">
+        C Code: ring3
+      </button>
+    </h5>
+  </div>
+  <div id="ring3" class="collapse">
+  <pre>
+// ring3.c
+MPI_Request req1,req2;
+MPI_Irecv(&y,1,MPI_DOUBLE,prev,0,comm,&req1);
+MPI_Isend(&x,1,MPI_DOUBLE,next,0,comm,&req2);
+MPI_Wait(&req1,MPI_STATUS_IGNORE);
+MPI_Wait(&req2,MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ring4" aria-expanded="false" aria-controls="ring4">
+        C Code: ring4
+      </button>
+    </h5>
+  </div>
+  <div id="ring4" class="collapse">
+  <pre>
+// ring4.c
+MPI_Request req1,req2;
+MPI_Irecv(&y,1,MPI_DOUBLE,prev,0,comm,&req1);
+MPI_Isend(&x,1,MPI_DOUBLE,next,0,comm,&req2);
+MPI_Wait(&req2,MPI_STATUS_IGNORE);
+MPI_Wait(&req1,MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+  Can we have one nonblocking and one blocking call?
+  Do these scenarios block?
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ring1" aria-expanded="false" aria-controls="ring1">
+        C Code: ring1
+      </button>
+    </h5>
+  </div>
+  <div id="ring1" class="collapse">
+  <pre>
+// ring1.c
+MPI_Request req;
+MPI_Issend(&x,1,MPI_DOUBLE,next,0,comm,&req);
+MPI_Recv(&y,1,MPI_DOUBLE,prev,0,comm,
+         MPI_STATUS_IGNORE);
+MPI_Wait(&req,MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ring2" aria-expanded="false" aria-controls="ring2">
+        C Code: ring2
+      </button>
+    </h5>
+  </div>
+  <div id="ring2" class="collapse">
+  <pre>
+// ring2.c
+MPI_Request req;
+MPI_Irecv(&y,1,MPI_DOUBLE,prev,0,comm,&req);
+MPI_Ssend(&x,1,MPI_DOUBLE,next,0,comm);
+MPI_Wait(&req,MPI_STATUS_IGNORE);
+</pre>
+</div>
+</div>
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<!-- index -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

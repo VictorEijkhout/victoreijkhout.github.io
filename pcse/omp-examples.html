@@ -1,0 +1,968 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP Examples</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+31.1 : <a href="omp-examples.html#N-bodyproblems">N-body problems</a><br>
+31.1.1 : <a href="omp-examples.html#Solution1:noconflictingwrites">Solution 1: no conflicting writes</a><br>
+31.1.2 : <a href="omp-examples.html#Solution2:usingatomics">Solution 2: using atomics</a><br>
+31.1.3 : <a href="omp-examples.html#Solution3:allinteractionsatomic">Solution 3: all interactions atomic</a><br>
+31.2 : <a href="omp-examples.html#Treetraversal">Tree traversal</a><br>
+31.3 : <a href="omp-examples.html#Depth-firstsearch">Depth-first search</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>31 OpenMP Examples</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<h2><a id="N-bodyproblems">31.1</a> N-body problems</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-examples.html">omp-examples</a> > <a href="omp-examples.html#N-bodyproblems">N-body problems</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+So-called 
+<i>N-body problem</i>
+s come up with
+we describe the interactions between a,
+probably large,
+number of entities under a force such as gravity.
+Examples are molecular dynamics and star clusters.
+</p>
+
+<p name="switchToTextMode">
+While clever algorithms exist that take into account the
+decay of the force over distance,
+we here consider the naive algorithm that
+explicitly computes all interactions.
+</p>
+
+<p name="switchToTextMode">
+A particle has $x,y$ coordinates and a mass~$c$.
+For two particles $(x_1,y_1,c_1)$, $(x_2,y_2,c_2)$
+the force on particle~1 from particle~2 is:
+\[
+ \overrightarrow F_{12} = \frac{c_1\cdot c_2}{\sqrt{ (x_2-x_1)^2+(y_2-y_1)^2 }} \cdot \overrightarrow r_{12} 
+\]
+where $\overrightarrow r_{12}$ is the unit vector pointing from particle 2 to~1.
+With $n$ particles, each particle~$i$ feels a force
+\[
+ \overrightarrow F_i = \sum_{j\not=i} \overrightarrow F_{ij}.
+\]
+</p>
+
+<p name="switchToTextMode">
+Let's start with a couple of building blocks.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompmolaux" aria-expanded="false" aria-controls="ompmolaux">
+        C Code: ompmolaux
+      </button>
+    </h5>
+  </div>
+  <div id="ompmolaux" class="collapse">
+  <pre>
+// molecular.c
+struct point{ double x,y; double c; };
+struct force{ double x,y; double f; };
+
+/* Force on p1 from p2 */
+struct force force_calc( struct point p1,struct point p2 ) {
+  double dx = p2.x - p1.x, dy = p2.y - p1.y;
+  double  f = p1.c * p2.c / sqrt( dx*dx + dy*dy );
+  struct force exert = {dx,dy,f};
+  return exert;
+}
+</pre>
+</div>
+</div>
+Force accumulation:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+void add_force( struct force *f,struct force g ) {
+  f-&gt;x += g.x; f-&gt;y += g.y; f-&gt;f += g.f;
+}
+void sub_force( struct force *f,struct force g ) {
+  f-&gt;x -= g.x; f-&gt;y -= g.y; f-&gt;f += g.f;
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+For reference, this is the sequential code:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompmolplain" aria-expanded="false" aria-controls="ompmolplain">
+        C Code: ompmolplain
+      </button>
+    </h5>
+  </div>
+  <div id="ompmolplain" class="collapse">
+  <pre>
+for (int ip=0; ip&lt;N; ip++) {
+  for (int jp=ip+1; jp&lt;N; jp++) {
+    struct force f = force_calc(points[ip],points[jp]);
+    add_force( forces+ip,f );
+    sub_force( forces+jp,f );
+  }
+}
+</pre>
+</div>
+</div>
+Here $\overrightarrow F_{ij}$ is only computed for $j&gt;i$, and then
+added to both $\overrightarrow F_i$ and&nbsp;$\overrightarrow F_j$.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Argue that both the outer loop and the inner are not directly parallelizable.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+We will now explore a number of different strategies for parallelization.
+All tests are done on the 
+<i>TACC Frontera</i>
+ cluster,
+which has dual-socket 
+<i>Intel Cascade Lake</i>
+ nodes,
+with a total of 56 cores.
+Our code uses 10 thousand particles, and each interaction evaluation
+is repeated 10 times to eliminate cache loading effects.
+</p>
+
+<h3><a id="Solution1:noconflictingwrites">31.1.1</a> Solution 1: no conflicting writes</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-examples.html">omp-examples</a> > <a href="omp-examples.html#N-bodyproblems">N-body problems</a> > <a href="omp-examples.html#Solution1:noconflictingwrites">Solution 1: no conflicting writes</a>
+</p>
+<p name="switchToTextMode">
+
+In our first attempt at an efficient parallel code,
+we compute the full $N^2$ interactions.
+One solution would be to compute the $\overrightarrow F_{ij}$
+interactions for all&nbsp;$i,j$,
+so that there are no conflicting writes.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompmoljpar" aria-expanded="false" aria-controls="ompmoljpar">
+        C Code: ompmoljpar
+      </button>
+    </h5>
+  </div>
+  <div id="ompmoljpar" class="collapse">
+  <pre>
+for (int ip=0; ip&lt;N; ip++) {
+  double sumx=0., sumy=0., sumf=0.;
+#pragma omp parallel for reduction(+:sumx,sumy,sumf)
+  for (int jp=0; jp&lt;N; jp++) {
+    if (ip==jp) continue;
+    struct force f = force_calc(points[ip],points[jp]);
+    sumx += f.x; sumy += f.y; sumf += f.f;
+  } // end parallel jp loop
+  struct force sumforce = {sumx,sumy,sumf};
+  add_force( forces+ip, sumforce );
+} // end ip loop
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+This increases the scalar work by a factor of two,
+but surprisingly, on a single thread the run time improves:
+we measure a speedup of 
+<tt>6.51</tt>
+ over the supposedly `optimal' code.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What would be an explanation?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="plots/omp-nbody1.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+<p name="caption">
+FIGURE 31.1: {Speedup of reduction variant over sequential}
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+However, increasing the number of threads has limited benefits for this strategy.
+Figure&nbsp;
+31.1
+ shows that
+the speedup is not only sublinear:
+it actually decreases with increasing core count.
+</p>
+
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What would be an explanation?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Solution2:usingatomics">31.1.2</a> Solution 2: using atomics</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-examples.html">omp-examples</a> > <a href="omp-examples.html#N-bodyproblems">N-body problems</a> > <a href="omp-examples.html#Solution2:usingatomics">Solution 2: using atomics</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Next we try to parallelize the outer loop.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompmolipar" aria-expanded="false" aria-controls="ompmolipar">
+        C Code: ompmolipar
+      </button>
+    </h5>
+  </div>
+  <div id="ompmolipar" class="collapse">
+  <pre>
+#pragma omp parallel for schedule(guided,4)
+      for (int ip=0; ip&lt;N; ip++) {
+        for (int jp=ip+1; jp&lt;N; jp++) {
+          struct force f = force_calc(points[ip],points[jp]);
+          add_force( forces+ip,f );
+          sub_force( forces+jp,f );
+        }
+      }
+</pre>
+</div>
+</div>
+To deal with the conflicting 
+<tt>jp</tt>
+ writes,
+we make the writes atomic:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+void sub_force( struct force *f,struct force g ) {
+#pragma omp atomic
+  f-&gt;x -= g.x;
+#pragma omp atomic
+  f-&gt;y -= g.y;
+#pragma omp atomic
+  f-&gt;f += g.f;
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="plots/omp-nbody2.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+
+<p name="caption">
+FIGURE 31.2: Speedup of triangular loop with atomic update
+</p>
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+This works fairly well, as figure&nbsp;
+31.2
+ shows.
+</p>
+
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Solution3:allinteractionsatomic">31.1.3</a> Solution 3: all interactions atomic</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-examples.html">omp-examples</a> > <a href="omp-examples.html#N-bodyproblems">N-body problems</a> > <a href="omp-examples.html#Solution3:allinteractionsatomic">Solution 3: all interactions atomic</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+But if we decide to use atomic updates,
+we can take the full square loop,
+collapse the two loops,
+and make every write atomic.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompmolijpar" aria-expanded="false" aria-controls="ompmolijpar">
+        C Code: ompmolijpar
+      </button>
+    </h5>
+  </div>
+  <div id="ompmolijpar" class="collapse">
+  <pre>
+#pragma omp parallel for collapse(2)
+      for (int ip=0; ip&lt;N; ip++) {
+        for (int jp=0; jp&lt;N; jp++) {
+          if (ip==jp) continue;
+          struct force f = force_calc(points[ip],points[jp]);
+          add_force( forces+ip, f );
+        } // end parallel jp loop
+      } // end ip loop
+</pre>
+</div>
+</div>
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="plots/omp-nbody3.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+<p name="caption">
+FIGURE 31.3: Speedup of atomic full interaction calculation
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+Figure&nbsp;
+31.3
+ shows that this is pretty close to perfect.
+</p>
+
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+Everything in one plot in figure&nbsp;
+31.4
+.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="plots/omp-nbody4.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+<p name="caption">
+FIGURE 31.4: All strategies together
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Treetraversal">31.2</a> Tree traversal</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-examples.html">omp-examples</a> > <a href="omp-examples.html#Treetraversal">Tree traversal</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+OpenMP tasks are a great way of handling trees.
+</p>
+
+<p name="switchToTextMode">
+In 
+<i>post-order tree traversal</i>
+
+<!-- index -->
+you visit the subtrees before visiting the root. This is the traversal
+that you use to find summary information about a tree, for instance
+the sum of all nodes, and the sums of nodes of all subtrees:
+</p>
+
+<!-- environment: displayalgorithm start embedded generator -->
+<p>\For{all children $c$}      {compute the sum $s\_c$}\</p>
+$ s \leftarrow \sum\_c s\_c$
+<!-- environment: displayalgorithm end embedded generator -->
+<p name="switchToTextMode">
+
+Another example is matrix factorization:
+\[
+ S = A_{33} - A_{31}A_{11}\inv A_{13} - A_{32}A_{22}\inv A_{23} 
+\]
+where the two inverses $A_{11}\inv,A_{22}\inv$ can be computed
+indepedently and recursively.
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: comment start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
+
+
+</comment>
+<!-- environment: comment end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Depth-firstsearch">31.3</a> Depth-first search</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-examples.html">omp-examples</a> > <a href="omp-examples.html#Depth-firstsearch">Depth-first search</a>
+</p>
+
+</p>
+
+<!-- environment: wrapfigure start embedded generator -->
+<!-- environment block purpose: [[ environment=wrapfigure ]] -->
+<wrapfigure>
+<b>UNKNOWN</b>
+<!-- TranslatingLineGenerator wrapfigure ['wrapfigure'] -->
+<img src="graphics/DFS.jpg" width=800></img>
+</wrapfigure>
+<!-- environment: wrapfigure end embedded generator -->
+<p name="switchToTextMode">
+{r}{3in}
+In this section we look at the `eight queens' problem, as an example of 
+<i>DFS</i>
+:
+is it possible to put eight queens on a chess board so that none of them threaten each other?
+With 
+<span title="acronym" ><i>DFS</i></span>
+, the search space of possibilities is organized as a tree
+--&nbsp;each partial solution leads to several possibilities for the next steps&nbsp;--
+which is traversed in a particular manner:
+a&nbsp;chain of possibilities is extended as far as feasible,
+after which the search backtracks to the next chain.
+</p>
+
+<p name="switchToTextMode">
+The sequential implementation is easy enough.
+The main program fires off:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+placement initial; initial.fill(empty);
+auto solution = place_queen(0,initial);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+where I hope you can take the details on trust.
+</p>
+
+<p name="switchToTextMode">
+The recursive call then has this structure:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+optional&lt;placement&gt; place_queen(int iqueen,const placement& current) {
+  for (int col=0; col&lt;N; col++) {
+    placement next = current;
+    next.at(iqueen) = col;
+    if (feasible(next)) {
+      if (iqueen==N-1)
+	return next;
+      auto attempt = place_queen(iqueen+1,next);
+      if (attempt.has_value())
+	return attempt;
+    } // end if(feasible)
+  }
+  return {};
+};
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+(This uses the C++17 
+<tt>optional</tt>
+ header.)
+At each 
+<tt>iqueen</tt>
+ level we
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+go through a loop of all column positions;
+<li>
+filter out positions that are not feasible;
+<li>
+report success if this was the last level; or
+<li>
+recursively continue the next level otherwise.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+This problem seems a prime candidate for OpenMP tasks, so we start with the usual
+idiom for the main program:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#queensmain" aria-expanded="false" aria-controls="queensmain">
+        C++ Code: queensmain
+      </button>
+    </h5>
+  </div>
+  <div id="queensmain" class="collapse">
+  <pre>
+placement initial; initial.fill(empty);
+#pragma omp parallel
+#pragma omp single
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+We create a task for each column, and since they are in a loop
+we use 
+<tt>taskgroup</tt>
+ rather than 
+<tt>taskwait</tt>
+.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp taskgroup
+  for (int col=0; col&lt;N; col++) {
+    placement next = current;
+    next.at(iqueen) = col;
+#pragma omp task firstprivate(next)
+    if (feasible(next)) {
+    // stuff
+    } // end if(feasible)
+  }
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+However, the sequential program had 
+<tt>return</tt>
+ and 
+<tt>break</tt>
+
+statements in the loop, which is not allowed in workshare constructs
+such as 
+<tt>taskgroup</tt>
+.
+Therefore we introduce a return variable, declared as shared:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#queensbreadth" aria-expanded="false" aria-controls="queensbreadth">
+        C++ Code: queensbreadth
+      </button>
+    </h5>
+  </div>
+  <div id="queensbreadth" class="collapse">
+  <pre>
+// queens0.cxx
+optional&lt;placement&gt; result = {};
+#pragma omp taskgroup
+for (int col=0; col&lt;N; col++) {
+  placement next = current;
+  next.at(iqueen) = col;
+#pragma omp task firstprivate(next) shared(result)
+  if (feasible(next)) {
+    if (iqueen==N-1) {
+	result = next;
+    } else { // do next level
+	auto attempt = place_queen(iqueen+1,next);
+	if (attempt.has_value()) {
+	  result = attempt;
+	}
+    } // end if(iqueen==N-1)
+  } // end if(feasible)
+}
+return result;
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+So that was easy, this computes the right solution, and it uses OpenMP tasks.
+Done?
+</p>
+
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<p name="switchToTextMode">
+  
+<img src="plots/omp-dfs-intel.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+<img src="plots/omp-dfs-gcc.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+<p name="caption">
+FIGURE 31.6: Using taskgroups for $N=12$; left Intel compiler, right GCC
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+Actually this runs very slowly because,
+now that we've dispensed with all early breaks from the loop,
+we in effect traverse the whole search tree.
+(It's not quite breadth-first, though.)
+Figure&nbsp;
+31.6
+ shows this for $N=12$
+with the Intel compiler (version 2019) in the left panel,
+and the GNU compiler (version&nbsp;9.1) in the middle.
+In both cases,  the blue bars give the result for the code
+with only the 
+<tt>taskgroup</tt>
+ directive,
+with time plotted as function of core count.
+</p>
+
+<p name="switchToTextMode">
+We see that, for the Intel compiler, running time indeed
+goes down with core count.
+So, while we compute too much (the whole search space),
+at least parallelization helps.
+With a number of threads greater than the problem size,
+the benefit of parallelization disappears,
+which makes some sort of sense.
+</p>
+
+<p name="switchToTextMode">
+We also see that the GCC compiler is really bad at OpenMP tasks:
+the running time actually increases with the number of threads.
+</p>
+
+<p name="switchToTextMode">
+Fortunately, with OpenMP- we can break out of the loop
+with a 
+<tt>cancel</tt>
+ of the task group:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#queenscancel" aria-expanded="false" aria-controls="queenscancel">
+        C++ Code: queenscancel
+      </button>
+    </h5>
+  </div>
+  <div id="queenscancel" class="collapse">
+  <pre>
+// queenfinal.cxx
+if (feasible(next)) {
+  if (iqueen==N-1) {
+	result = next;
+#pragma omp cancel taskgroup
+  } else { // do next level
+	auto attempt = place_queen(iqueen+1,next);
+	if (attempt.has_value()) {
+	  result = attempt;
+#pragma omp cancel taskgroup
+	}
+  } // end if (iqueen==N-1)
+} // end if (feasible)
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+Surprisingly, this does not immediately give a performance improvement.
+The reason for this is that cancellation is disabled by default,
+and we have to set the environment variable
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+OMP_CANCELLATION=true
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="plots/omp-dfs-cancel.jpg" width=800></img>
+<!-- environment: tikzpicture start embedded generator -->
+<!-- environment block purpose: [[ environment=tikzpicture ]] -->
+<tikzpicture>
+
+
+</tikzpicture>
+<!-- environment: tikzpicture end embedded generator -->
+<p name="caption">
+FIGURE 31.7: Using taskgroup cancelling, Intel compiler
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+With that, we get very good performance,
+as  figure&nbsp;
+31.7
+ shows,
+which lists sequential time, and
+multicore running time on the code with 
+<tt>cancel</tt>
+ directives.
+Running time is now approximately the same as the sequential time.
+Some questions are still left:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Why does the time go up with core count?
+<li>
+Why is the multicore code slower than the sequential code,
+  and would the parallel code be faster than sequential if the
+  amount of scalar work (for instance in the 
+<tt>feasible</tt>
+ function)
+  would be larger?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+One observation not reported here
+is that the GNU compiler has basically the same running time with and without cancellation.
+This is again shows that the GNU compiler is really bad at OpenMP tasks.
+</p>
+
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

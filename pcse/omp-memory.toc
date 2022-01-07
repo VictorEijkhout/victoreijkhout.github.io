@@ -1,0 +1,4 @@
+26.1 : <a href="omp-memory.html#Threadsynchronization">Thread synchronization</a><br>
+26.2 : <a href="omp-memory.html#Dataraces">Data races</a><br>
+26.2.1 : <a href="omp-memory.html#Dekker'salgorithm">Dekker's algorithm</a><br>
+26.3 : <a href="omp-memory.html#Relaxedmemorymodel">Relaxed memory model</a><br>

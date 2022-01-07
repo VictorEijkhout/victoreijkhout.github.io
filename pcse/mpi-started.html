@@ -1,0 +1,1241 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Getting started with MPI</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+1.1 : <a href="mpi-started.html#Distributedmemoryandmessagepassing">Distributed memory and message passing</a><br>
+1.2 : <a href="mpi-started.html#History">History</a><br>
+1.3 : <a href="mpi-started.html#Basicmodel">Basic model</a><br>
+1.4 : <a href="mpi-started.html#MakingandrunninganMPIprogram">Making and running an MPI program</a><br>
+1.5 : <a href="mpi-started.html#Languagebindings">Language bindings</a><br>
+1.5.1 : <a href="mpi-started.html#C">C</a><br>
+1.5.2 : <a href="mpi-started.html#C++,includingMPL">C++, including MPL</a><br>
+1.5.3 : <a href="mpi-started.html#Fortran">Fortran</a><br>
+1.5.4 : <a href="mpi-started.html#Python">Python</a><br>
+1.5.5 : <a href="mpi-started.html#Howtoreadroutinesignatures">How to read routine signatures</a><br>
+1.5.5.1 : <a href="mpi-started.html#C">C</a><br>
+1.5.5.2 : <a href="mpi-started.html#Fortran">Fortran</a><br>
+1.5.5.3 : <a href="mpi-started.html#Python">Python</a><br>
+1.6 : <a href="mpi-started.html#Review">Review</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>1 Getting started with MPI</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+In this chapter you will learn the use of the main tool for
+distributed memory programming: the 
+<span title="acronym" ><i>MPI</i></span>
+ library.
+The 
+<span title="acronym" ><i>MPI</i></span>
+ library has about 250 routines, many of which you may
+never need. Since this is a textbook, not a reference manual, we will
+focus on the important concepts and give the important routines for
+each concept. What you learn here should be enough for most common
+purposes. You are advised to keep a reference document handy, in
+case there is a specialized routine, or to look up subtleties about
+the routines you use.
+</p>
+
+<h2><a id="Distributedmemoryandmessagepassing">1.1</a> Distributed memory and message passing</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Distributedmemoryandmessagepassing">Distributed memory and message passing</a>
+</p>
+<p name="switchToTextMode">
+
+In its simplest form, a distributed memory machine is a collection of
+single computers hooked up with network cables. In fact, this has a name:
+a 
+<i>Beowulf cluster</i>
+. As you recognize from that setup,
+each processor can run an independent program, and has its own memory
+without direct access to other processors' memory. MPI is the magic
+that makes multiple instantiations of the same executable run
+so that they know about each other and can exchange data through the
+network.
+</p>
+
+<p name="switchToTextMode">
+One of the reasons that MPI is so successful as a tool for high
+performance on clusters is that it is very explicit: the programmer
+controls many details of the data motion between the processors.
+Consequently, a capable programmer can write very efficient code with MPI.
+Unfortunately, that programmer will have to spell things out
+in considerable detail. For this reason, people sometimes call MPI
+`the assembly language of parallel programming'. If that sounds scary,
+be assured that things are not that bad. You can get started
+fairly quickly with MPI, using just the basics,
+and coming to the more sophisticated tools
+only when necessary.
+</p>
+
+<p name="switchToTextMode">
+Another reason that MPI was a big hit with programmers is that
+it does not ask you to learn a new language: it is a library that
+can be interface to C/C++ or Fortran; there are even bindings to Python.
+A~related point is that it is easy to install: there are free implementations
+that you can download and install on any computer that has a Unix-like
+operating system, even if that is not a parallel machine.
+</p>
+
+<h2><a id="History">1.2</a> History</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#History">History</a>
+</p>
+<p name="switchToTextMode">
+
+Before the MPI standard was developed in 1993-4, there were many
+libraries for distributed memory computing, often proprietary
+to a vendor platform. MPI standardized the inter-process communication
+mechanisms. Other features, such as process management in 
+<i>PVM</i>
+,
+or parallel I/O were omitted. Later versions of the standard
+have included many of these features.
+</p>
+
+<p name="switchToTextMode">
+Since MPI was designed by a large number of academic and commercial
+participants, it quickly became a standard. A~few packages
+from the pre-MPI era, such as 
+<i>Charmpp</i>
+~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/bibliography.html#charmpp">[charmpp]</a>
+,
+are still in use since they support mechanisms that do not exist
+in MPI.
+</p>
+
+<h2><a id="Basicmodel">1.3</a> Basic model</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Basicmodel">Basic model</a>
+</p>
+
+<p name="switchToTextMode">
+
+Here we sketch the two most common scenarios for using MPI. In the
+first, the user is working on an interactive machine, which has
+network access to a number of hosts, typically a network of workstations;
+see figure~
+1.1
+.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/mpi-interactive.jpeg" width=800></img>
+<p name="caption">
+FIGURE 1.1: Interactive MPI setup
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+The user types the command 
+<tt>mpiexec</tt>
+\footnote
+{A command variant is 
+<i>mpirun</i>
+; your local cluster
+  may have a different mechanism.}
+and supplies
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The number of hosts involved,
+<li>
+their names, possibly in a hostfile,
+<li>
+and other parameters, such as whether to include the interactive
+  host; followed by
+<li>
+the name of the program and its parameters.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+The 
+<tt>mpiexec</tt>
+ program then makes an 
+<tt>ssh</tt>
+
+<!-- index -->
+ connection
+to each of the hosts, giving them sufficient information that they
+can find each other. All the output of the processors is piped through the
+
+<tt>mpiexec</tt>
+ program, and appears on the interactive console.
+</p>
+
+<p name="switchToTextMode">
+In the second scenario (figure~
+1.2
+) the user prepares
+a 
+<i>batch job</i>
+ script with commands, and these will be
+run when the 
+<i>batch scheduler</i>
+ gives a number of hosts
+to the job.
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/mpi-batch.jpeg" width=800></img>
+<p name="caption">
+FIGURE 1.2: Batch MPI setup
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+\begin{istc}
+</p>
+
+<p name="switchToTextMode">
+\end{istc}
+, and the hostfile is dynamically generated when the job starts.
+Since the job now runs at a time when the user may not be logged in,
+any screen output goes into an output file.
+</p>
+
+<p name="switchToTextMode">
+You see that in both scenarios the parallel program is started
+by the 
+<tt>mpiexec</tt>
+ command using
+an 
+<span title="acronym" ><i>SPMD</i></span>
+ mode of execution: all hosts execute the same program.
+It is possible for different hosts to execute different programs,
+but we will not consider that in this book.
+</p>
+
+<p name="switchToTextMode">
+There can be options and environment variables that are specific to
+some MPI installations, or to the network.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<i>mpich</i>
+ and its derivatives such as
+<i>Intel MPI</i>
+ or 
+<i>Cray MPI</i>
+ have
+<i>mpiexec options</i>
+:
+  
+<a href=https://www.mpich.org/static/docs/v3.1/www1/mpiexec.html>https://www.mpich.org/static/docs/v3.1/www1/mpiexec.html</a>
+
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="MakingandrunninganMPIprogram">1.4</a> Making and running an MPI program</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#MakingandrunninganMPIprogram">Making and running an MPI program</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+MPI is a library, called from programs in ordinary programming languages
+such as C/C++ or Fortran. To compile such a program you use your regular
+compiler:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+gcc -c my_mpi_prog.c -I/path/to/mpi.h
+gcc -o my_mpi_prog my_mpi_prog.o -L/path/to/mpi -lmpich
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+However, MPI libraries may have different names between different
+architectures, making it hard to have a portable makefile. Therefore,
+MPI typically has shell scripts around your compiler call:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+mpicc -c my_mpi_prog.c
+mpicc -o my_mpi_prog my_mpi_prog.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+MPI programs can be run on many different architectures. Obviously it
+is your ambition (or at least your dream) to run your code on a
+cluster with a hundred thousand processors and a fast network. But
+maybe you only have a small cluster with
+plain 
+<i>ethernet</i>
+. Or maybe you're sitting in a plane, with
+just your laptop. An MPI program can be run in all these
+circumstances&nbsp;--&nbsp;within the limits of your available memory of course.
+</p>
+
+<p name="switchToTextMode">
+The way this works is that you do not start your executable directly,
+but you use a program, typically called 
+<tt>mpiexec</tt>
+ or
+something similar, which makes a connection to all available
+processors and starts a run of your executable there. So if you have a
+thousand nodes in your cluster, 
+<tt>mpiexec</tt>
+ can start your program once
+on each, and if you only have your laptop it can start a few instances
+there. In the latter case you will of course not get great
+performance, but at least you can test your code for correctness.
+</p>
+
+<!-- environment: tacc start embedded generator -->
+<!-- environment block purpose: [[ environment=tacc ]] -->
+<tacc>
+
+<p name="tacc">
+<!-- TranslatingLineGenerator tacc ['tacc'] -->
+<!-- environment: pythonnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+    Load the TACC-provided python:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+module load python
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and run it as:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+ibrun python-mpi yourprogram.py
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+
+</tacc>
+<!-- environment: tacc end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Languagebindings">1.5</a> Language bindings</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a>
+</p>
+</p>
+
+<h3><a id="C">1.5.1</a> C</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#C">C</a>
+</p>
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+The MPI library is written in&nbsp;C.
+However, the standard is careful to distinguish between MPI routines,
+versus their 
+<i>C bindings</i>
+.
+In fact, as of MPI&nbsp;\mpistandard{4},
+for a number of routines there are two bindings,
+depending on whether you want 4&nbsp;byte integers,
+or larger.
+See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-data.html#Bigdatatypes">6.4</a>
+,
+in particular&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-data.html#C">6.4.1</a>
+.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="C++,includingMPL">1.5.2</a> C++, including MPL</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#C++,includingMPL">C++, including MPL</a>
+</p>
+<!-- index -->
+<!-- index -->
+<!-- index -->
+</p>
+
+<i>C++ bindings</i>
+<p name="switchToTextMode">
+but they were declared deprecated,
+and have been officially removed in the 
+<i>MPI&nbsp;3</i>
+%
+\mpistandardsub{3}{C++ bindings removed}
+Thus, MPI can be used from C++ by including
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#include &lt;mpi.h&gt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+and using the C API.
+</p>
+
+<!-- environment: mpifour start embedded generator -->
+<!-- environment block purpose: [[ environment=mpifour ]] -->
+<remark>
+<b>MPI 4 Standard only</b>
+<p name="remark">
+<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+  The \mpistandard{4} standard supports integer arguments larger than 32 bits,
+  through the  <tt>MPI_Count</tt>  datatype.
+  All MPI routines are now polymorphic between using
+  \lstinline+int+ and  <tt>MPI_Count</tt> .
+  This requires including 
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#include &lt;mpi.hpp&gt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  rather than 
+<tt>mpi.h</tt>
+.
+</p name="remark">
+<i>End of MPI 4 note</i>
+</remark>
+<!-- environment: mpifour end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<i>boost</i>
+ library has its own version of MPI, but it seems
+not to be under further development.  A&nbsp;recent
+effort at idiomatic C++ support is 
+<i>MPL</i>
+
+<a href=https://github.com/rabauke/mpl>https://github.com/rabauke/mpl</a>
+.
+This book has an index of 
+<span title="acronym" ><i>MPL</i></span>
+ notes and commands:
+section&nbsp;
+.
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+MPL
+<!-- index -->
+is a C++ header-only library.
+Notes on MPI usage from MPL will be indicated like this.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+<!-- index -->
+</p>
+
+<h3><a id="Fortran">1.5.3</a> Fortran</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#Fortran">Fortran</a>
+</p>
+<!-- index -->
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+<!-- environment: fortrannote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=fortrannote ]] -->
+<remark>
+<b>Fortran note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
+  Fortran-specific notes will be indicated with a note like this.
+</p name="remark">
+</remark>
+<!-- environment: fortrannote end embedded generator -->
+<p name="switchToTextMode">
+{Formatting of Fortran notes}
+</p>
+
+<p name="switchToTextMode">
+Traditionally, 
+<i>Fortran bindings</i>
+ for MPI look very much like the C&nbsp;ones,
+except that each routine has a final 
+<i>error return</i>
+parameter.
+You will find that a lot of MPI code in Fortran conforms to this.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+However, in the 
+<i>MPI&nbsp;3</i>
+%
+<!-- index -->
+ standard it is recommended that
+an MPI implementation providing a Fortran interface provide a
+module named 
+ that can be used in a Fortran program.
+This incorporates the following improvements:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+  This defines MPI routines to have an optional final parameter for the error.
+<li>
+  There are some visible implications of using the 
+<tt>mpi_f08</tt>
+ module,
+  mostly related to the fact that some of the `MPI datatypes' such as
+<tt>MPI_Comm</tt>
+, which were declared as 
+<tt>Integer</tt>
+
+  previously, are now a Fortran 
+<tt>Type</tt>
+.
+  See the following sections for details:
+  Communicator&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Basiccommunicators">7.1</a>
+, Datatype&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-data.html#Datatypehandling">6.1</a>
+,
+  Info&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Infoobjects">15.1.1</a>
+, Op&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-collective.html#User-definedoperators">3.10.2</a>
+,
+  Request&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Nonblockingsendandreceivecalls">4.2.1</a>
+, Status&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#TheStatusobjectandwildcards">4.3.2</a>
+,
+  Window&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Windows">9.1</a>
+.
+<li>
+  The 
+<tt>mpi_f08</tt>
+ module solves a problem with previous
+  
+<i>Fortran90 bindings</i>
+
+<!-- index -->
+:
+  Fortran90 is a strongly typed language, so it is not possible to pass
+  argument by reference to their address, as C/C++ do with the 
+<tt>void*</tt>
+
+  type for send and receive buffers. This was solved by having
+  separate routines for each datatype, and providing an 
+<tt>Interface</tt>
+ block
+  in the MPI module. If you manage to request a version that does not exist,
+  the compiler will display a message like
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+There is no matching specific subroutine for this generic subroutine call [MPI_Send]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+For details see
+
+<a href=http://mpi-forum.org/docs/mpi-3.1/mpi31-report/node409.htm>http://mpi-forum.org/docs/mpi-3.1/mpi31-report/node409.htm</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="Python">1.5.4</a> Python</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#Python">Python</a>
+</p>
+
+<!-- index -->
+<!-- index -->
+</p>
+
+<!-- environment: pythonnote start embedded generator -->
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  Python-specific notes will be indicated with a note like this.
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>mpi4py</tt>
+ package&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/bibliography.html#mpi4py:homepage">[mpi4py:homepage]</a>
+ of 
+<i>python bindings</i>
+
+is not defined by the MPI
+standards committee. Instead, it is the work of an individual,
+<i>Lisandro Dalcin</i>
+.
+</p>
+
+<p name="switchToTextMode">
+In a way, the Python interface is the most elegant. It uses 
+<span title="acronym" ><i>OO</i></span>
+techniques such as methods on objects, and many default arguments.
+</p>
+
+<p name="switchToTextMode">
+Notable about the Python bindings is that many communication routines
+exist in two variants:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+a version that can send arbitrary Python objects. These routines
+  have lowercase names such as 
+<tt>bcast</tt>
+; and
+<li>
+a version that sends 
+<i>numpy</i>
+ objects; these routines
+  have names such as 
+<tt>Bcast</tt>
+. Their syntax can be slightly different.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+The first version looks more `pythonic', is easier to write,
+and can do things like sending python objects,
+but it is also decidedly less efficient since data is packed
+and unpacked with 
+<tt>pickle</tt>
+. As a common sense guideline,
+use the 
+<tt>numpy</tt>
+ interface in the performance-critical parts
+of your code, and the pythonic interface only for complicated
+actions in a setup phase.
+</p>
+
+<p name="switchToTextMode">
+Codes with 
+<tt>mpi4py</tt>
+ can be interfaced to other languages
+through Swig or conversion routines.
+</p>
+
+<p name="switchToTextMode">
+Data in 
+<tt>numpy</tt>
+ can be specified as a simple object,
+or 
+<tt>[data, (count,displ), datatype]</tt>
+.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="Howtoreadroutinesignatures">1.5.5</a> How to read routine signatures</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#Howtoreadroutinesignatures">How to read routine signatures</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Throughout the MPI part of this book we will give the reference syntax
+of the routines. This typically comprises:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The semantics: routine name and list of parameters and what they
+  mean.
+<li>
+C synxtax: the routine definition as it appears in the
+<tt>mpi.h</tt>
+ file.
+<li>
+Fortran syntax: routine definition with parameters, giving
+  in/out specification.
+<li>
+Python syntax: routine name, indicating to what class it
+  applies, and parameter, indicating which ones are optional.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+These `routine signatures' look like code but they are not! Here is
+how you translate them.
+</p>
+
+<h4><a id="C">1.5.5.1</a> C</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#Howtoreadroutinesignatures">How to read routine signatures</a> > <a href="mpi-started.html#C">C</a>
+</p>
+<p name="switchToTextMode">
+
+The typically C routine specification in MPI looks like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int MPI_Comm_size(MPI_Comm comm,int *nprocs)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This means that
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The routine returns an 
+<tt>int</tt>
+ parameter. Strictly speaking you
+  should test against 
+<tt>MPI_SUCCESS</tt>
+ (for all error codes,
+  see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Errorcodes">15.2.1</a>
+):
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm comm = MPI_COMM_WORLD;
+int nprocs;
+int errorcode;
+errorcode = MPI_Comm_size( MPI_COMM_WORLD,&nprocs);
+if (errorcode!=MPI_SUCCESS) {
+  printf("Routine MPI_Comm_size failed! code=%d\n",
+         errorcode);
+  return 1;
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  However, the error codes are hardly ever useful, and there is not
+  much your program can do to recover from an error. Most people call
+  the routine as
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_size( /* parameter ... */ );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+For more on error handling, see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Errorhandling">15.2</a>
+.
+<li>
+The first argument is of type 
+<tt>MPI_Comm</tt>
+. This is not a C
+  built-in datatype, but it behaves like one. There are many of these
+  
+<tt>MPI_something</tt>
+ datatypes in MPI. So you can write:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm my_comm =
+    MPI_COMM_WORLD; // using a predefined value
+MPI_Comm_size( comm, /* remaining parameters */ );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+Finally, there is a `star' parameter. This means that the
+  routine wants an address, rather than a value. You would typically write:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm my_comm = MPI_COMM_WORLD; // using a predefined value
+int nprocs;
+MPI_Comm_size( comm, &nprocs );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  Seeing a `star' parameter usually means either: the routine has an
+  array argument, or: the routine internally sets the value of a
+  variable. The latter is the case here.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Fortran">1.5.5.2</a> Fortran</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#Howtoreadroutinesignatures">How to read routine signatures</a> > <a href="mpi-started.html#Fortran">Fortran</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The Fortran specification looks like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_size(comm, size, ierror)
+Type(MPI_Comm), Intent(In) :: comm
+Integer, Intent(Out) :: size
+Integer, Optional, Intent(Out) :: ierror
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+or for the pre-2008 legacy mode:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_size(comm, size, ierror)
+INTEGER, INTENT(IN) :: comm
+INTEGER, INTENT(OUT) :: size
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The syntax of using this routine is close to this specification: you
+write
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+Type(MPI_Comm) :: comm = MPI_COMM_WORLD
+! legacy: Integer :: comm = MPI_COMM_WORLD
+Integer :: comm = MPI_COMM_WORLD
+Integer :: size,ierr
+CALL MPI_Comm_size( comm, size ) ! without the optional ierr
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Most Fortran routines have the same parameters as the
+  corresponding C routine, except that they all have the error code as
+  final parameter, instead of as a function result. As with&nbsp;C, you can
+  ignore the value of that parameter. Just don't forget it.
+<li>
+The types of the parameters are given in the specification.
+<li>
+Where C routines have 
+<tt>MPI_Comm</tt>
+ and 
+<tt>MPI_Request</tt>
+ and such
+  parameters, Fortran has 
+<tt>INTEGER</tt>
+ parameters, or sometimes arrays
+  of integers.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Python">1.5.5.3</a> Python</h4>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Languagebindings">Language bindings</a> > <a href="mpi-started.html#Howtoreadroutinesignatures">How to read routine signatures</a> > <a href="mpi-started.html#Python">Python</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The Python interface to MPI uses classes and objects. Thus, a
+specification like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI.Comm.Send(self, buf, int dest, int tag=0)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+should be parsed as follows.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+First of all, you need the 
+<tt>MPI</tt>
+ class:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+from mpi4py import MPI
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+Next, you need a 
+<tt>Comm</tt>
+ object. Often you will use the
+  predefined communicator
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+comm = MPI.COMM_WORLD
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+The keyword 
+<tt>self</tt>
+ indicates that the actual routine 
+<tt>Send</tt>
+
+  is a method of the 
+<tt>Comm</tt>
+ object, so you call:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+comm.Send( .... )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+Parameters that are listed by themselves, such as 
+<tt>buf</tt>
+, as
+  positional. Parameters that are listed with a type, such as \n{int
+    dest} are keyword parameters. Keyword parameters that have a value
+  specified, such as 
+<tt>int tag=0</tt>
+ are optional, with the default
+  value indicated. Thus, the typical call for this routine is:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+comm.Send(sendbuf,dest=other)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  specifying the send buffer as positional parameter, the destination
+  as keyword parameter, and using the default value for the optional tag.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Some python routines are `class methods', and their specification
+lacks the 
+<tt>self</tt>
+ keyword. For instance:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI.Request.Waitall(type cls, requests, statuses=None)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+would be used as
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI.Request.Waitall(requests)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Review">1.6</a> Review</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-started.html">mpi-started</a> > <a href="mpi-started.html#Review">Review</a>
+</p>
+</p>
+
+<!-- environment: review start embedded generator -->
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  What determines the parallelism of an MPI job?
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+The size of the cluster you run on.
+<li>
+The number of cores per cluster node.
+<li>
+
+ The parameters of the MPI starter (
+<tt>mpiexec</tt>
+,
+    
+<tt>ibrun</tt>
+,&hellip;)
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  T/F: the number of cores of your laptop is the limit of how many MPI
+  proceses you can start up.
+</p name="review">
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: review start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=review ]] -->
+<review>
+<b>Review</b>
+<p name="review">
+<!-- TranslatingLineGenerator review ['review'] -->
+  Do the following languages have an object-oriented interface to MPI? In what sense?
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+C
+<li>
+C++
+<li>
+Fortran2008
+<li>
+Python
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+</review>
+<!-- environment: review end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

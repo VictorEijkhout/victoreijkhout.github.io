@@ -1,0 +1,504 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Co-array Fortran</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+41.1 : <a href="caf.html#Historyanddesign">History and design</a><br>
+41.2 : <a href="caf.html#Compilingandrunning">Compiling and running</a><br>
+41.3 : <a href="caf.html#Basics">Basics</a><br>
+41.3.1 : <a href="caf.html#Imageidentification">Image identification</a><br>
+41.3.2 : <a href="caf.html#Remoteoperations">Remote operations</a><br>
+41.3.3 : <a href="caf.html#Synchronization">Synchronization</a><br>
+41.3.4 : <a href="caf.html#Collectives">Collectives</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>41 Co-array Fortran</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+This chapter explains the basic concepts of
+<span title="acronym" ><i>CAF</i></span>
+, and helps you get
+started on running your first program.
+</p>
+
+<h2><a id="Historyanddesign">41.1</a> History and design</h2>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Historyanddesign">History and design</a>
+</p>
+<p name="switchToTextMode">
+
+
+<a href=https://en.wikipedia.org/wiki/Coarray_Fortran>https://en.wikipedia.org/wiki/Coarray_Fortran</a>
+
+</p>
+
+<h2><a id="Compilingandrunning">41.2</a> Compiling and running</h2>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Compilingandrunning">Compiling and running</a>
+</p>
+<p name="switchToTextMode">
+
+<span title="acronym" ><i>CAF</i></span>
+ is built on the same 
+<span title="acronym" ><i>SPMD</i></span>
+ design as MPI.
+Where MPI talks about processes or ranks, 
+<span title="acronym" ><i>CAF</i></span>
+calls the running instances of your program 
+<i>image</i>
+s.
+</p>
+
+<p name="switchToTextMode">
+The Intel compiler uses the flag 
+<tt>-coarray=xxx</tt>
+
+with values 
+<tt>single</tt>
+, 
+<tt>shared</tt>
+, 
+<tt>distributed</tt>
+ 
+<tt>gpu</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+It is possible to bake the number of `images' into the executable,
+but by default this is not done, and it is determined at runtime
+by the variable 
+<tt>FOR_COARRAY_NUM_IMAGES</tt>
+.
+</p>
+
+<span title="acronym" ><i>CAF</i></span>
+<p name="switchToTextMode">
+ can not be mixed with OpenMP.
+</p>
+
+<h2><a id="Basics">41.3</a> Basics</h2>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Basics">Basics</a>
+</p>
+<p name="switchToTextMode">
+
+Co-arrays are defined by giving them, in addition to the 
+<tt>Dimension</tt>
+,
+a 
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+Complex,codimension(*) :: number
+Integer,dimension(:,:,:),codimension[-1:1,*] :: grid
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+This means we are respectively declaring
+an array with a single number on each image,
+or a three-dimensional grid spread over a two-dimensional processor grid.
+</p>
+
+<p name="switchToTextMode">
+Traditional-like syntax can also be used:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+Complex :: number[*]
+Integer :: grid(10,20,30)[-1:1,*]
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Unlike 
+<span title="acronym" ><i>MPI</i></span>
+, which normally only supports a linear process numbering,
+<span title="acronym" ><i>CAF</i></span>
+ allows for multi-dimensional process grids. The last dimension
+is always specified as&nbsp;
+<tt>*</tt>
+, meaning it is determined at runtime.
+</p>
+
+<h3><a id="Imageidentification">41.3.1</a> Image identification</h3>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Basics">Basics</a> > <a href="caf.html#Imageidentification">Image identification</a>
+</p>
+<p name="switchToTextMode">
+
+As in other models, in 
+<span title="acronym" ><i>CAF</i></span>
+ one can ask how many images/processes there are,
+and what the number of the current one is,
+with 
+ and 
+ respectively.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#hellocaf" aria-expanded="false" aria-controls="hellocaf">
+        Fortran Code: hellocaf
+      </button>
+    </h5>
+  </div>
+  <div id="hellocaf" class="collapse">
+  <pre>
+!! hello.F90
+  write(*,*) "Hello from image ", this_image(), &
+       "out of ", num_images()," total images"
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+If you call 
+<tt>this_image</tt>
+ with a co-array as argument,
+it will return the image index, as a tuple of 
+s,
+rather than a linear index.
+Given such a set of subscripts, 
+will return the linear index.
+</p>
+
+<p name="switchToTextMode">
+The functions 
+ and 
+give the lower and upper bound on the image subscripts,
+as a linear index, or a tuple if called with a co-array variable.
+</p>
+
+<h3><a id="Remoteoperations">41.3.2</a> Remote operations</h3>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Basics">Basics</a> > <a href="caf.html#Remoteoperations">Remote operations</a>
+</p>
+<p name="switchToTextMode">
+
+The appeal of 
+<span title="acronym" ><i>CAF</i></span>
+ is that moving data between images
+looks (almost) like an ordinary copy operation:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+real :: x(2)[*]
+integer :: p
+p = this_image()
+x(1)[ p+1 ] = x(2)[ p ]
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Exchanging grid boundaries is elegantly done with array syntax:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+Real,Dimension( 0:N+1,0:N+1 )[*] :: grid
+grid( N+1,: )[p] = grid( 0,: )[p+1]
+grid(   0,: )[p] = grid( N,: )[p-1]
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Synchronization">41.3.3</a> Synchronization</h3>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Basics">Basics</a> > <a href="caf.html#Synchronization">Synchronization</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The fortran standard forbids
+<i>race conditions</i>
+<!-- index -->
+:
+<!-- environment: quote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=quote ]] -->
+<quote>
+
+<p name="quote">
+<!-- TranslatingLineGenerator quote ['quote'] -->
+  If a variable is defined on an image in a segment, it shall not be
+  referenced, defined or become undefined in a segment on another
+  image unless the segments are ordered.
+</p name="quote">
+</quote>
+<!-- environment: quote end embedded generator -->
+<p name="switchToTextMode">
+That is, you should not cause them to happen. The language and runtime
+are certainly not going to help yu with that.
+</p>
+
+<p name="switchToTextMode">
+Well, a little. After remote updates you can synchronize images
+with the 
+ call.
+The easiest variant is a global synchronization:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+sync all
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Compare this to a wait call after MPI nonblocking calls.
+</p>
+
+<p name="switchToTextMode">
+More fine-grained, one can synchronize with specific images:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+sync images( (/ p-1,p,p+1 /) )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+While remote operations in 
+<span title="acronym" ><i>CAF</i></span>
+ are nicely one-sided,
+synchronization is not:
+if image 
+<tt>p</tt>
+ issues a call
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+sync(q)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+then 
+<tt>q</tt>
+ also needs to issue a mirroring call to synchronize with&nbsp;
+<tt>p</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+As an illustration, the following code is not a correct implementation of a
+<i>ping-pong</i>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ppwrongcaf" aria-expanded="false" aria-controls="ppwrongcaf">
+        Fortran Code: ppwrongcaf
+      </button>
+    </h5>
+  </div>
+  <div id="ppwrongcaf" class="collapse">
+  <pre>
+!! pingpong.F90
+  sync all
+  if (procid==1) then
+     number[procid+1] = number[procid]
+  else if (procid==2) then
+     number[procid-1] = 2*number[procid]
+  end if
+  sync all
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+We can solve this with a global synchronization:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ppcafglob" aria-expanded="false" aria-controls="ppcafglob">
+        Fortran Code: ppcafglob
+      </button>
+    </h5>
+  </div>
+  <div id="ppcafglob" class="collapse">
+  <pre>
+sync all
+if (procid==1) &
+     number[procid+1] = number[procid]
+sync all
+if (procid==2) &
+     number[procid-1] = 2*number[procid]
+sync all
+</pre>
+</div>
+</div>
+or a local one:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ppcafloc" aria-expanded="false" aria-controls="ppcafloc">
+        Fortran Code: ppcafloc
+      </button>
+    </h5>
+  </div>
+  <div id="ppcafloc" class="collapse">
+  <pre>
+if (procid==1) &
+     number[procid+1] = number[procid]
+if (procid&lt;=2) sync images( (/1,2/) )
+if (procid==2) &
+     number[procid-1] = 2*number[procid]
+if (procid&lt;=2) sync images( (/2,1/) )
+</pre>
+</div>
+</div>
+Note that the local sync call is done on both images involved.
+</p>
+
+<p name="switchToTextMode">
+Example of how you would synchronize a collective:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+if ( this_image() .eq. 1 ) sync images( * )
+if ( this_image() .ne. 1 ) sync images( 1 )
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Here image&nbsp;1 synchronizes with all others, but the others don't
+synchronize with each other.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#cafsyncpp" aria-expanded="false" aria-controls="cafsyncpp">
+        Fortran Code: cafsyncpp
+      </button>
+    </h5>
+  </div>
+  <div id="cafsyncpp" class="collapse">
+  <pre>
+if (procid==1) then
+   sync images( (/procid+1/) )
+else if (procid==nprocs) then
+   sync images( (/procid-1/) )
+else
+   sync images( (/procid-1,procid+1/) )
+end if
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<h3><a id="Collectives">41.3.4</a> Collectives</h3>
+<p name=crumbs>
+crumb trail:  > <a href="caf.html">caf</a> > <a href="caf.html#Basics">Basics</a> > <a href="caf.html#Collectives">Collectives</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Collectives are not part of 
+<span title="acronym" ><i>CAF</i></span>
+ as of the 2008 Fortran standard.
+</div>
+<a href="index.html">Back to Table of Contents</a>

@@ -1,0 +1,15 @@
+2.1 : <a href="mpi-functional.html#TheSPMDmodel">The SPMD model</a><br>
+2.2 : <a href="mpi-functional.html#StartingandrunningMPIprocesses">Starting and running MPI processes</a><br>
+2.2.1 : <a href="mpi-functional.html#Headers">Headers</a><br>
+2.2.2 : <a href="mpi-functional.html#Initializationfinalization">Initialization / finalization</a><br>
+2.2.2.1 : <a href="mpi-functional.html#AbortinganMPIrun">Aborting an MPI run</a><br>
+2.2.2.2 : <a href="mpi-functional.html#Testingtheinitializedfinalizedstatus">Testing the initialized/finalized status</a><br>
+2.2.2.3 : <a href="mpi-functional.html#Informationabouttherun">Information about the run</a><br>
+2.2.2.4 : <a href="mpi-functional.html#Commandlinearguments">Commandline arguments</a><br>
+2.3 : <a href="mpi-functional.html#Processoridentification">Processor identification</a><br>
+2.3.1 : <a href="mpi-functional.html#Processorname">Processor name</a><br>
+2.3.2 : <a href="mpi-functional.html#Communicators">Communicators</a><br>
+2.3.3 : <a href="mpi-functional.html#Processandcommunicatorproperties:rankandsize">Process and communicator properties: rank and size</a><br>
+2.4 : <a href="mpi-functional.html#Functionalparallelism">Functional parallelism</a><br>
+2.5 : <a href="mpi-functional.html#Distributedcomputinganddistributeddata">Distributed computing and distributed data</a><br>
+2.6 : <a href="mpi-functional.html#Reviewquestions">Review questions</a><br>

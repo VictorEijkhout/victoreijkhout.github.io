@@ -1,0 +1,700 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Random numbers</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+18.1 : <a href="random.html#RandomNumberGeneration">Random Number Generation</a><br>
+18.1.1 : <a href="random.html#Sequentialrandomnumbergenerators">Sequential random number generators</a><br>
+18.2 : <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a><br>
+18.2.1 : <a href="random.html#C">C</a><br>
+18.2.1.1 : <a href="random.html#ProblemswiththeCrandomgenerator">Problems with the C random generator</a><br>
+18.2.2 : <a href="random.html#C++">C++</a><br>
+18.2.2.1 : <a href="random.html#Randomfloats">Random floats</a><br>
+18.2.2.2 : <a href="random.html#Dicethrow">Dice throw</a><br>
+18.2.2.3 : <a href="random.html#Poissondistribution">Poisson distribution</a><br>
+18.2.3 : <a href="random.html#Fortran">Fortran</a><br>
+18.2.4 : <a href="random.html#Python">Python</a><br>
+18.3 : <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a><br>
+18.3.1 : <a href="random.html#Manager-workergenerator">Manager-worker generator</a><br>
+18.3.2 : <a href="random.html#Sequencesplittingsolutions">Sequence splitting solutions</a><br>
+18.3.3 : <a href="random.html#Blockedrandomnumbergenerators">Blocked random number generators</a><br>
+18.3.4 : <a href="random.html#Keyedrandomnumbergenerators">Keyed random number generators</a><br>
+18.3.5 : <a href="random.html#Mersennetwister">Mersenne twister</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>18 Random numbers</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+Random number generation is useful,
+for generating random test data,
+or in 
+<i>Monte Carlo simulation</i>
+;
+see chapter~
+app:montecarlo
+.
+</p>
+
+<p name="switchToTextMode">
+Here we discuss random number generators in general,
+their use in programming languages,
+and the problems of parallel random number generationn.
+</p>
+
+<h2><a id="RandomNumberGeneration">18.1</a> Random Number Generation</h2>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#RandomNumberGeneration">Random Number Generation</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+Random numbers are often used in simulations as some examples below
+will show. True random numbers are very hard to obtain: they could be
+generated by measuring quantum processes such as radioactive
+particles. Starting with the 
+<i>Intel Ivy Bridge</i>
+,
+Intel's processors have a hardware random number generator based on
+thermal noise~
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Cryptography:IvyRandom2012">[Cryptography:IvyRandom2012]</a>
+.)
+</p>
+
+<p name="switchToTextMode">
+The most common solution is to use
+<i>pseudo-random numbers</i>
+    numbers}}. This means that we use a deterministic mathematical
+process, that is sufficiently irregular that for practical purposes no
+order can be found in it.
+</p>
+
+<h3><a id="Sequentialrandomnumbergenerators">18.1.1</a> Sequential random number generators</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#RandomNumberGeneration">Random Number Generation</a> > <a href="random.html#Sequentialrandomnumbergenerators">Sequential random number generators</a>
+</p>
+<p name="switchToTextMode">
+
+An easy way to generate random numbers (we leave off the `pseudo'
+qualification) is to use
+<i>linear congruential</i>
+<!-- index -->
+ generators (for all you
+ever need to know about random numbers, see Knuth~
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Knuth:vol2">[Knuth:vol2]</a>
+),
+recurrences of the form
+\[
+ x_{k+1} = (ax_k+b) \mod m. 
+\]
+This sequence is periodic, since it consists of nonnegative integers at most
+$m-1$, and with period $m$ under certain conditions. A
+typical period is $2^{31}$. The starting point $x_0$ of the series is
+known as the `seed'. Software for random numbers often lets you
+specify the seed. To get reproducible results you would run your
+program with the same seed multiple times; to get random behavior
+over multiple runs of your program you could for instance derive the
+seed from clock and calendar functions.
+</p>
+
+<p name="switchToTextMode">
+Linear congruential generators may have some amount of correlation
+between lower bits. A~different principle of generating random numbers
+is the
+<i>lagged Fibonacci</i>
+<!-- index -->
+random number generator
+\[
+ X_i = X_{i-p}\otimes X_{i-q} 
+\]
+where $p,q$ are the lag parameter, and $\otimes$~is any binary operation,
+such as addition or multiplication modulo~$M$.
+</p>
+
+<p name="switchToTextMode">
+The main problems with lagged Fibonacci generators are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+They require setting $\max(p,q)$ initial values, and their
+  randomness is sensitive to these choices;
+<li>
+They theory is not as developed as for congruential generators,
+  so their is a greater reliance on statistical tests to evaluate
+  their `randomness'.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Randomnumbersinprogramminglanguages">18.2</a> Random numbers in programming languages</h2>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a>
+</p>
+</p>
+
+<h3><a id="C">18.2.1</a> C</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#C">C</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+There is an easy (but not terribly great)
+<i>random number generator</i>
+that works the same in C and~C++.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+#include &lt;random&gt;
+using std::rand;
+float random_fraction =
+    (float)rand()/(float)RAND_MAX;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The function 
+<tt>rand</tt>
+ yields an 
+<tt>int</tt>
+
+--&nbsp;a different one every time you call it&nbsp;--
+in the range from zero to 
+<tt>RAND_MAX</tt>
+.
+Using scaling and casting you can then produce a fraction between zero
+and one with the above code.
+</p>
+
+<p name="switchToTextMode">
+If you run your program twice, you will twice get the same sequence of
+random numbers. That is great for debugging your program but not if
+you were hoping to do some statistical analysis. Therefore you can set
+the 
+<i>random number seed</i>
+ from which the random sequence
+starts by the 
+<tt>srand</tt>
+ function. Example:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+srand(time(NULL));
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+seeds the random number generator from the current time.
+This call should happen only once, typically somewhere high up in your main.
+</p>
+
+<h4><a id="ProblemswiththeCrandomgenerator">18.2.1.1</a> Problems with the C random generator</h4>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#C">C</a> > <a href="random.html#ProblemswiththeCrandomgenerator">Problems with the C random generator</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The random number generator has a period of&nbsp;$2^{15}$, which may be small.
+<li>
+There is only one generator algorithm, which is implementation-dependent,
+  and has no guarantees on its quality.
+<li>
+There are no mechanisms fort ransforming the sequence to a range.
+  The common idiom
+<!-- environment: lstlisting start embedded generator -->
+</p>
+int under100 = rand() % 100
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+is biased to small numbers. Figure&nbsp;
+18.1
+ shows this
+for a generator with period&nbsp;7 taken modulo&nbsp;3.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: figure start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<p name="switchToTextMode">
+  \includegraphics{rand7mod3}
+<p name="caption">
+FIGURE 18.1: Low number bias of a random number generator taken module
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h3><a id="C++">18.2.2</a> C++</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#C++">C++</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+The 
+<span title="acronym" ><i>STL</i></span>
+ has a
+<i>random number generator</i>
+that is more general and more flexible than the C&nbsp;version.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+There are several generators that give uniformly distributed
+  numbers;
+<li>
+then there are distributions that translate this to non-uniform
+  or discrete distributions.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+First you declare an engine; later this will be transformed into a distribution:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+std::default_random_engine generator;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+This generator will start at the same value every time.
+You can seed it:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+std::random_device r;
+std::default_random_engine generator{ r() };
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Next, you need to declare the distribution.
+For instance, a uniform distribution between given bounds:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+std::uniform_real_distribution&lt;float&gt; distribution(0.,1.);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+A roll of the dice would result from:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+std::uniform_int_distribution&lt;int&gt; distribution(1,6);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Randomfloats">18.2.2.1</a> Random floats</h4>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#C++">C++</a> > <a href="random.html#Randomfloats">Random floats</a>
+</p>
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+// seed the generator
+std::random_device r;
+// std::seed_seq ssq{r()};
+// and then passing it to the engine does the same
+
+
+// set the default random number generator
+std::default_random_engine generator{r()};
+
+
+// distribution: real between 0 and 1
+std::uniform_real_distribution&lt;float&gt; distribution(0.,1.);
+
+
+cout &lt;&lt; "first rand: " &lt;&lt; distribution(generator) &lt;&lt; endl;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Dicethrow">18.2.2.2</a> Dice throw</h4>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#C++">C++</a> > <a href="random.html#Dicethrow">Dice throw</a>
+</p>
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+// set the default generator
+std::default_random_engine generator;
+
+
+// distribution: ints 1..6
+std::uniform_int_distribution&lt;int&gt; distribution(1,6);
+
+
+// apply distribution to generator:
+int dice_roll = distribution(generator);
+  // generates number in the range 1..6
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h4><a id="Poissondistribution">18.2.2.3</a> Poisson distribution</h4>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#C++">C++</a> > <a href="random.html#Poissondistribution">Poisson distribution</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+  Another distribution is the 
+<i>Poisson distribution</i>
+:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+std::default_random_engine generator;
+float mean = 3.5;
+std::poisson_distribution&lt;int&gt; distribution(mean);
+int number = distribution(generator);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h3><a id="Fortran">18.2.3</a> Fortran</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#Fortran">Fortran</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+In this section we briefly discuss the Fortran 
+<i>random number generator</i>
+.
+The basic mechanism is through the library subroutine
+<tt>random_number</tt>
+, which has a single argument of type
+
+<tt>REAL</tt>
+ with 
+<tt>INTENT(OUT)</tt>
+:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+real(4) :: randomfraction
+call random_number(randomfraction)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The result is a random number from the uniform distribution
+on&nbsp;$\left[0,1\right)$.
+</p>
+
+<p name="switchToTextMode">
+Setting the 
+<i>random seed</i>
+ is slightly convoluted. The
+amount of storage needed to store the seed can be processor and
+implementation-dependent, so the routine 
+<tt>random_seed</tt>
+can have three types of named argument, exactly one of which can be
+specified at any one time. The keyword can be:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>SIZE</tt>
+ for querying the size of the seed;
+<li>
+
+<tt>PUT</tt>
+ for setting the seed; and
+<li>
+
+<tt>GET</tt>
+ for querying the seed.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+A typical fragment for setting the seed would be:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+integer :: seedsize
+integer,dimension(:),allocatable :: seed
+
+
+call random_seed(size=seedsize)
+allocate(seed(seedsize))
+seed(:) = ! your integer seed here
+call random_seed(put=seed)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h3><a id="Python">18.2.4</a> Python</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Randomnumbersinprogramminglanguages">Random numbers in programming languages</a> > <a href="random.html#Python">Python</a>
+</p>
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+</p>
+
+<h2><a id="Parallelrandomnumbergeneration">18.3</a> Parallel random number generation</h2>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+Random number generation is problematic in parallel. To see this,
+consider a parallel process that uses a random number generator on
+each subprocess, and
+consider a single processor emulating the parallel process. Now this
+single process in effect has a random number generator that consists
+of interleaving the parallel generator results. This means that, if we
+use the same generator in all parallel processes, the effective
+generator over the whole process will produce stretches of identical
+values.
+</p>
+
+<p name="switchToTextMode">
+There are various ways out.
+</p>
+
+<h3><a id="Manager-workergenerator">18.3.1</a> Manager-worker generator</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a> > <a href="random.html#Manager-workergenerator">Manager-worker generator</a>
+</p>
+<p name="switchToTextMode">
+
+We can generate the random numbers centrally. In shared memory that could mean
+making its operation atomic. This may introduce a serious bottleneck.
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Critical sections are usually justified if the work spent there is of lower order
+  than the parallel work. Why does that argument not apply here.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+Another solution would be to have one thread or process that generates
+the random numbers and distributes them to the other processes.
+Doing this on a number-by-number basis causes considerable overhead.
+Instead, it would be possible for the generator process to distribute
+blocks of numbers. However, the manner in which this is done may again
+cause correlation between processes.
+</p>
+
+<h3><a id="Sequencesplittingsolutions">18.3.2</a> Sequence splitting solutions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a> > <a href="random.html#Sequencesplittingsolutions">Sequence splitting solutions</a>
+</p>
+<p name="switchToTextMode">
+
+A&nbsp;better solution is to set up independent generators with
+parameter choices that guarantee statistical randomness. This is not
+simple. For instance, if two sequences $x^{(1)}_i,x^{(2)}_i$ have the
+same values of $a,b,m$, and their starting points are close together,
+the sequences will be strongly correlated. Less trivial examples of
+correlation exist.
+</p>
+
+<p name="switchToTextMode">
+Various techniques for random number generation exist, such as using
+two sequences, where one generates the starting points for the other
+sequence, which is the one actually used in the simulation. Software
+for parallel random number generator can be found at
+
+<a href=http://sprng.cs.fsu.edu/>http://sprng.cs.fsu.edu/</a>
+&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Mascagni:SPRNG">[Mascagni:SPRNG]</a>
+.
+</p>
+
+<p name="switchToTextMode">
+If it is possible given $x_i$ to compute $x_{i+k}$ cheaply, one use a
+leapfrogging technique, where $k$ processes have disjoint series
+$i\mapsto x_{s_k+ik}$ where $x_{s_k}$ is the starting point for the
+$k$-th series.
+</p>
+
+<h3><a id="Blockedrandomnumbergenerators">18.3.3</a> Blocked random number generators</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a> > <a href="random.html#Blockedrandomnumbergenerators">Blocked random number generators</a>
+</p>
+<p name="switchToTextMode">
+
+Some random number generators (see&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#LEcuyer:multiple-random">[LEcuyer:multiple-random]</a>
+)
+allow you to calculate a value that is many iteration away from the seed.
+You could then take the block of values from the seed to that iteration
+and give it to one processor. Similarly, each processor would get a contiguous
+block of iterations of the generator.
+</p>
+
+<h3><a id="Keyedrandomnumbergenerators">18.3.4</a> Keyed random number generators</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a> > <a href="random.html#Keyedrandomnumbergenerators">Keyed random number generators</a>
+</p>
+<p name="switchToTextMode">
+
+Some random number generators are not recursive, but allow
+an explicit formulation 
+\[
+ x_n = f(n), 
+\]
+that is, the $n$-th number is a function of its `key',&nbsp;$n$.
+Adding a block key into the equation
+\[
+ x_n^{(k)} = f_k(n) 
+\]
+allows for parallelism over processes indexed by&nbsp;$k$.
+See&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Salmon:prng123">[Salmon:prng123]</a>
+.
+</p>
+
+<h3><a id="Mersennetwister">18.3.5</a> Mersenne twister</h3>
+<p name=crumbs>
+crumb trail:  > <a href="random.html">random</a> > <a href="random.html#Parallelrandomnumbergeneration">Parallel random number generation</a> > <a href="random.html#Mersennetwister">Mersenne twister</a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<i>Mersenne twister</i>
+ random number generator has been
+adapted to allow for parallel streams of uncorrelated
+numbers&nbsp;
+<a href="https://pages.tacc.utexas.edu/~eijkhout/istc/html/bibliography.html#Matsumoto:DynamicMersenne">[Matsumoto:DynamicMersenne]</a>
+. Here the process ID is
+encoded into the generator.
+</p>
+
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

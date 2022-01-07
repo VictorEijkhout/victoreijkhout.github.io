@@ -1,0 +1,6 @@
+18.1 : <a href="omp-parallel.html#Creatingparallelismwithparallelregions">Creating parallelism with parallel regions</a><br>
+18.2 : <a href="omp-parallel.html#Nestedparallelism">Nested parallelism</a><br>
+18.2.1 : <a href="omp-parallel.html#Subprogramswithparallelregions">Subprograms with parallel regions</a><br>
+18.2.2 : <a href="omp-parallel.html#Finecontrol">Fine control</a><br>
+18.3 : <a href="omp-parallel.html#Cancelparallelconstruct">Cancel parallel construct</a><br>
+18.4 : <a href="omp-parallel.html#Reviewquestions">Review questions</a><br>

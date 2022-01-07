@@ -1,0 +1,226 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>SimGrid</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+<a href="index.html">Back to Table of Contents</a>
+<h1>51 SimGrid</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Many readers of this book will have access to some sort of parallel
+machine so that they can run simulations, maybe even some realistic
+scaling studies. However, not many people will have access to more
+than one cluster type so that they can evaluate the influence of the
+<i>interconnect</i>
+. Even then, for didactic purposes one would
+often wish for interconnect types (fully connected, linear processor
+array) that are unlikely to be available.
+</p>
+
+<p name="switchToTextMode">
+In order to explore architectural issues pertaining to the network, we
+then resort to a simulation tool, 
+<i>SimGrid</i>
+.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Installation</b><br>
+
+</p>
+
+<p name="switchToTextMode">
+
+<b>Compilation</b><br>
+
+</p>
+
+<p name="switchToTextMode">
+You write plain MPI files, but compile them with the
+<i>SimGrid compiler</i>
+<tt>smpicc</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+
+<b>Running</b><br>
+
+</p>
+
+<p name="switchToTextMode">
+SimGrid has its own version of 
+<tt>mpirun</tt>
+: 
+<tt>smpirun</tt>
+. You
+need to supply this with options:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>-np 123456</tt>
+ for the number of (virtual) processors;
+<li>
+
+<tt>-hostfile simgridhostfile</tt>
+ which lists the names of these
+  processors. You can basically make these up, but are defined in:
+<li>
+
+<tt>-platform arch.xml</tt>
+ which defines the connectivity between
+  the processors.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+For instance, with a hostfile of 8 hosts, a linearly connected network
+would be defined as:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+&lt;?xml version='1.0'?&gt;
+&lt;!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid/simgrid.dtd"&gt;
+
+
+&lt;platform version="4"&gt;
+
+
+&lt;zone id="first zone" routing="Floyd"&gt;
+  &lt;!-- the resources --&gt;
+  &lt;host id="host1" speed="1Mf"/&gt;
+  &lt;host id="host2" speed="1Mf"/&gt;
+  &lt;host id="host3" speed="1Mf"/&gt;
+  &lt;host id="host4" speed="1Mf"/&gt;
+  &lt;host id="host5" speed="1Mf"/&gt;
+  &lt;host id="host6" speed="1Mf"/&gt;
+  &lt;host id="host7" speed="1Mf"/&gt;
+  &lt;host id="host8" speed="1Mf"/&gt;
+  &lt;link id="link1" bandwidth="125MBps" latency="100us"/&gt;
+  &lt;!-- the routing: specify how the hosts are interconnected --&gt;
+  &lt;route src="host1" dst="host2"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+  &lt;route src="host2" dst="host3"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+  &lt;route src="host3" dst="host4"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+  &lt;route src="host4" dst="host5"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+  &lt;route src="host5" dst="host6"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+  &lt;route src="host6" dst="host7"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+  &lt;route src="host7" dst="host8"&gt;&lt;link_ctn id="link1"/&gt;&lt;/route&gt;
+&lt;/zone&gt;
+
+
+&lt;/platform&gt;
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+(such files can be generated with a short shell script).
+</p>
+
+<p name="switchToTextMode">
+The 
+<tt>Floyd</tt>
+ designation of the routing means that any route using
+the transitive closure of the paths given can be used.
+It is also possible to use 
+<tt>routing="Full"</tt>
+ which requires full
+specification of all pairs that can communicate.
+</p>
+
+<p name="switchToTextMode">
+
+<!-- index -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

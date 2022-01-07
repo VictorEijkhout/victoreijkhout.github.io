@@ -1,0 +1,10 @@
+10.1 : <a href="mpi-io.html#Filehandling">File handling</a><br>
+10.2 : <a href="mpi-io.html#Filereadingandwriting">File reading and writing</a><br>
+10.2.1 : <a href="mpi-io.html#Nonblockingreadwrite">Nonblocking read/write</a><br>
+10.2.2 : <a href="mpi-io.html#Individualfilepointers,contiguouswrites">Individual file pointers, contiguous writes</a><br>
+10.2.3 : <a href="mpi-io.html#Fileviews">File views</a><br>
+10.2.4 : <a href="mpi-io.html#Sharedfilepointers">Shared file pointers</a><br>
+10.3 : <a href="mpi-io.html#Fileinformation">File information</a><br>
+10.4 : <a href="mpi-io.html#Consistency">Consistency</a><br>
+10.5 : <a href="mpi-io.html#Constants">Constants</a><br>
+10.6 : <a href="mpi-io.html#Reviewquestions">Review questions</a><br>

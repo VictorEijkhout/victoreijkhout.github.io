@@ -1,0 +1,307 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Bit operations</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+33.1 : <a href="bit.html#Constructionanddisplay">Construction and display</a><br>
+33.1.1 : <a href="bit.html#CC++">C/C++</a><br>
+33.1.2 : <a href="bit.html#Python">Python</a><br>
+33.2 : <a href="bit.html#Bitoperations">Bit operations</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>33 Bit operations</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+In most of this book we consider numbers, such as integer or floating
+point representations of real numbers, as our lowest building
+blocks. Sometimes, however, it is necessary to dig deeper and consider
+the actual representation of such numbers in terms of bits.
+</p>
+
+<p name="switchToTextMode">
+Various programming languages have support for bit operations.
+We will explore the various options.
+</p>
+
+<h2><a id="Constructionanddisplay">33.1</a> Construction and display</h2>
+<p name=crumbs>
+crumb trail:  > <a href="bit.html">bit</a> > <a href="bit.html#Constructionanddisplay">Construction and display</a>
+</p>
+<p name="switchToTextMode">
+
+<h3><a id="CC++">33.1.1</a> C/C++</h3>
+<p name=crumbs>
+crumb trail:  > <a href="bit.html">bit</a> > <a href="bit.html#Constructionanddisplay">Construction and display</a> > <a href="bit.html#CC++">C/C++</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The built-in possibilities for display are limited:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+printf("Octal: %o",i);
+printf("Hex  : %x",i);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+gives octal and hexadecimal representation, but there is no
+<i>format specifier</i>
+for binary. Instead use the following bit of magic:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+void printBits(size_t const size, void const * const ptr)
+{
+  unsigned char *b = (unsigned char*) ptr;
+  unsigned char byte;
+  for (int i=size-1; i&gt;=0; i--) {
+      for (int j=7; j&gt;=0; j--) {
+	  byte = (b[i] &gt;&gt; j) & 1;
+	  printf("%u", byte);
+	}
+    }
+}
+/* ... */
+printBits(sizeof(i),&i);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Python">33.1.2</a> Python</h3>
+<p name=crumbs>
+crumb trail:  > <a href="bit.html">bit</a> > <a href="bit.html#Constructionanddisplay">Construction and display</a> > <a href="bit.html#Python">Python</a>
+</p>
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The python \pyinline{int} function converts a string to
+  int. A&nbsp;second argument can indicate what base the string is to be
+  interpreted in:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+five     = int('101',2)
+maxint32 = int('0xffffffff',16)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+Function \pyinline{bin} \pyinline{hex}
+  convert an int to a string in base 2,8,16 respectively.
+<li>
+Since python integers can be of unlimited length, there is a
+  function to determine the bit length (Python version&nbsp;3.1):
+  \pyinline{i.bit_length()}.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Bitoperations">33.2</a> Bit operations</h2>
+<p name=crumbs>
+crumb trail:  > <a href="bit.html">bit</a> > <a href="bit.html#Bitoperations">Bit operations</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Boolean operations are usually applied to the boolean datatype of the
+programming language. Some languages allow you to apply them to actual
+bits.
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+  </td><td>boolean</td><td>bitwise (C)</td><td>bitwise (Py)</td></tr>
+<tr><td>
+  and</td><td>
+ <tt></td><td></td><td></tt>  </td><td> 
+ <tt></td><td></tt>  </td><td> 
+ <tt></td><td></tt>  </td></tr>
+<tr><td>
+  or </td><td>
+ <tt>||</tt>  </td><td> 
+ <tt>|</tt>  </td><td> 
+ <tt>|</tt>  </td></tr>
+<tr><td>
+  not</td><td>
+ <tt>!</tt>   </td><td>          </td><td> 
+ <tt></td><td>nbsp;</tt>  </td></tr>
+<tr><td>
+  xor</td><td>          </td><td> 
+ <tt>^</tt>  </td><td>          </td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+Additionally, there are operations on the bit string as such:
+</p>
+
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+  </td></tr>
+<tr><td>
+  left  shift</td><td> 
+ <tt></td><td>lt;</td><td>lt;</tt>  </td></tr>
+<tr><td>
+  right shift</td><td> 
+ <tt></td><td>gt;</td><td>gt;</tt>  </td></tr>
+<tr><td>
+  </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Use bit operations to test whether a number is odd or even.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+The shift operations are sometimes used as an efficient shorthand for
+arithmetic. For instance, a left shift by one position corresponds to
+a multiplication by two.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Given an integer&nbsp;$n$, find the largest multiple of&nbsp;8 that is&nbsp;$\leq
+  n$.
+</p>
+
+<p name="switchToTextMode">
+  This mechanism is sometimes used to allocate aligned memory.
+  Write a routine
+<!-- environment: verbatim start embedded generator -->
+</p>
+aligned_malloc( int Nbytes, int aligned_bits );
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+  that allocates 
+<tt>Nbytes</tt>
+ of memory, where the first byte has an
+  address that is a multiple of 
+<tt>aligned_bits</tt>
+.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

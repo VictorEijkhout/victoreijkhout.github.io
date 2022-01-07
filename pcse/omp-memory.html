@@ -1,0 +1,440 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP topic: Memory model</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+26.1 : <a href="omp-memory.html#Threadsynchronization">Thread synchronization</a><br>
+26.2 : <a href="omp-memory.html#Dataraces">Data races</a><br>
+26.2.1 : <a href="omp-memory.html#Dekker'salgorithm">Dekker's algorithm</a><br>
+26.3 : <a href="omp-memory.html#Relaxedmemorymodel">Relaxed memory model</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>26 OpenMP topic: Memory model</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<h2><a id="Threadsynchronization">26.1</a> Thread synchronization</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-memory.html">omp-memory</a> > <a href="omp-memory.html#Threadsynchronization">Thread synchronization</a>
+</p>
+<p name="switchToTextMode">
+
+Let's do a 
+<i>producer-consumer</i>
+ model\footnote{This example
+  is from Intel's excellent OMP course by Tim Mattson}.  This can be
+implemented with sections, where one section, the producer, sets a
+flag when data is available, and the other, the consumer, waits until
+the flag is set.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel sections
+{
+  // the producer
+  #pragma omp section
+  {
+    ... do some producing work ...
+    flag = 1;
+  }
+  // the consumer
+  #pragma omp section
+  {
+    while (flag==0) { }
+    ... do some consuming work ...
+  }
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+One reason this doesn't work, is that the compiler will see that the flag is never used
+in the producing section, and that is never changed in the consuming section, so
+it may optimize these statements, to the point of optimizing them away.
+</p>
+
+<p name="switchToTextMode">
+The producer then needs to do:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+... do some producing work ...
+#pragma omp flush
+#pragma atomic write
+  flag = 1;
+#pragma omp flush(flag)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+and the consumer does:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp flush(flag)
+while (flag==0) {
+  #pragma omp flush(flag)
+}
+#pragma omp flush
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This code strictly speaking has a 
+<i>race condition</i>
+ on the 
+<tt>flag</tt>
+ variable.
+</p>
+
+<p name="switchToTextMode">
+The solution is to make this an 
+<i>atomic operation</i>
+ and
+use an 
+<tt>atomic</tt>
+ pragma here: the producer has
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma atomic write
+  flag = 1;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+and the consumer:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+while (1) {
+  #pragma omp flush(flag)
+  #pragma omp atomic read
+    flag_read = flag
+  if (flag_read==1) break;
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Dataraces">26.2</a> Data races</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-memory.html">omp-memory</a> > <a href="omp-memory.html#Dataraces">Data races</a>
+</p>
+<!-- index -->
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+OpenMP, being based on shared memory, has a potential for 
+<i>race   conditions</i>
+. These happen when two threads access the same data
+item. The problem with race conditions is that programmer convenience
+runs counter to efficient execution. For this reason, OpenMP simply
+does not allow some things that would be desirable.
+</p>
+
+<p name="switchToTextMode">
+For a simple example:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#racecounter" aria-expanded="false" aria-controls="racecounter">
+        C Code: racecounter
+      </button>
+    </h5>
+  </div>
+  <div id="racecounter" class="collapse">
+  <pre>
+// race.c
+#pragma omp parallel for shared(counter)
+  for (int i=0; i&lt;count; i++)
+    counter++;
+  printf("Counter should be %d, is %d\n",
+	 count,counter);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+The basic rule about multiple-thread access of a single data item is:
+<!-- environment: quote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=quote ]] -->
+<quote>
+
+<p name="quote">
+<!-- TranslatingLineGenerator quote ['quote'] -->
+  Any memory location that is 
+<i>written</i>
+ by one thread, can not be
+  
+<i>read</i>
+ by another thread in the same parallel region, if no
+  synchronization is done.
+</p name="quote">
+</quote>
+<!-- environment: quote end embedded generator -->
+<p name="switchToTextMode">
+
+To start with that last clause: any workshare construct ends with an
+<i>implicit barrier</i>
+, so data written before that barrier
+can safely be read after it.
+</p>
+
+<h3><a id="Dekker'salgorithm">26.2.1</a> Dekker's algorithm</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-memory.html">omp-memory</a> > <a href="omp-memory.html#Dataraces">Data races</a> > <a href="omp-memory.html#Dekker'salgorithm">Dekker's algorithm</a>
+</p>
+<p name="switchToTextMode">
+
+A standard illustration of the weak memory model is
+<i>Dekker's algorithm</i>
+.
+We model that in OpenMP as follows;
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#dekkerweak" aria-expanded="false" aria-controls="dekkerweak">
+        C Code: dekkerweak
+      </button>
+    </h5>
+  </div>
+  <div id="dekkerweak" class="collapse">
+  <pre>
+// weak1.c
+int a=0,b=0,r1,r2;
+#pragma omp parallel sections shared(a, b, r1, r2)
+{
+#pragma omp section
+  {
+	a = 1;
+	r1 = b;
+	tasks++;
+  }
+#pragma omp section
+  {
+	b = 1;
+	r2 = a;
+	tasks++;
+  }
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+Under any reasonable interpretation of parallel execution,
+the possible values for 
+<tt>r1,r2</tt>
+ are $1,1$ $0,1$ or&nbsp;$1,0$.
+This is known as 
+<i>sequential consistency</i>
+:
+the parallel outcome is consistent with a sequential execution that
+interleaves the parallel computations, respecting their local statement orderings.
+(See also&nbsp;
+<i>Eijkhout:IntroHPC</i>
+.)
+</p>
+
+<p name="switchToTextMode">
+However, running this, we get a small number of cases where $r_1=r_2=0$.
+There are two possible explanations:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+The compiler is allowed to interchange the first and second statements,
+  since there is no dependence between them; or
+<li>
+The thread is allowed to have a local copy of the variable
+  that is not coherent with the value in memory.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+We fix this by flushing both 
+<tt>a,b</tt>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#dekkerflush" aria-expanded="false" aria-controls="dekkerflush">
+        C Code: dekkerflush
+      </button>
+    </h5>
+  </div>
+  <div id="dekkerflush" class="collapse">
+  <pre>
+// weak2.c
+int a=0,b=0,r1,r2;
+#pragma omp parallel sections shared(a, b, r1, r2)
+{
+#pragma omp section
+  {
+	a = 1;
+#pragma omp flush (a,b)
+	r1 = b;
+	tasks++;
+  }
+#pragma omp section
+  {
+	b = 1;
+#pragma omp flush (a,b)
+	r2 = a;
+	tasks++;
+  }
+}
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<h2><a id="Relaxedmemorymodel">26.3</a> Relaxed memory model</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-memory.html">omp-memory</a> > <a href="omp-memory.html#Relaxedmemorymodel">Relaxed memory model</a>
+</p>
+
+<p name="switchToTextMode">
+
+<tt>flush</tt>
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+There is an implicit flush of all variables at the start and end
+  of a 
+<i>parallel region</i>
+
+<!-- index -->
+.
+<li>
+There is a flush at each barrier, whether explicit or implicit,
+  such as at the end of a 
+<i>work sharing</i>
+
+    !flush after}.
+<li>
+At entry and exit of a 
+<i>critical section</i>
+
+  section!flush at}
+<li>
+When a 
+<i>lock</i>
+
+<!-- index -->
+ is set or unset.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

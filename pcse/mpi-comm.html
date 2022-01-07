@@ -1,0 +1,1994 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>MPI topic: Communicators</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+7.1 : <a href="mpi-comm.html#Basiccommunicators">Basic communicators</a><br>
+7.2 : <a href="mpi-comm.html#Duplicatingcommunicators">Duplicating communicators</a><br>
+7.2.1 : <a href="mpi-comm.html#Communicatorcomparing">Communicator comparing</a><br>
+7.2.2 : <a href="mpi-comm.html#Communicatorduplicationforlibraryuse">Communicator duplication for library use</a><br>
+7.3 : <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a><br>
+7.3.1 : <a href="mpi-comm.html#Scenario:distributedlinearalgebra">Scenario: distributed linear algebra</a><br>
+7.3.2 : <a href="mpi-comm.html#Scenario:climatemodel">Scenario: climate model</a><br>
+7.3.3 : <a href="mpi-comm.html#Scenario:quicksort">Scenario: quicksort</a><br>
+7.3.4 : <a href="mpi-comm.html#Sharedmemory">Shared memory</a><br>
+7.3.5 : <a href="mpi-comm.html#Processspawning">Process spawning</a><br>
+7.4 : <a href="mpi-comm.html#Splittingacommunicator">Splitting a communicator</a><br>
+7.4.1 : <a href="mpi-comm.html#Examples">Examples</a><br>
+7.5 : <a href="mpi-comm.html#Communicatorsandgroups">Communicators and groups</a><br>
+7.5.1 : <a href="mpi-comm.html#Processgroups">Process groups</a><br>
+7.5.2 : <a href="mpi-comm.html#Example">Example</a><br>
+7.6 : <a href="mpi-comm.html#Inter-communicators">Inter-communicators</a><br>
+7.6.1 : <a href="mpi-comm.html#Inter-communicatorpoint-to-point">Inter-communicator point-to-point</a><br>
+7.6.2 : <a href="mpi-comm.html#Inter-communicatorcollectives">Inter-communicator collectives</a><br>
+7.6.3 : <a href="mpi-comm.html#Inter-communicatorquerying">Inter-communicator querying</a><br>
+7.7 : <a href="mpi-comm.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>7 MPI topic: Communicators</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+A communicator is an object describing a group of processes. In many
+applications all processes work together closely coupled, and the
+only communicator you need is 
+<tt>MPI_COMM_WORLD</tt>
+, the
+group describing all processes that your job starts with.
+</p>
+
+<p name="switchToTextMode">
+In this chapter you will see ways to make new groups of MPI processes:
+subgroups of the original world communicator.
+Chapter~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html">MPI topic: Process management</a>
+ discusses dynamic process management, which, while
+not extending 
+<tt>MPI_COMM_WORLD</tt>
+ does extend the set of
+available processes.
+</p>
+
+<h2><a id="Basiccommunicators">7.1</a> Basic communicators</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Basiccommunicators">Basic communicators</a>
+</p>
+
+<p name="switchToTextMode">
+
+There are three predefined communicators:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_COMM_WORLD</tt>
+ comprises all processes that were started
+  together by 
+<i>mpiexec</i>
+ (or some related program).
+<li>
+<tt>MPI_COMM_SELF</tt>
+ is the communicator that contains only
+   the current process.
+<li>
+<tt>MPI_COMM_NULL</tt>
+ is the invalid communicator. Routines
+  that construct communicators can give this as result if an error occurs.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+These values are constants, though not necessarily compile-time constants.
+Thus, they can not be used in switch statements, array declarations,
+or 
+<tt>constexpr</tt>
+ evaluations.
+</p>
+
+<p name="switchToTextMode">
+If you don't want to write 
+<tt>MPI_COMM_WORLD</tt>
+ repeatedly, you can
+assign that value to a variable of type 
+<tt>MPI_Comm</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Examples:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+// C:
+#include &lt;mpi.h&gt;
+MPI_Comm comm = MPI_COMM_WORLD;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+!! Fortran 2008 interface
+use mpi_f08
+Type(MPI_Comm) :: comm = MPI_COMM_WORLD
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+!! Fortran legacy interface
+#include &lt;mpif.h&gt;
+Integer :: comm = MPI_COMM_WORLD
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: pythonnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+comm = MPI.COMM_WORLD
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+  The 
+<tt>environment</tt>
+  of 
+<tt>MPI_COMM_WORLD</tt>
+ and 
+<tt>MPI_COMM_SELF</tt>
+:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+const communicator& mpl::environment::comm_world();
+const communicator& mpl::environment::comm_self();
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+There doesn't seem to be an equivalent of 
+<tt>MPI_COMM_NULL</tt>
+.
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+You can name your communicators with 
+<tt>MPI_Comm_set_name</tt>
+, which
+could improve the quality of error messages when they arise.
+</p>
+
+<h2><a id="Duplicatingcommunicators">7.2</a> Duplicating communicators</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Duplicatingcommunicators">Duplicating communicators</a>
+</p>
+
+<p name="switchToTextMode">
+
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+With 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_dup" aria-expanded="false" aria-controls="MPI_Comm_dup">
+        Routine reference: MPI_Comm_dup
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_dup" class="collapse">
+  <pre>
+Semantics:
+MPI_COMM_DUP(comm, newcomm)
+MPI_COMM_IDUP(comm, newcomm, request)
+IN comm: communicator (handle)
+OUT newcomm: copy of comm (handle)
+OUT request: request (handle)
+
+C:
+int MPI_Comm_dup(MPI_Comm comm, MPI_Comm *newcomm)
+int MPI_Comm_idup(MPI_Comm comm, MPI_Comm *newcomm, MPI_Request *request)
+
+F:
+MPI_Comm_dup(comm, newcomm, ierror)
+MPI_Comm_idup(comm, newcomm, request, ierror)
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Comm), INTENT(OUT) :: newcomm
+TYPE(MPI_Request), INTENT(OUT) :: request
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Py:
+newcomm = oldcomm.Dup(Info info=None)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_dup</i>
+ you can make an exact duplicate of a communicator.
+There is a nonblocking variant 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_idup" aria-expanded="false" aria-controls="MPI_Comm_idup">
+        Routine reference: MPI_Comm_idup
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_idup" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Comm_idup</i>
+.
+</p>
+
+<p name="switchToTextMode">
+These calls do not propagate info hints
+(sections 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Infoobjects">15.1.1</a>
+ and~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Communicatorandwindowinformation">15.1.1.2</a>
+);
+to achieve this,
+use 
+<tt>MPI_Comm_dup_with_info</tt>
+ and 
+<tt>MPI_Comm_idup_with_info</tt>
+;
+section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Communicatorandwindowinformation">15.1.1.2</a>
+.
+</p>
+
+<!-- environment: mplnote start embedded generator -->
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+<p name="switchToTextMode">
+  Communicators can be duplicated but only during initialization.
+  Copy assignment has been deleted. Thus:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+// LEGAL:
+mpl::communicator init = comm;
+// WRONG:
+mpl::communicator init;
+init = comm;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Communicatorcomparing">7.2.1</a> Communicator comparing</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Duplicatingcommunicators">Duplicating communicators</a> > <a href="mpi-comm.html#Communicatorcomparing">Communicator comparing</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+You may wonder what `an exact copy' means precisely.
+For this, think of a communicator as a context label that you can attach to,
+among others, operations such as sends and receives.
+A&nbsp;send and a receive `belong together' if they have the same communicator context.
+Conversely, a&nbsp;send in one communicator can not be matched
+to a receive in a duplicate communicator, made by 
+<tt>MPI_Comm_dup</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Testing whether two communicators are really the same
+is then more than testing if they comprise the same processes.
+The call 
+<tt>MPI_Comm_compare</tt>
+ returns 
+<tt>MPI_IDENT</tt>
+if two communicator values are the same,
+and not if one is derived from the other by duplication:
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#commcopycompare" aria-expanded="false" aria-controls="commcopycompare">
+        C Code: commcopycompare
+      </button>
+    </h5>
+  </div>
+  <div id="commcopycompare" class="collapse">
+  <pre>
+// commcompare.c
+int result;
+MPI_Comm copy = comm;
+MPI_Comm_compare(comm,copy,&result);
+printf("assign:    comm==copy: %d \n",result==MPI_IDENT);
+printf("            congruent: %d \n",result==MPI_CONGRUENT);
+printf("            not equal: %d \n",result==MPI_UNEQUAL);
+
+MPI_Comm_dup(comm,&copy);
+MPI_Comm_compare(comm,copy,&result);
+printf("duplicate: comm==copy: %d \n",result==MPI_IDENT);
+printf("            congruent: %d \n",result==MPI_CONGRUENT);
+printf("            not equal: %d \n",result==MPI_UNEQUAL);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+Output:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+assign:    comm==copy: 1
+            congruent: 0
+            not equal: 0
+duplicate: comm==copy: 0
+            congruent: 1
+            not equal: 0
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+Communicators that are not actually the same can be
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+consisting of the same processes, in the same order,
+  giving 
+<tt>MPI_CONGRUENT</tt>
+;
+<li>
+merely consisting of the same processes, but not in the same order,
+  giving 
+<tt>MPI_SIMILAR</tt>
+;
+<li>
+different, giving 
+<tt>MPI_UNEQUAL</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Comparing against 
+<tt>MPI_COMM_NULL</tt>
+ is not allowed.
+</p>
+
+<h3><a id="Communicatorduplicationforlibraryuse">7.2.2</a> Communicator duplication for library use</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Duplicatingcommunicators">Duplicating communicators</a> > <a href="mpi-comm.html#Communicatorduplicationforlibraryuse">Communicator duplication for library use</a>
+</p>
+<p name="switchToTextMode">
+
+Duplicating a communicator may seem pointless, but it is actually very useful for the design of
+software libraries. Image that you have a code
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Isend(...); MPI_Irecv(...);
+// library call
+MPI_Waitall(...);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+and suppose that the library has receive calls. Now it is possible that the
+receive in the library inadvertently
+catches the message that was sent in the outer environment.
+</p>
+
+<p name="switchToTextMode">
+In section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Determinism">15.7</a>
+ it was explained that MPI messages are
+nonovertaking. This may lead to confusing situations, witness the following.
+First of all, here is code where the library stores the communicator
+of the calling program:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#wrongcatchlib" aria-expanded="false" aria-controls="wrongcatchlib">
+        C++ Code: wrongcatchlib
+      </button>
+    </h5>
+  </div>
+  <div id="wrongcatchlib" class="collapse">
+  <pre>
+// commdupwrong.cxx
+class library {
+private:
+  MPI_Comm comm;
+  int procno,nprocs,other;
+  MPI_Request request[2];
+public:
+  library(MPI_Comm incomm) {
+    comm = incomm;
+    MPI_Comm_rank(comm,&procno);
+    other = 1-procno;
+  };
+  int communication_start();
+  int communication_end();
+};
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+This models a main program that does a simple message exchange, and it
+makes two calls to library routines. Unbeknown to the user, the
+library also issues send and receive calls, and they turn out to
+interfere.
+</p>
+
+<p name="switchToTextMode">
+Here
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The main program does a send,
+<li>
+the library call 
+<tt>function_start</tt>
+ does a send and a receive;
+  because the receive can match either send, it is paired with the
+  first one;
+<li>
+the main program does a receive, which will be paired with the send of the
+  library call;
+<li>
+both the main program and the library do a wait call, and in
+  both cases all requests are succesfully fulfilled, just not the way
+  you intended.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+To prevent this confusion, the library should duplicate the outer
+communicator with 
+<tt>MPI_Comm_dup</tt>
+and send all messages with respect to its duplicate. Now messages from the user
+code can never reach the library software, since they are on different communicators.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#rightcatchlib" aria-expanded="false" aria-controls="rightcatchlib">
+        C Code: rightcatchlib
+      </button>
+    </h5>
+  </div>
+  <div id="rightcatchlib" class="collapse">
+  <pre>
+// commdupright.cxx
+class library {
+private:
+  MPI_Comm comm;
+  int procno,nprocs,other;
+  MPI_Request request[2];
+public:
+  library(MPI_Comm incomm) {
+    MPI_Comm_dup(incomm,&comm);
+    MPI_Comm_rank(comm,&procno);
+    other = 1-procno;
+  };
+  &nbsp;library() {
+    MPI_Comm_free(&comm);
+  }
+  int communication_start();
+  int communication_end();
+};
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Note how the preceding example
+performs the 
+<tt>MPI_Comm_free</tt>
+cal in a C++ 
+<i>destructor</i>
+.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#catchlibp" aria-expanded="false" aria-controls="catchlibp">
+        Python Code: catchlibp
+      </button>
+    </h5>
+  </div>
+  <div id="catchlibp" class="collapse">
+  <pre>
+## commdup.py
+class Library():
+    def __init__(self,comm):
+        # wrong: self.comm = comm
+        self.comm = comm.Dup()
+        self.other = self.comm.Get_size()-self.comm.Get_rank()-1
+        self.requests = [ None ] * 2
+    def communication_start(self):
+        sendbuf = np.empty(1,dtype=np.int); sendbuf[0] = 37
+        recvbuf = np.empty(1,dtype=np.int)
+        self.requests[0] = self.comm.Isend( sendbuf, dest=other,tag=2 )
+        self.requests[1] = self.comm.Irecv( recvbuf, source=other )
+    def communication_end(self):
+        MPI.Request.Waitall(self.requests)
+
+mylibrary = Library(comm)
+my_requests[0] = comm.Isend( sendbuffer,dest=other,tag=1 )
+mylibrary.communication_start()
+my_requests[1] = comm.Irecv( recvbuffer,source=other )
+MPI.Request.Waitall(my_requests,my_status)
+mylibrary.communication_end()
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+</p>
+
+<h2><a id="Sub-communicators">7.3</a> Sub-communicators</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+In many scenarios you divide a large job over all the available processors.
+However, your job may have two or more parts that can be considered as
+jobs by themselves. In that case it makes sense to divide your processors
+into subgroups accordingly.
+</p>
+
+<p name="switchToTextMode">
+Suppose for instance that you are running a simulation where inputs are generated,
+a&nbsp;computation is performed on them, and the results of this computation
+are analyzed or rendered graphically. You could then consider dividing your
+processors in three groups corresponding to generation, computation, rendering.
+As long as you only do sends and receives, this division works fine. However,
+if one group of processes needs to perform a collective operation, you don't
+want the other groups involved in this. Thus, you really want the three groups
+to be really distinct from each other.
+</p>
+
+<p name="switchToTextMode">
+In order to make such subsets of processes, MPI has the mechanism of
+taking a subset of 
+<tt>MPI_COMM_WORLD</tt>
+ and turning that subset
+into a new communicator.
+</p>
+
+<p name="switchToTextMode">
+Now you understand why the MPI collective calls had an argument for the
+communicator: a&nbsp;collective involves all processes of that communicator.
+By making a communicator that contains a subset of all available processes,
+you can do a collective on that subset.
+</p>
+
+<p name="switchToTextMode">
+The usage is as follows:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+You create a new communicator with 
+<tt>MPI_Comm_dup</tt>
+  (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Duplicatingcommunicators">7.2</a>
+),
+<tt>MPI_Comm_split</tt>
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Splittingacommunicator">7.4</a>
+),
+<tt>MPI_Comm_create</tt>
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Communicatorsandgroups">7.5</a>
+),
+<tt>MPI_Intercomm_create</tt>
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Inter-communicators">7.6</a>
+),
+<tt>MPI_Comm_spawn</tt>
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html#Processspawning">8.1</a>
+);
+<li>
+you use that communiator for a while;
+<li>
+and you call 
+<tt>MPI_Comm_free</tt>
+ when you are done with it;
+  this also sets the communicator variable to 
+<tt>MPI_COMM_NULL</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Scenario:distributedlinearalgebra">7.3.1</a> Scenario: distributed linear algebra</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a> > <a href="mpi-comm.html#Scenario:distributedlinearalgebra">Scenario: distributed linear algebra</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+For 
+<i>scalability</i>
+ reasons, matrices should often be distributed
+in a 2D manner, that is, each process receives a subblock that is not
+a block of columns or rows. This means that the processors themselves
+are, at least logically, organized in a 2D grid. Operations
+then involve reductions or broadcasts inside rows or columns. For
+this, a row or column of processors needs to be in a subcommunicator.
+</p>
+
+<h3><a id="Scenario:climatemodel">7.3.2</a> Scenario: climate model</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a> > <a href="mpi-comm.html#Scenario:climatemodel">Scenario: climate model</a>
+</p>
+<p name="switchToTextMode">
+
+A climate simulation code has several components, for instance corresponding
+to land, air, ocean, and ice. You can imagine that each needs a different set
+of equations and algorithms to simulate. You can then divide your processes,
+where each subset simulates one component of the climate, occasionally communicating
+with the other components.
+</p>
+
+<h3><a id="Scenario:quicksort">7.3.3</a> Scenario: quicksort</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a> > <a href="mpi-comm.html#Scenario:quicksort">Scenario: quicksort</a>
+</p>
+<p name="switchToTextMode">
+
+The popular quicksort algorithm works by splitting the data
+into two subsets that each can be sorted individually.
+If you want to sort in parallel, you could implement this by making two subcommunicators,
+and sorting the data on these, creating recursively more subcommunicators.
+</p>
+
+<h3><a id="Sharedmemory">7.3.4</a> Shared memory</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a> > <a href="mpi-comm.html#Sharedmemory">Shared memory</a>
+</p>
+<p name="switchToTextMode">
+
+There is an important application of communicator splitting in the
+context of one-sided communication, grouping processes by whether they
+access the same shared memory area; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-shared.html#Recognizingsharedmemory">12.1</a>
+.
+</p>
+
+<h3><a id="Processspawning">7.3.5</a> Process spawning</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Sub-communicators">Sub-communicators</a> > <a href="mpi-comm.html#Processspawning">Process spawning</a>
+</p>
+<p name="switchToTextMode">
+
+Finally, newly created communicators do not always need to be subset
+of the initial 
+<tt>MPI_COMM_WORLD</tt>
+.
+MPI can dynamically spawn new processes (see chapter&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html">MPI topic: Process management</a>
+)
+which start in a 
+<tt>MPI_COMM_WORLD</tt>
+ of their own.
+However, another communicator will be created that spawns the old and new worlds
+so that you can communicate with the new processes.
+</p>
+
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<h2><a id="Splittingacommunicator">7.4</a> Splitting a communicator</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Splittingacommunicator">Splitting a communicator</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Above we saw several scenarios where it makes sense to divide
+
+<tt>MPI_COMM_WORLD</tt>
+ into disjoint subcommunicators.
+The command 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_split" aria-expanded="false" aria-controls="MPI_Comm_split">
+        Routine reference: MPI_Comm_split
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_split" class="collapse">
+  <pre>
+Semantics:
+MPI_COMM_SPLIT(comm, color, key, newcomm)
+IN comm: communicator (handle)
+IN color: control of subset assignment (integer)
+IN key: control of rank assigment (integer)
+OUT newcomm: new communicator (handle)
+
+C:
+int MPI_Comm_split(
+    MPI_Comm comm, int color, int key,
+    MPI_Comm *newcomm)
+
+F:
+MPI_Comm_split(comm, color, key, newcomm, ierror)
+TYPE(MPI_Comm), INTENT(IN) :: comm
+INTEGER, INTENT(IN) :: color, key
+TYPE(MPI_Comm), INTENT(OUT) :: newcomm
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+MPI_COMM_SPLIT(COMM, COLOR, KEY, NEWCOMM, IERROR)
+INTEGER COMM, COLOR, KEY, NEWCOMM, IERROR
+
+Py:
+newcomm = comm.Split(int color=0, int key=0)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_split</i>
+ uses a `color' to define
+these subcommunicators:
+all processes in the old communicator with the same color
+wind up in a new communicator together. The old communicator still exists,
+so processes now have two different contexts in which to communicate.
+</p>
+
+<p name="switchToTextMode">
+The ranking of processes in the new communicator is determined by a `key' value:
+in a subcommunicator the process with lowest key is given the lowest rank, et cetera.
+Most of the time, there is no reason to use a relative ranking that is different from
+the global ranking, so the 
+<tt>MPI_Comm_rank</tt>
+ value of the global communicator
+is a good choice.
+Any ties between identical key values are broken by using the rank from the original
+communicator.
+Thus, specifying zero are the key will also retain the original process ordering.
+</p>
+
+<p name="switchToTextMode">
+Here is one example of communicator splitting. Suppose your processors
+are in a two-dimensional grid:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_rank( MPI_COMM_WORLD, &mytid );
+proc_i = mytid % proc_column_length;
+proc_j = mytid / proc_column_length;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+You can now create a communicator per column:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm column_comm;
+MPI_Comm_split( MPI_COMM_WORLD, proc_j, mytid, &column_comm );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+and do a broadcast in that column:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Bcast( data, /* tag: */ 0, column_comm );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Because of the SPMD nature of the program, you are now doing in parallel
+a broadcast in every processor column. Such operations often appear
+in 
+<i>dense linear algebra</i>
+.
+</p>
+
+<!-- environment: pythonnote start embedded generator -->
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  In Python, the `key' argument is optional:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#commsplitp" aria-expanded="false" aria-controls="commsplitp">
+        Python Code: commsplitp
+      </button>
+    </h5>
+  </div>
+  <div id="commsplitp" class="collapse">
+  <pre>
+## commsplit.py
+mydata = procid
+
+# communicator modulo 2
+color = procid%2
+mod2comm = comm.Split(color)
+new_procid = mod2comm.Get_rank()
+
+# communicator modulo 4 recursively
+color = new_procid%2
+mod4comm = mod2comm.Split(color)
+new_procid = mod4comm.Get_rank()
+</pre>
+</div>
+</div>
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: mplnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=mplnote ]] -->
+<remark>
+<b>MPL note</b>
+<!-- TranslatingLineGenerator mplnote ['mplnote'] -->
+
+<p name="switchToTextMode">
+  In 
+<span title="acronym" ><i>MPL</i></span>
+, splitting a communicator is done as one of the overloads
+  of the communicator constructor;
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#commsplitmpl" aria-expanded="false" aria-controls="commsplitmpl">
+        C++ Code: commsplitmpl
+      </button>
+    </h5>
+  </div>
+  <div id="commsplitmpl" class="collapse">
+  <pre>
+// commsplit.cxx
+// create sub communicator modulo 2
+int color2 = procno % 2;
+mpl::communicator comm2( mpl::communicator::split, comm_world, color2 );
+auto procno2 = comm2.rank();
+
+// create sub communicator modulo 4 recursively
+int color4 = procno2 % 2;
+mpl::communicator comm4( mpl::communicator::split, comm2, color4 );
+auto procno4 = comm4.rank();
+</pre>
+</div>
+</div>
+</p>
+
+<!-- environment: mplimpl start embedded generator -->
+<!-- environment block purpose: [[ environment=mplimpl ]] -->
+<remark>
+
+<!-- TranslatingLineGenerator mplimpl ['mplimpl'] -->
+    The  <tt>communicator::</tt> 
+<tt>split</tt>
+<p name="switchToTextMode">
+    is an object of class
+     <tt>communicator::</tt> 
+<tt>split_tag</tt>
+    itself is an otherwise empty
+    subclass of 
+<tt>communicator</tt>
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+class split_tag {};
+static constexpr split_tag split{};
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</remark>
+<!-- environment: mplimpl end embedded generator -->
+<i>End of MPL note</i>
+</remark>
+<!-- environment: mplnote end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+There is also a routine 
+<tt>MPI_Comm_split_type</tt>
+which uses a type rather than a key to split the communicator.
+We will see this in action in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-shared.html#Recognizingsharedmemory">12.1</a>
+.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/procgrid-bcast.png" width=800></img>
+<p name="caption">
+FIGURE 7.1: Row and column broadcasts in subcommunicators
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Examples">7.4.1</a> Examples</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Splittingacommunicator">Splitting a communicator</a> > <a href="mpi-comm.html#Examples">Examples</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+One application of communicator splitting is setting up a processor
+grid, with the possibility of using MPI solely within one row or
+column; see figure&nbsp;
+7.1
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Organize your processes in a grid, and make subcommunicators for
+  the rows and columns. For this compute the row and column number of
+  each process.
+</p>
+
+<p name="switchToTextMode">
+  In the row and column communicator, compute the rank. For instance,
+  on a $2\times3$ processor grid you should find:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+Global ranks:  Ranks in row:  Ranks in colum:
+  0  1  2      0  1  2        0  0  0
+  3  4  5      0  1  2        1  1  1
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+  Check that the rank in the row communicator is the column number,
+  and the other way around.
+</p>
+
+<p name="switchToTextMode">
+  Run your code on different number of processes, for instance a
+  number of rows and columns that is a power of&nbsp;2, or that is a prime number.
+<!-- environment: tacc start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=tacc ]] -->
+<tacc>
+
+<p name="tacc">
+<!-- TranslatingLineGenerator tacc ['tacc'] -->
+    This is one occasion where you could use 
+<tt>ibrun -np 9</tt>
+;
+    normally you would 
+<i>never</i>
+ put a processor count on 
+<tt>ibrun</tt>
+.
+</p name="tacc">
+
+</tacc>
+<!-- environment: tacc end embedded generator -->
+<!-- skeleton start: procgrid -->
+<button id="runBtn">procgrid</button>
+<div id="editorDiv"></div>
+<pre id="outputPre"></pre>
+<!-- skeleton end: procgrid -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+As another example of communicator splitting, consider the recursive
+algorithm for 
+<i>matrix transposition</i>
+.
+<!-- index -->
+Processors are organized in a square grid. The matrix is divided
+on $2\times 2$ block form.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  Implement a recursive algorithm for matrix transposition:
+</p>
+
+<img src="graphics/recursive-transpose.jpeg" width=800></img>
+<p name="switchToTextMode">
+
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Swap blocks $(1,2)$ and $(2,1)$; then
+<li>
+Divide the processors into four subcommunicators, and
+    apply this algorithm recursively on each;
+<li>
+If the communicator has only one process, transpose the matrix in place.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<h2><a id="Communicatorsandgroups">7.5</a> Communicators and groups</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Communicatorsandgroups">Communicators and groups</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+You saw in section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Splittingacommunicator">7.4</a>
+ that it is possible derive
+communicators that have a subset of the processes of another communicator.
+There is a more general mechanism, using 
+<tt>MPI_Group</tt>
+objects.
+</p>
+
+<p name="switchToTextMode">
+Using groups, it takes three steps to create a new communicator:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Access the 
+<tt>MPI_Group</tt>
+ of a communicator
+  object using 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_group" aria-expanded="false" aria-controls="MPI_Comm_group">
+        Routine reference: MPI_Comm_group
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_group" class="collapse">
+  <pre>
+Synopsis
+int MPI_Comm_group(MPI_Comm comm, MPI_Group *group)
+
+Input Parameters:
+comm : Communicator (handle)
+
+Output Parameters
+group : Group in communicator (handle)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_group</i>
+.
+<li>
+Use various routines, discussed next, to form a new group.
+<li>
+Make a new communicator object from the group with
+<tt>MPI_Group</tt>
+, using
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_create" aria-expanded="false" aria-controls="MPI_Comm_create">
+        Routine reference: MPI_Comm_create
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_create" class="collapse">
+  <pre>
+Synopsis
+
+MPI_Comm_create( MPI_Comm comm, MPI_Group group, MPI_Comm *newcomm )
+
+Input parameters:
+comm : Communicator (handle).
+group : Group, which is a subset of the group of comm (handle).
+
+Output parameters:
+newcomm : New communicator (handle).
+
+C:
+int MPI_Comm_create(MPI_Comm comm, MPI_Group group, MPI_Comm *newcomm)
+
+Fortran90:
+MPI_COMM_CREATE(COMM, GROUP, NEWCOMM, IERROR)
+INTEGER    COMM, GROUP, NEWCOMM, IERROR
+
+Fortran2008:
+MPI_Comm_create(comm, group, newcomm, ierror)
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Group), INTENT(IN) :: group
+TYPE(MPI_Comm), INTENT(OUT) :: newcomm
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+</pre>
+</div>
+</div>
+<i>MPI_Comm_create</i>
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+Creating a new communicator from a group is collective on the old communicator.
+There is also a routine 
+<tt>MPI_Comm_create_group</tt>
+ that only
+needs to be called on the group that constitutes the new communicator.
+</p>
+
+<h3><a id="Processgroups">7.5.1</a> Process groups</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Communicatorsandgroups">Communicators and groups</a> > <a href="mpi-comm.html#Processgroups">Process groups</a>
+</p>
+
+<p name="switchToTextMode">
+
+Groups are manipulated with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Group_incl" aria-expanded="false" aria-controls="MPI_Group_incl">
+        Routine reference: MPI_Group_incl
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Group_incl" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Group_incl</i>
+,
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Group_excl" aria-expanded="false" aria-controls="MPI_Group_excl">
+        Routine reference: MPI_Group_excl
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Group_excl" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Group_excl</i>
+,
+<tt>MPI_Group_difference</tt>
+ and a few more.
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Comm_group (comm, group, ierr)
+MPI_Comm_create (MPI_Comm comm,MPI_Group group, MPI_Comm newcomm, ierr)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Group_union(group1, group2, newgroup, ierr)
+MPI_Group_intersection(group1, group2, newgroup, ierr)
+MPI_Group_difference(group1, group2, newgroup, ierr)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Group_size(group, size, ierr)
+MPI_Group_rank(group, rank, ierr)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Certain MPI types, 
+<tt>MPI_Win</tt>
+ and 
+<tt>MPI_File</tt>
+,
+are created on a communicator.
+While you can not directly extract that communicator from the object,
+you can get the group with
+<tt>MPI_Win_get_group</tt>
+ and 
+<tt>MPI_File_get_group</tt>
+.
+</p>
+
+<h3><a id="Example">7.5.2</a> Example</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Communicatorsandgroups">Communicators and groups</a> > <a href="mpi-comm.html#Example">Example</a>
+</p>
+<p name="switchToTextMode">
+
+Suppose you want to split the world communicator into
+one manager process, with the remaining processes workers.
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#groupworker" aria-expanded="false" aria-controls="groupworker">
+        C Code: groupworker
+      </button>
+    </h5>
+  </div>
+  <div id="groupworker" class="collapse">
+  <pre>
+// portapp.c
+MPI_Comm comm_work;
+{
+  MPI_Group group_world,group_work;
+  MPI_Comm_group( comm_world,&group_world );
+  int manager[] = {0};
+  MPI_Group_excl( group_world,1,manager,&group_work );
+  MPI_Comm_create( comm_world,group_work,&comm_work );
+  MPI_Group_free( &group_world ); MPI_Group_free( &group_work );
+}
+</pre>
+</div>
+</div>
+</p>
+
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<h2><a id="Inter-communicators">7.6</a> Inter-communicators</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Inter-communicators">Inter-communicators</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+In several scenarios it may be desirable to have a way to communicate
+between communicators. For instance, an application can have clearly
+functionally separated modules (preprocessor, simulation,
+postprocessor) that need to stream data pairwise. In another example,
+dynamically spawned processes (section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html#Processspawning">8.1</a>
+) get
+their own value of 
+<tt>MPI_COMM_WORLD</tt>
+, but still need to
+communicate with the process(es) that spawned them. In this section we
+will discuss the 
+serves such use cases.
+</p>
+
+<p name="switchToTextMode">
+Communicating between disjoint communicators can of course be done by
+having a
+communicator that overlaps them, but this would be complicated: since
+the `inter' communication happens in the overlap communicator, you
+have to translate its ordering into those of the two worker
+communicators. It would be easier to express messages directly in
+terms of those communicators, and this is what happens in an
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/intercomm.png" width=800></img>
+<p name="caption">
+FIGURE 7.2: Illustration of ranks in an inter-communicator setup
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+A call to
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Intercomm_create" aria-expanded="false" aria-controls="MPI_Intercomm_create">
+        Routine reference: MPI_Intercomm_create
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Intercomm_create" class="collapse">
+  <pre>
+Synopsis:
+
+int MPI_Intercomm_create
+   (MPI_Comm local_comm, int local_leader,
+    MPI_Comm peer_comm,  int remote_leader,
+    int tag, MPI_Comm *newintercomm
+);
+
+Input parameters:
+
+local_comm : Local (intra)communicator
+local_leader : Rank in local_comm of leader (often 0)
+peer_comm : Communicator used to communicate between a designated process in
+    the other communicator. Significant only at the process in local_comm
+    with rank local_leader.
+remote_leader : Rank in peer_comm of remote leader (often 0)
+tag : Message tag to use in constructing intercommunicator; if multiple
+    MPI_Intercomm_creates are being made, they should use different tags
+    (more precisely, ensure that the local and remote leaders are using
+    different tags for each MPI_intercomm_create).
+
+Output Parameter:
+comm_out : Created intercommunicator
+
+</pre>
+</div>
+</div>
+<i>MPI_Intercomm_create</i>
+involves the following communicators:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Two local communicators, which in this context are known as
+  the local leader, connected to the remote leader;
+<li>
+The 
+<i>peer communicator</i>
+, often
+<tt>MPI_COMM_WORLD</tt>
+, that contains the local
+  communicators;
+<li>
+An 
+  of the subcommunicators to communicate with the other subcommunicator.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Even though the intercommunicator connects only two proceses, it is
+collective on the peer communicator.
+</p>
+
+<h3><a id="Inter-communicatorpoint-to-point">7.6.1</a> Inter-communicator point-to-point</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Inter-communicators">Inter-communicators</a> > <a href="mpi-comm.html#Inter-communicatorpoint-to-point">Inter-communicator point-to-point</a>
+</p>
+<p name="switchToTextMode">
+
+The local leaders can now communicate with each other.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+The sender specifies as target the local number of the other
+  leader in the other sub-communicator;
+<li>
+Likewise, the receiver specifies as source the local number of
+  the sender in its sub-communicator.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+In one way, this design makes sense: processors are referred to in
+their natural, local, numbering.
+On the other hand, it means that each group needs to know how the
+local ordering of the other group is arranged. Using a complicated
+
+<tt>key</tt>
+ value makes this difficult.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#intercomm-ptp" aria-expanded="false" aria-controls="intercomm-ptp">
+        C Code: intercomm-ptp
+      </button>
+    </h5>
+  </div>
+  <div id="intercomm-ptp" class="collapse">
+  <pre>
+if (i_am_local_leader) {
+  if (color==0) {
+    interdata = 1.2;
+    int inter_target = local_number_of_other_leader;
+    printf("[%d] sending interdata %e to %d\n",
+	     procno,interdata,inter_target);
+    MPI_Send(&interdata,1,MPI_DOUBLE,inter_target,0,intercomm);
+  } else {
+    MPI_Status status;
+    MPI_Recv(&interdata,1,MPI_DOUBLE,MPI_ANY_SOURCE,MPI_ANY_TAG,intercomm,&status);
+    int inter_source = status.MPI_SOURCE;
+    printf("[%d] received interdata %e from %d\n",
+	     procno,interdata,inter_source);
+    if (inter_source!=local_number_of_other_leader)
+	fprintf(stderr,
+		"Got inter communication from unexpected %d; s/b %d\n",
+		inter_source,local_number_of_other_leader);
+  }
+}
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<h3><a id="Inter-communicatorcollectives">7.6.2</a> Inter-communicator collectives</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Inter-communicators">Inter-communicators</a> > <a href="mpi-comm.html#Inter-communicatorcollectives">Inter-communicator collectives</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The intercommunicator can be used in collectives such as
+a broadcast.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+In the sending group, the root process passes 
+<tt>MPI_ROOT</tt>
+ as
+  `root' value; all others use 
+<tt>MPI_PROC_NULL</tt>
+.
+<li>
+In the receiving group, all processes use a `root' value that is the
+  rank of the root process in the root group. Note: this is not the
+  global rank!
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+Gather and scatter behave similarly; the allgather is different: all
+send buffers of group~A are concatenated in rank order, and places on
+all processes of group~B.
+</p>
+
+<p name="switchToTextMode">
+Inter-communicators can be used if two groups of process work
+asynchronously with respect to each other; another application is
+fault tolerance (section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Faulttolerance">15.5</a>
+).
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#intercomm-bcast" aria-expanded="false" aria-controls="intercomm-bcast">
+        C Code: intercomm-bcast
+      </button>
+    </h5>
+  </div>
+  <div id="intercomm-bcast" class="collapse">
+  <pre>
+if (color==0) { // sending group: the local leader sends
+  if (i_am_local_leader)
+    root = MPI_ROOT;
+  else
+    root = MPI_PROC_NULL;
+} else { // receiving group: everyone indicates leader of other group
+  root = local_number_of_other_leader;
+}
+if (DEBUG) fprintf(stderr,"[%d] using root value %d\n",procno,root);
+MPI_Bcast(&bcast_data,1,MPI_INT,root,intercomm);
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<h3><a id="Inter-communicatorquerying">7.6.3</a> Inter-communicator querying</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Inter-communicators">Inter-communicators</a> > <a href="mpi-comm.html#Inter-communicatorquerying">Inter-communicator querying</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+Some of the operations you have seen before for
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_Comm_size</tt>
+ returns the size of the local
+  group, not the size of the inter-communicator.
+<li>
+<tt>MPI_Comm_rank</tt>
+ returns the rank in the local
+  group.
+<li>
+<tt>MPI_Comm_group</tt>
+ returns the local group.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Spawned processes can find their parent communicator with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_get_parent" aria-expanded="false" aria-controls="MPI_Comm_get_parent">
+        Routine reference: MPI_Comm_get_parent
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_get_parent" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+<i>MPI_Comm_get_parent</i>
+(see examples in section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html#Processspawning">8.1</a>
+).
+On other processes this returns 
+<tt>MPI_COMM_NULL</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Test whether a communicator is intra or inter:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_test_inter" aria-expanded="false" aria-controls="MPI_Comm_test_inter">
+        Routine reference: MPI_Comm_test_inter
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_test_inter" class="collapse">
+  <pre>
+MPI_COMM_TEST_INTER(comm, flag)
+IN comm : communicator (handle)
+OUT flag : (logical)
+
+int MPI_Comm_test_inter(MPI_Comm comm, int *flag)
+
+MPI_COMM_TEST_INTER(COMM, FLAG, IERROR)
+INTEGER COMM, IERROR
+LOGICAL FLAG
+
+</pre>
+</div>
+</div>
+<i>MPI_Comm_test_inter</i>
+.
+</p>
+
+<tt>MPI_Comm_compare</tt>
+<p name="switchToTextMode">
+ works for inter-communicators.
+</p>
+
+<p name="switchToTextMode">
+Processes connected through an intercommunicator can query
+the size of the `other' communicator with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_remote_size" aria-expanded="false" aria-controls="MPI_Comm_remote_size">
+        Routine reference: MPI_Comm_remote_size
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_remote_size" class="collapse">
+  <pre>
+Semantics:
+MPI_COMM_REMOTE_SIZE(comm, size)
+IN comm: inter-communicator (handle)
+OUT size: number of processes in the remote group of comm (integer)
+
+C:
+int MPI_Comm_remote_size(MPI_Comm comm, int *size)
+
+Fortran:
+MPI_Comm_remote_size(comm, size, ierror)
+TYPE(MPI_Comm), INTENT(IN) ::  comm
+INTEGER, INTENT(OUT) ::  size
+INTEGER, OPTIONAL, INTENT(OUT) ::  ierror
+
+Python:
+Intercomm.Get_remote_size(self)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_remote_size</i>
+.
+The actual group can be obtained with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Comm_remote_group" aria-expanded="false" aria-controls="MPI_Comm_remote_group">
+        Routine reference: MPI_Comm_remote_group
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Comm_remote_group" class="collapse">
+  <pre>
+Semantics:
+MPI_COMM_REMOTE_GROUP(comm, group)
+IN comm: inter-communicator (handle)
+OUT group: group of processes in the remote group of comm
+
+C:
+int MPI_Comm_remote_group(MPI_Comm comm, MPI_Group *group)
+
+Fortran:
+MPI_Comm_remote_group(comm, group, ierror)
+TYPE(MPI_Comm), INTENT(IN) ::  comm
+TYPE(MPI_Group), INTENT(OUT) ::  group
+INTEGER, OPTIONAL, INTENT(OUT) ::  ierror
+
+Python:
+Intercomm.Get_remote_group(self)
+</pre>
+</div>
+</div>
+<i>MPI_Comm_remote_group</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Virtual topologies (chapter~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-topo.html">MPI topic: Topologies</a>
+) cannot be created with an intercommunicator.
+To set up virtual topologies, first transform the intercommunicator to an
+intracommunicator with the function
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Intercomm_merge" aria-expanded="false" aria-controls="MPI_Intercomm_merge">
+        Routine reference: MPI_Intercomm_merge
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Intercomm_merge" class="collapse">
+  <pre>
+Synopsis:
+int MPI_Intercomm_merge
+   (MPI_Comm intercomm, int high,
+    MPI_Comm *newintracomm)
+
+Input Parameters:
+intercomm : Intercommunicator (handle)
+high : Used to order the groups within comm (logical) when creating the new
+    communicator. This is a boolean value; the group that sets high true
+    has its processes ordered after the group that sets this value to
+    false. If all processes in the intercommunicator provide the same
+    value, the choice of which group is ordered first is arbitrary.
+
+Output Parameters:
+newintracomm : Created intracommunicator (handle)
+</pre>
+</div>
+</div>
+<i>MPI_Intercomm_merge</i>
+.
+</p>
+
+<p name="switchToTextMode">
+
+\newpage
+<h2><a id="Reviewquestions">7.7</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-comm.html">mpi-comm</a> > <a href="mpi-comm.html#Reviewquestions">Review questions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+For all true/false questions, if you answer that a statement is false,
+give a one-line explanation.
+</p>
+
+<!-- environment: enumerate start embedded generator -->
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<p name="switchToTextMode">
+
+<li>
+True or false: in each communicator, processes are numbered consecutively from zero.
+<!-- environment: answer start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<li>
+If a process is in two communicators, it has the same rank in
+both.
+<!-- environment: answer start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<li>
+Any communicator that is not 
+<tt>MPI_COMM_WORLD</tt>
+ is a strict subset of it.
+<!-- environment: answer start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<li>
+The subcommunicators derived by 
+<tt>MPI_Comm_split</tt>
+  are disjoint.
+<!-- environment: answer start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+<li>
+If two processes have ranks $p&lt;q$ in some communicator,
+  and they are in the same subcommunicator,
+  then their ranks $p',q'$ in the subcommunicator also obey $p'&lt;q'$.
+<!-- environment: answer start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

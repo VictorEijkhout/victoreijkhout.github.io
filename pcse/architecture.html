@@ -1,0 +1,159 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Exploring computer architecture</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+44.1 : <a href="architecture.html#Toolsfordiscovery">Tools for discovery</a><br>
+44.1.1 : <a href="architecture.html#Intelcpuinfo">Intel cpuinfo</a><br>
+44.1.2 : <a href="architecture.html#hwloc">hwloc</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>44 Exploring computer architecture</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+There is much that can be said about computer architecture. However,
+in the context of parallel programming we are mostly concerned with
+the following:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+How many networked nodes are there, and does the network have a
+  structure that we need to pay attention to?
+<li>
+On a compute node, how many sockets (or other 
+<span title="acronym" ><i>NUMA</i></span>
+ domains)
+  are there?
+<li>
+For each socket, how many cores and hyperthreads are there? Are
+  caches shared?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Toolsfordiscovery">44.1</a> Tools for discovery</h2>
+<p name=crumbs>
+crumb trail:  > <a href="architecture.html">architecture</a> > <a href="architecture.html#Toolsfordiscovery">Tools for discovery</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+An easy way for discovering the structure of your parallel machine is
+to use tools that are written especially for this purpose.
+</p>
+
+<h3><a id="Intelcpuinfo">44.1.1</a> Intel cpuinfo</h3>
+<p name=crumbs>
+crumb trail:  > <a href="architecture.html">architecture</a> > <a href="architecture.html#Toolsfordiscovery">Tools for discovery</a> > <a href="architecture.html#Intelcpuinfo">Intel cpuinfo</a>
+</p>
+<p name="switchToTextMode">
+
+The 
+<i>Intel compiler suite</i>
+ comes with a tool
+<i>cpuinfo</i>
+ that reports on the structure of the node
+you are running on. It reports on the number of 
+<i>package</i>
+s,
+that is: sockets, cores, and threads.
+</p>
+
+<h3><a id="hwloc">44.1.2</a> hwloc</h3>
+<p name=crumbs>
+crumb trail:  > <a href="architecture.html">architecture</a> > <a href="architecture.html#Toolsfordiscovery">Tools for discovery</a> > <a href="architecture.html#hwloc">hwloc</a>
+</p>
+<p name="switchToTextMode">
+
+The open source package 
+<i>hwloc</i>
+ does similar reporting to
+cpuinfo, but it has been ported to many platforms. Additionally, it
+can generate ascii and pdf graphic renderings of the architecture.
+</div>
+<a href="index.html">Back to Table of Contents</a>

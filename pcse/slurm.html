@@ -1,0 +1,1390 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Batch systems</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+52.1 : <a href="slurm.html#Clusterstructure">Cluster structure</a><br>
+52.2 : <a href="slurm.html#Queues">Queues</a><br>
+52.2.1 : <a href="slurm.html#Queuelimits">Queue limits</a><br>
+52.3 : <a href="slurm.html#Jobrunning">Job running</a><br>
+52.3.1 : <a href="slurm.html#Thejobsubmissioncycle">The job submission cycle</a><br>
+52.4 : <a href="slurm.html#Thescriptfile">The script file</a><br>
+52.4.1 : <a href="slurm.html#sbatchoptions">sbatch options</a><br>
+52.4.2 : <a href="slurm.html#Environment">Environment</a><br>
+52.5 : <a href="slurm.html#Parallelismhandling">Parallelism handling</a><br>
+52.5.1 : <a href="slurm.html#MPIjobs">MPI jobs</a><br>
+52.5.2 : <a href="slurm.html#Threadedjobs">Threaded jobs</a><br>
+52.5.3 : <a href="slurm.html#Parametersweepsensemblesmassivelyparallel">Parameter sweeps / ensembles / massively parallel</a><br>
+52.6 : <a href="slurm.html#Jobrunning">Job running</a><br>
+52.7 : <a href="slurm.html#Schedulingstrategies">Scheduling strategies</a><br>
+52.8 : <a href="slurm.html#Filesystems">File systems</a><br>
+52.9 : <a href="slurm.html#Examples">Examples</a><br>
+52.9.1 : <a href="slurm.html#Jobdependencies">Job dependencies</a><br>
+52.9.2 : <a href="slurm.html#Multiplerunsinonescript">Multiple runs in one script</a><br>
+52.10 : <a href="slurm.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>52 Batch systems</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<p name="switchToTextMode">
+Supercomputer 
+<i>clusters</i>
+ can have a large number of
+<i>nodes</i>
+, but not enough to let all their users run
+simultaneously, and at the scale that they want.
+Therefore, users are asked to submit 
+<i>jobs</i>
+,
+which may start executing immediately,
+or may have to wait
+until resources are available.
+</p>
+
+<p name="switchToTextMode">
+The decision when to run a job,
+and what resources to give it,
+is not done by a human
+operator, but by software called a 
+<i>batch system</i>
+.
+(The 
+<i>Stampede</i>
+ cluster at 
+<i>TACC</i>
+ran close to 10 million jobs over its lifetime,
+which corresponds to starting a job every 20 seconds.)
+</p>
+
+<p name="switchToTextMode">
+This tutorial will cover the basics of such systems, and in particular
+<span title="acronym" ><i>SLURM</i></span>
+.
+</p>
+
+<h2><a id="Clusterstructure">52.1</a> Cluster structure</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Clusterstructure">Cluster structure</a>
+</p>
+<p name="switchToTextMode">
+
+A supercomputer cluster usually has two types of nodes:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<i>login nodes</i>
+, and
+<li>
+<i>compute nodes</i>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+When you make an 
+<i>ssh connection</i>
+ to a cluster,
+you are connecting to a login node. The number of login nodes
+is small, typically less than half a dozen.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Connect to your favourite cluster. How many people are on that login node?
+  If you disconnect and reconnect, do you find yourself on the same login node?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+Compute nodes are where your jobs are run.
+Different clusters have
+different structures here:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Compute nodes can be shared between users, or they can be assigned exclusively.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+    Sharing makes sense if user jobs have less parallelisn than the core count of a node.
+<li>
+\ldots~on the other hand, it means that users sharing a node
+    can interfere with each other's jobs, with one job using up memory or bandwidth
+    that the other job needs.
+<li>
+With exclusive nodes, a~job has access to all the memory and
+    all the bandwidth of that node.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<li>
+Clusters can homogeneous, having the same processor type on each
+  compute node, or they can have more than one processor type. For
+  instance, the TACC 
+<i>Stampede2</i>
+ cluster has
+<i>Intel Knightslanding</i>
+ and 
+<i>Intel Skylake</i>
+ nodes.
+<li>
+Often, clusters have a number of `large memory'
+  nodes, on the order of a Terabyte of memory or more.
+  Because of the cost of such hardware, there is usually only
+  a small number of these nodes.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Queues">52.2</a> Queues</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Queues">Queues</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Jobs often can not start immediately, because not enough
+resources are available, or because other jobs may have higher priority
+(see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/slurm.html#Schedulingstrategies">52.7</a>
+).
+It is thus typical for a job to be
+put on a 
+<i>queue</i>
+, scheduled, and started,
+by a batch system such as 
+<span title="acronym" ><i>SLURM</i></span>
+.
+</p>
+
+<p name="switchToTextMode">
+Batch systems do not put all jobs in one big pool:
+jobs are submitted to any of a number of queues,
+that are all scheduled separately.
+</p>
+
+<p name="switchToTextMode">
+Queues can differ in the following ways:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+If a cluster has different processor types, those are typically
+  in different queues. Also, there may be separate queues for the nodes that
+  have a 
+<span title="acronym" ><i>GPU</i></span>
+ attched. Having multiple queues means
+  you have to decide what processor type you
+  want your job to run on, even if your executable is binary compatible with
+  all of them.
+<li>
+There can be `development' queues, which have restrictive limits on runtime and
+  node count, but where jobs typically start faster.
+<li>
+Some clusters have `premium' queues, which have a higher charge rate, but
+  offer higher priority.
+<li>
+`Large memory nodes' are typically also in a queue of their own.
+<li>
+There can be further queues for jobs with large resource demands, such
+  as large core counts, or longer-than-normal runtimes.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+For slurm, the 
+<tt>sinfo</tt>
+ command can tell you much about the queues.
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+# what queues are there?
+sinfo -o "%P"
+# what queues are there, and what is their status?
+sinfo -o "%20P %.5a"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Enter these commands. How many queues are there? Are they all
+  operational at the moment?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Queuelimits">52.2.1</a> Queue limits</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Queues">Queues</a> > <a href="slurm.html#Queuelimits">Queue limits</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Queues have limits on
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the runtime of a job;
+<li>
+the node count of a job; or
+<li>
+how many jobs a user can have in that queue.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Jobrunning">52.3</a> Job running</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Jobrunning">Job running</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+There are two main ways of starting a job on a cluster that is
+managed by slurm.
+You can start a program run synchronously with 
+<tt>srun</tt>
+,
+but this may hang until resources are available.
+In this section, therefore, we focus on asynchronously executing
+your program by submitting a job with 
+<tt>sbatch</tt>
+.
+</p>
+
+<h3><a id="Thejobsubmissioncycle">52.3.1</a> The job submission cycle</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Jobrunning">Job running</a> > <a href="slurm.html#Thejobsubmissioncycle">The job submission cycle</a>
+</p>
+<p name="switchToTextMode">
+
+In order to run a 
+<i>batch job</i>
+,
+you need to write a 
+<i>job script</i>
+,
+or 
+<i>batch script</i>
+.
+This script describes what program you will run,
+where its inputs and outputs are located,
+how many processes it can use, and how long it will run.
+</p>
+
+<p name="switchToTextMode">
+In its simplest form, you submit your script without further parameters:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+sbatch yourscript
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+All options regarding the job run are contained in the script file, as we
+will now discuss.
+</p>
+
+<p name="switchToTextMode">
+As a result of your job submission you get a job id.
+After submission you can queury your job with 
+<tt>squeue</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+squeue -j 123456
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+or queury all your jobs:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+squeue -u yourname
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+The 
+<tt>squeue</tt>
+ command reports various aspects of your job,
+such as its status (typically pending or running);
+and if it is running, the queue (or `partition') where it runs,
+its elapsed time, and the actual nodes where it runs.
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+squeue -j 5807991
+  JOBID   PARTITION     NAME     USER ST   TIME  NODES NODELIST(REASON)
+5807991 development packingt eijkhout  R   0:04      2 c456-[012,034]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+If you discover errors in your script after submitting it,
+including when it has started running,
+you can cancel your job with 
+<tt>scancel</tt>
+:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+scancel 1234567
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Thescriptfile">52.4</a> The script file</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Thescriptfile">The script file</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+A job script looks like an executable shell script:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+It has an `interpreter' line such as
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#!/bin/bash
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+at the top, and
+<li>
+it contains ordinary unix commands, including
+<li>
+the (parallel) startup of you program:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+# sequential program:
+./yourprogram youroptions
+# parallel program, general:
+mpiexec -n 123 parallelprogram options
+# parallel program, TACC:
+ibrun parallelprogram options
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+&hellip;&nbsp;and then it has many options specifying the parallel run.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="sbatchoptions">52.4.1</a> sbatch options</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Thescriptfile">The script file</a> > <a href="slurm.html#sbatchoptions">sbatch options</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In addition to the regular unix commands and the interpreter line,
+your script has a number of SLURM directives,
+each starting with 
+ <tt>#SBATCH</tt> .
+(This makes them comments to the shell interpreter,
+so a batch script is actually a legal shell script.)
+</p>
+
+<p name="switchToTextMode">
+Directives have the form
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#SBATCH -option value
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+Common options are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>-J</tt>
+: the jobname. This will be displayed when you call 
+<tt>squeue</tt>
+.
+<li>
+
+<tt>-o</tt>
+: name of the output file. This will contain all the stdout output of the script.
+<li>
+
+<tt>-e</tt>
+: name of the error file. This will contain all the stderr
+  output of the script, as well as slurm error messages.
+</p>
+
+<p name="switchToTextMode">
+  It can be a good idea to make the output and error file unique per job.
+  To this purpose, the macro 
+ <tt>%j</tt>  is available, which at execution time
+  expands to the job number. You will then get an output file with a
+  name such as 
+<tt>myjob.o2384737</tt>
+.
+<li>
+
+<tt>-p</tt>
+: the 
+<i>partition</i>
+ or queue. See above.
+<li>
+
+<tt>-t hh:mm:ss</tt>
+: the maximum running time.
+  If your job exceeds this, it will get
+<!-- index -->
+<i>cancelled</i>
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+You can not specify a duration here that is longer than the queue limit.
+<li>
+The shorter your job, the more likely it is to get scheduled sooner
+    rather than later.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<li>
+
+<tt>-w c452-[101-104,111-112,115]</tt>
+ specific nodes to place the job.
+<li>
+
+<tt>-A</tt>
+: the name of the account to which your job should be billed.
+<li>
+
+<tt>--mail-user=you@where</tt>
+ Slurm can notify you when a job starts or ends.
+  You may for instance want to connect to a job when it starts
+  (to run 
+<tt>top</tt>
+),
+  or inspect the results when it's done, but not sit and stare at your terminal all day.
+  The action of which you want to be notified is specified with
+  (among others)
+  
+<tt>--mail-type=begin/end/fail/all</tt>
+
+<li>
+
+<tt>--dependency=after:123467</tt>
+ indicates that this job is to
+  start after jobs 
+<tt>1234567</tt>
+ finished. Use 
+<tt>afterok</tt>
+ to start only
+  if that job successfully finished. (See
+  
+<a href=https://cvw.cac.cornell.edu/slurm/submission_depend>https://cvw.cac.cornell.edu/slurm/submission_depend</a>
+ for more
+  options.)
+<li>
+
+<tt>--nodelist</tt>
+ allows you to specify specific nodes. This can be
+  good for getting reproducible timings, but it will probably increase
+  your wait time in the queue.
+<li>
+
+<tt>--array=0-30</tt>
+ is a specification for `array jobs': a task that needs
+  to be executed for a range of parameter values.
+<!-- environment: taccnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=taccnote ]] -->
+<remark>
+<b>TACC note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+  Arry jobs are not supported at TACC; use a launcher instead;
+  section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/slurm.html#Parametersweepsensemblesmassivelyparallel">52.5.3</a>
+.
+</p name="remark">
+</remark>
+<!-- environment: taccnote end embedded generator -->
+<li>
+
+<tt>--mem=10000</tt>
+ specifies the desired amount of memory per node.
+  Default units are megabytes, but can be explicitly indicated
+  with&nbsp;
+<tt>K/M/G/T</tt>
+.
+<!-- environment: taccnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=taccnote ]] -->
+<remark>
+<b>TACC note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+    This option can not be used to request arbitrary memory:
+    jobs always have access to all available physical memory,
+    and use of shared memory is not allowed.
+</p name="remark">
+</remark>
+<!-- environment: taccnote end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+See 
+<a href=https://slurm.schedmd.com/sbatch.html>https://slurm.schedmd.com/sbatch.html</a>
+ for a full list.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Write a script that executes the 
+<tt>date</tt>
+ command twice,
+  with a 
+<tt>sleep</tt>
+ in between.
+  Submit the script and investigate the output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Environment">52.4.2</a> Environment</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Thescriptfile">The script file</a> > <a href="slurm.html#Environment">Environment</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Your job script acts like any other shell script when it is executed.
+In particular, it inherits the calling
+<i>environment</i>
+<!-- index -->
+with all its environment variables.
+Additionally, slurm defines a number of environment variables,
+such as the job ID, the hostlist, and the node and process count.
+</p>
+
+<h2><a id="Parallelismhandling">52.5</a> Parallelism handling</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Parallelismhandling">Parallelism handling</a>
+</p>
+<p name="switchToTextMode">
+
+We discuss parallelism options separately.
+</p>
+
+<h3><a id="MPIjobs">52.5.1</a> MPI jobs</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Parallelismhandling">Parallelism handling</a> > <a href="slurm.html#MPIjobs">MPI jobs</a>
+</p>
+<p name="switchToTextMode">
+
+On most clusters there is a structure with compute nodes,
+that contain one or more multi-core processors.
+Thus, you want to specify the node and core count.
+For this, there are options 
+<tt>-N</tt>
+ and&nbsp;
+<tt>-n</tt>
+ respectively.
+</p>
+
+<!-- environment: verbatim start embedded generator -->
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#SBATCH -N 4              # Total number of nodes
+#SBATCH -n 4              # Total number of mpi tasks
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+It would be possible to specify only the node count or the core count,
+but that takes away flexibility:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+If a node has 40 cores, but your program stops scaling at  10 MPI ranks,
+  you would use:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#SBATCH -N 1
+#SBATCH -n 10
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<li>
+If your processes use a large amount of memory, you may want to leave some cores unused.
+  On a 40-core node you would either use
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#SBATCH -N 2
+#SBATCH -n 40
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+or
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#SBATCH -N 1
+#SBATCH -n 20
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Rather than specifying a total core count, you can also specify the core count
+per node with 
+<tt>--ntasks-per-node</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Go through the above examples and replace the 
+<tt>-n</tt>
+ option by an equivalent
+  
+<tt>--ntasks-per-node</tt>
+ values.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: pythonnote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
+<p name="switchToTextMode">
+  Python programs using 
+<tt>mpi4py</tt>
+ should be treated like other
+  MPI programs, except that instead of an executable name you specify
+  the python executable and the script name:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+ibrun python3 mympi4py.py
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Threadedjobs">52.5.2</a> Threaded jobs</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Parallelismhandling">Parallelism handling</a> > <a href="slurm.html#Threadedjobs">Threaded jobs</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The above discussion was mostly of relevance to MPI programs.
+Some other cases:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+For pure-OpenMP programs you need only one node, so the 
+<tt>-N</tt>
+ value is&nbsp;1.
+  Maybe surprisingly, the 
+<tt>-n</tt>
+ value is also&nbsp;1, since only one process needs
+  to be created: OpenMP uses thread-level parallelism, which is specified
+  through the 
+<tt>OMP_NUM_THREADS</tt>
+ environment variable.
+<li>
+A similar story holds for the
+<i>Matlab parallel computing toolbox</i>
+  (note: note the distributed computing toolbox),
+  and the 
+<i>Python multiprocessing</i>
+ module.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What happens if you specify an&nbsp;
+<tt>-n</tt>
+ value greater than&nbsp;1
+  for a pure-OpenMP program?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+For 
+<i>hybrid computing</i>
+ MPI-OpenMP programs, you use a combination
+of slurm options and enviroment variables, such that, for instance,
+the product of the 
+<tt>--tasks-per-node</tt>
+ and 
+<tt>OMP_NUM_THREADS</tt>
+ is less than the
+core count of the node.
+</p>
+
+<h3><a id="Parametersweepsensemblesmassivelyparallel">52.5.3</a> Parameter sweeps / ensembles / massively parallel</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Parallelismhandling">Parallelism handling</a> > <a href="slurm.html#Parametersweepsensemblesmassivelyparallel">Parameter sweeps / ensembles / massively parallel</a>
+</p>
+
+<p name="switchToTextMode">
+
+So far we have focused on jobs where a single parallel executable is scheduled.
+However, there are use cases where you want to run a sequential (or very modestly parallel)
+executable for a large number of inputs.
+This is called variously a 
+<i>parameter sweep</i>
+ or an 
+<i>ensemble</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Slurm can support this itself with 
+<i>array jobs</i>
+,
+though there are more sophisticated 
+<i>launcher</i>
+ tools
+for such purposes.
+</p>
+
+<!-- environment: taccnote start embedded generator -->
+<!-- environment block purpose: [[ environment=taccnote ]] -->
+<remark>
+<b>TACC note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+  TACC clusters do not support array jobs.
+  Instead, use the 
+<tt>launcher</tt>
+ or 
+<tt>pylauncher</tt>
+ modules.
+</p name="remark">
+</remark>
+<!-- environment: taccnote end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Jobrunning">52.6</a> Job running</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Jobrunning">Job running</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+When your job is running, its status is reported as 
+<tt>R</tt>
+ by 
+<tt>squeue</tt>
+.
+That command also reports which nodes are allocated to it.
+</p>
+
+<!-- environment: verbatim start embedded generator -->
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+squeue -j 5807991
+       JOBID   PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+     5807991 development packingt eijkhout  R       0:04      2 c456-[012,034]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+You can then 
+<tt>ssh</tt>
+ into the compute nodes of your job;
+normally, compute nodes are off-limits.
+This is useful if you want to run 
+<tt>top</tt>
+to see how your processes are doing.
+</p>
+
+<h2><a id="Schedulingstrategies">52.7</a> Scheduling strategies</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Schedulingstrategies">Scheduling strategies</a>
+</p>
+
+<p name="switchToTextMode">
+
+Such a system looks at resource availability
+and the user's priority to determine when a job can be run.
+</p>
+
+<p name="switchToTextMode">
+Of course, if a user is requesting a large number of nodes,
+it may never happen that that many become available simultaneously,
+so the batch system will force the availability.
+It does so by determining a time when that job is
+set to run, and then let nodes go 
+<i>idle</i>
+so that they are available at that time.
+</p>
+
+<p name="switchToTextMode">
+An interesting side effect of this is that,
+right before the really large job starts,
+a&nbsp;`fairly' large job can be run, if it only has a short running time.
+This is known as 
+<i>backfill</i>
+, and it may cause jobs to be
+run earlier than their priority would warrant.
+</p>
+
+<h2><a id="Filesystems">52.8</a> File systems</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Filesystems">File systems</a>
+</p>
+<p name="switchToTextMode">
+
+File systems come in different types:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+They can be backed-up or not;
+<li>
+they can be shared or not; and
+<li>
+they can be permanent or purged.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+On many clusters each node has as local disc, either spinning or a
+<i>RAM disc</i>
+. This is usually limited in size, and
+should only be used for temporary files during the job run.
+</p>
+
+<p name="switchToTextMode">
+Most of the file system lives on discs that are part of
+<i>RAID arrays</i>
+.
+These discs have a large amount of redundancy to make them
+fault-tolerant, and in aggregate they form a
+<i>shared file system</i>
+<!-- index -->
+:
+one unified file system that is accessible from any node
+and where files can take on any size, or at least
+much larger than any individual disc in the system.
+</p>
+
+<!-- environment: taccnote start embedded generator -->
+<!-- environment block purpose: [[ environment=taccnote ]] -->
+<remark>
+<b>TACC note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator taccnote ['taccnote'] -->
+  The 
+<tt>HOME</tt>
+ file system is limited in size, but
+  is both permanent and backed up. Here you put scripts and sources.
+</p>
+
+<p name="switchToTextMode">
+  The 
+<tt>WORK</tt>
+ file system is permanent but not backed up.
+  Here you can store output of your simulations. However, currently
+  the work file system can not immediately sustain the output of
+  a large parallel job.
+</p>
+
+<p name="switchToTextMode">
+  The 
+<tt>SCRATCH</tt>
+ file system is purged, but it has the most bandwidth
+  for accepting program output. This is where you would write your data.
+  After post-processing, you can then store on the work file system,
+  or write to tape.
+</p name="remark">
+</remark>
+<!-- environment: taccnote end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  If you install software with 
+<i>cmake</i>
+, you typically have
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+a script with all your cmake options;
+<li>
+the sources,
+<li>
+the installed header and binary files
+<li>
+temporary object files and such.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+  How would you orgnize these entities over your available file systems?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Examples">52.9</a> Examples</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Examples">Examples</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Very sketchy section.
+</p>
+
+<h3><a id="Jobdependencies">52.9.1</a> Job dependencies</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Examples">Examples</a> > <a href="slurm.html#Jobdependencies">Job dependencies</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+JOB=`sbatch my_batchfile.sh | egrep -o -e "\b[0-9]+$"`
+
+
+#!/bin/sh
+
+
+# Launch first job
+JOB=`sbatch job.sh | egrep -o -e "\b[0-9]+$"`
+
+
+# Launch a job that should run if the first is successful
+sbatch --dependency=afterok:${JOB} after_success.sh
+
+
+# Launch a job that should run if the first job is unsuccessful
+sbatch --dependency=afternotok:${JOB} after_fail.sh
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Multiplerunsinonescript">52.9.2</a> Multiple runs in one script</h3>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Examples">Examples</a> > <a href="slurm.html#Multiplerunsinonescript">Multiple runs in one script</a>
+</p>
+</p>
+
+<!-- environment: verbatim start embedded generator -->
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+ibrun stuff &
+sleep 10
+for h in hostlist ; do
+  ssh $h "top"
+done
+wait
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Reviewquestions">52.10</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="slurm.html">slurm</a> > <a href="slurm.html#Reviewquestions">Review questions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+For all true/false questions,
+if you answer False, what is the right answer and why?
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  T/F?
+  When you submit a job, it starts running immediately once
+  sufficient resources are available.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  T/F? If you submit the following script:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#!/bin/bash
+#SBATCH -N 10
+#SBATCH -n 10
+echo "hello world"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+you get 10 lines of `hello world' in your output.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  T/F? If you submit the following script:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+#!/bin/bash
+#SBATCH -N 10
+#SBATCH -n 10
+hostname
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+you get the hostname of the login node from which your job was submitted.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Which of these are shared with other users when your job is running:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Memory;
+<li>
+CPU;
+<li>
+Disc space?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  What is the command for querying the status of your job?
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>sinfo</tt>
+
+<li>
+
+<tt>squeue</tt>
+
+<li>
+
+<tt>sacct</tt>
+
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  On 4 nodes with 40 cores each, what's the largest program run,
+  measured in
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+MPI ranks;
+<li>
+OpenMP threads?
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

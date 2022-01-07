@@ -1,0 +1,385 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>PETSC nonlinear solvers</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+37.1 : <a href="petsc-nonlinear.html#Nonlinearsystems">Nonlinear systems</a><br>
+37.1.1 : <a href="petsc-nonlinear.html#Basicsetup">Basic setup</a><br>
+37.2 : <a href="petsc-nonlinear.html#Time-stepping">Time-stepping</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>37 PETSC nonlinear solvers</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<h2><a id="Nonlinearsystems">37.1</a> Nonlinear systems</h2>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-nonlinear.html">petsc-nonlinear</a> > <a href="petsc-nonlinear.html#Nonlinearsystems">Nonlinear systems</a>
+</p>
+<p name="switchToTextMode">
+
+Nonlinear system solving means finding the zero of a general nonlinear function,
+that is:
+\[
+ \mathop{?}_x\colon f(x)=0 
+\]
+with $f\colon \bbR^n-\bbR^n$.
+In the special case of a linear function,
+\[
+ f(x) = Ax-b, 
+\]
+we solve this by any of the methods in chapter~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/petsc-solver.html">PETSc solvers</a>
+.
+</p>
+
+<p name="switchToTextMode">
+The general case can be solved by a number of methods,
+foremost 
+<i>Newton's method</i>
+,
+which iterates
+\[
+ x_{n+1} = x_n - F(x_n)\inv f(x_n) 
+\]
+where $F$ is the 
+<i>Hessian</i>
+ $F_{ij}=\partial f_i/\partial x_j$.
+</p>
+
+<p name="switchToTextMode">
+You see that you need to specify two functions
+that are dependent on your specific problem:
+the objective function itself, and its Hessian.
+</p>
+
+<h3><a id="Basicsetup">37.1.1</a> Basic setup</h3>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-nonlinear.html">petsc-nonlinear</a> > <a href="petsc-nonlinear.html#Nonlinearsystems">Nonlinear systems</a> > <a href="petsc-nonlinear.html#Basicsetup">Basic setup</a>
+</p>
+<p name="switchToTextMode">
+
+The PETSc nonlinear solver object is of type 
+<tt>SNES</tt>
+:
+`simple nonlinear equation solver'.
+As with linear solvers, we create this solver on a communicator,
+set its type, incorporate options,
+and call the solution routine 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#SNESSolve" aria-expanded="false" aria-controls="SNESSolve">
+        Routine reference: SNESSolve
+      </button>
+    </h5>
+  </div>
+  <div id="SNESSolve" class="collapse">
+  <pre>
+#include "petscsnes.h"
+PetscErrorCode  SNESSolve(SNES snes,Vec b,Vec x)
+
+Collective on SNES
+
+Input Parameters
+snes - the SNES context
+b    - the constant part of the equation F(x) = b, or NULL to use zero.
+x    - the solution vector.
+
+</pre>
+</div>
+</div>
+<i>SNESSolve</i>
+:
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+Vec value_vector,solution_vector;
+/* vector creation code missing */
+SNES solver;
+SNESCreate( comm,&solver );
+SNESSetFunction( solver,value_vector,formfunction, NULL );
+SNESSetFromOptions( solver );
+SNESSolve( solver,NULL,solution_vector );
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+The function has the type
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+PetscErrorCode formfunction(SNES,Vec,Vec,void*)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+where the parameters are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the solver object, so that you can access to its internal parameters
+<li>
+the $x$ value at which to evaluate the function
+<li>
+the result vector $f(x)$ for the given input
+<li>
+a context pointer for further application-specific information.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Example:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+PetscErrorCode evaluation_function( SNES solver,Vec x,Vec fx, void *ctx ) {
+  const PetscReal *x_array;
+  PetscReal *fx_array;
+  VecGetArrayRead(fx,&fx_array);
+  VecGetArray(x,&x_array);
+  for (int i=0; i&lt;localsize; i++)
+    fx_array[i] = pointfunction( x_array[i] );
+  VecRestoreArrayRead(fx,&fx_array);
+  VecRestoreArray(x,&x_array);
+};
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Comparing the above to the introductory description you see that
+the Hessian is not specified here.
+An analytic Hessian can be dispensed with if you instruct
+PETSc to approximate it by finite differences:
+\[
+ H(x)y \approx \frac{f(x+hy)-f(x)}{h} 
+\]
+with $h$ some finite diference.
+The commandline option 
+<tt>snes_fd</tt>
+ forces
+the use of this finite difference approximation.
+However, it may lead to a large number of function evaluations.
+The option 
+<tt>snes_fd_color</tt>
+ applies a coloring
+to the variables, leading to a drastic reduction in the number
+of function evaluations.
+</p>
+
+<p name="switchToTextMode">
+If you can form the analytic Jacobian&nbsp;/ Hessian, you can specify it with
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#SNESSetJacobian" aria-expanded="false" aria-controls="SNESSetJacobian">
+        Routine reference: SNESSetJacobian
+      </button>
+    </h5>
+  </div>
+  <div id="SNESSetJacobian" class="collapse">
+  <pre>
+#include "petscsnes.h"
+PetscErrorCode  SNESSetJacobian(SNES snes,Mat Amat,Mat Pmat,PetscErrorCode (*J)(SNES,Vec,Mat,Mat,void*),void *ctx)
+
+Logically Collective on SNES
+
+Input Parameters
+snes - the SNES context
+Amat - the matrix that defines the (approximate) Jacobian
+Pmat - the matrix to be used in constructing the preconditioner, usually the same as Amat.
+J    - Jacobian evaluation routine (if NULL then SNES retains any previously set value)
+ctx  - [optional] user-defined context for private data for the Jacobian evaluation routine
+</pre>
+</div>
+</div>
+<i>SNESSetJacobian</i>
+,
+where the Jacobian is a function of type
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#SNESJacobianFunction" aria-expanded="false" aria-controls="SNESJacobianFunction">
+        Routine reference: SNESJacobianFunction
+      </button>
+    </h5>
+  </div>
+  <div id="SNESJacobianFunction" class="collapse">
+  <pre>
+#include "petscsnes.h"
+PetscErrorCode SNESJacobianFunction(SNES snes,Vec x,Mat Amat,Mat Pmat,void *ctx);
+
+Collective on snes
+
+Input Parameters
+x   - input vector, the Jacobian is to be computed at this value
+ctx - [optional] user-defined Jacobian context
+
+Output Parameters
+Amat - the matrix that defines the (approximate) Jacobian
+Pmat - the matrix to be used in constructing the preconditioner, usually the same as Amat.
+</pre>
+</div>
+</div>
+<i>SNESJacobianFunction</i>
+.
+</p>
+
+<p name="switchToTextMode">
+Specifying the Jacobian:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+Mat J;
+ierr = MatCreate(comm,&J); CHKERRQ(ierr);
+ierr = MatSetType(J,MATSEQDENSE); CHKERRQ(ierr);
+ierr = MatSetSizes(J,n,n,N,N); CHKERRQ(ierr);
+ierr = MatSetUp(J); CHKERRQ(ierr);
+ierr = SNESSetJacobian(solver,J,J,&Jacobian,NULL); CHKERRQ(ierr);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Time-stepping">37.2</a> Time-stepping</h2>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-nonlinear.html">petsc-nonlinear</a> > <a href="petsc-nonlinear.html#Time-stepping">Time-stepping</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+For cases
+\[
+ u_t = G(t,u) 
+\]
+call 
+<tt>TSSetRHSFunction</tt>
+.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#include "petscts.h"
+PetscErrorCode TSSetRHSFunction
+   (TS ts,Vec r,
+    PetscErrorCode (*f)(TS,PetscReal,Vec,Vec,void*),
+    void *ctx);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+For implicit cases
+\[
+ F( t,u,u_t ) = 0 
+\]
+call 
+<tt>TSSetIFunction</tt>
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#include "petscts.h"
+PetscErrorCode TSSetIFunction
+   (TS ts,Vec r,TSIFunction f,void *ctx)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

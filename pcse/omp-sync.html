@@ -1,0 +1,1196 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP topic: Synchronization</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+23.1 : <a href="omp-sync.html#Barrier">Barrier</a><br>
+23.1.1 : <a href="omp-sync.html#Implicitbarriers">Implicit barriers</a><br>
+23.2 : <a href="omp-sync.html#Mutualexclusion">Mutual exclusion</a><br>
+23.2.1 : <a href="omp-sync.html#Whycriticalsections?">Why critical sections?</a><br>
+23.2.2 : <a href="omp-sync.html#<tt>critical<tt>and<tt>atomic<tt>"><tt>critical</tt> and <tt>atomic</tt></a><br>
+23.3 : <a href="omp-sync.html#Locks">Locks</a><br>
+23.3.1 : <a href="omp-sync.html#Nestedlocks">Nested locks</a><br>
+23.3.2 : <a href="omp-sync.html#Example:objectwithatomicupdate">Example: object with atomic update</a><br>
+23.4 : <a href="omp-sync.html#Example:Fibonaccicomputation">Example: Fibonacci computation</a><br>
+23.5 : <a href="omp-sync.html#Review">Review</a><br>
+23.6 : <a href="omp-sync.html#Reviewquestions">Review questions</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>23 OpenMP topic: Synchronization</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+In the constructs for declaring parallel regions above, you had little control over
+in what order threads executed the work they were assigned.
+This section will discuss 
+<i>synchronization</i>
+ constructs: ways of telling
+threads to bring a certain order to the sequence in which they do things.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>critical</tt>
+: a section of code can only be executed by one
+  thread at a time; see~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#<tt>critical<tt>and<tt>atomic<tt>">23.2.2</a>
+.
+<li>
+
+<tt>atomic</tt>
+ 
+<i>Atomic update</i>
+
+<!-- index -->
+  of a single memory location. Only certain
+  specified syntax pattterns are supported. This was added in order to
+  be able to use hardware support for atomic updates.
+<li>
+
+<tt>barrier</tt>
+: section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#Barrier">23.1</a>
+.
+<li>
+
+<tt>ordered</tt>
+: section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-loop.html#Orderediterations">19.6</a>
+.
+<li>
+locks: section 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#Locks">23.3</a>
+.
+<li>
+
+<tt>flush</tt>
+: section 
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-memory.html#Relaxedmemorymodel">26.3</a>
+.
+<li>
+
+<tt>nowait</tt>
+: section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-loop.html#<tt>nowait<tt>">19.7</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Barrier">23.1</a> Barrier</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Barrier">Barrier</a>
+</p>
+
+</p>
+
+<p name="switchToTextMode">
+A 
+<tt>barrier</tt>
+ defines a point in the code where all active threads will stop
+until all threads have arrived at that point. With this, you can guarantee that
+certain calculations are finished. For instance, in this code snippet, computation
+of~
+<tt>y</tt>
+ can not proceed until another thread has computed its value of~
+<tt>x</tt>
+.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+  int mytid = omp_get_thread_num();
+  x[mytid] = some_calculation();
+  y[mytid] = x[mytid]+x[mytid+1];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This can be guaranteed with a 
+<tt>barrier</tt>
+ pragma:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+  int mytid = omp_get_thread_num();
+  x[mytid] = some_calculation();
+#pragma omp barrier
+  y[mytid] = x[mytid]+x[mytid+1];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Apart from the barrier directive, which inserts an explicit barrier,
+OpenMP has 
+<i>implicit barriers</i>
+
+a load sharing construct. Thus the following code is well defined:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+#pragma omp for
+  for (int mytid=0; mytid&lt;number_of_threads; mytid++)
+    x[mytid] = some_calculation();
+#pragma omp for
+  for (int mytid=0; mytid&lt;number_of_threads-1; mytid++)
+    y[mytid] = x[mytid]+x[mytid+1];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+You can also put each parallel loop in a parallel region of its own,
+but there is some overhead associated with creating and deleting the
+team of threads in between the regions.
+</p>
+
+<h3><a id="Implicitbarriers">23.1.1</a> Implicit barriers</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Barrier">Barrier</a> > <a href="omp-sync.html#Implicitbarriers">Implicit barriers</a>
+</p>
+<p name="switchToTextMode">
+
+At the end of a parallel region the team of threads is dissolved and
+only the master thread continues. Therefore, there is an
+<i>implicit barrier at the end of a parallel region</i>
+</p>
+
+<p name="switchToTextMode">
+There is some 
+<i>barrier behavior</i>
+
+  behavior} associated with 
+<tt>omp for</tt>
+ loops and other
+<i>worksharing constructs</i>
+  barriers at} (see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-share.html#Fortranarraysyntaxparallelization">21.3</a>
+).  For instance, there
+is an 
+<i>implicit barrier</i>
+ at the end of the loop. This
+barrier behavior can be cancelled with the 
+clause.
+</p>
+
+<p name="switchToTextMode">
+You will often see the idiom
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+#pragma omp for nowait
+  for (i=0; i&lt;N; i++)
+    a[i] = // some expression
+#pragma omp for
+  for (i=0; i&lt;N; i++)
+    b[i] = ...... a[i] ......
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Here the 
+<tt>nowait</tt>
+ clause implies that threads can start on the second loop
+while other threads are still working on the first. Since the two loops use the same
+schedule here, an iteration that uses 
+<tt>a[i]</tt>
+ can indeed rely on it that that
+value has been computed.
+</p>
+
+<h2><a id="Mutualexclusion">23.2</a> Mutual exclusion</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Mutualexclusion">Mutual exclusion</a>
+</p>
+<p name="switchToTextMode">
+
+Sometimes it is necessary to limit a piece of code
+so that it can be executed by only one tread at a time.
+Such a piece of code is called a 
+<i>critical section</i>
+, and
+OpenMP has several mechanisms for realizing this.
+</p>
+
+<h3><a id="Whycriticalsections?">23.2.1</a> Why critical sections?</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Mutualexclusion">Mutual exclusion</a> > <a href="omp-sync.html#Whycriticalsections?">Why critical sections?</a>
+</p>
+<p name="switchToTextMode">
+
+The most common use of critical sections is to update a variable. Since updating
+involves reading the old value, and writing back the new, this has the possibility
+for a 
+<i>race condition</i>
+: another thread reads the current value
+before the first can update it; the second thread the updates to the wrong value.
+</p>
+
+<p name="switchToTextMode">
+Suppose that two processes both try to increment an integer
+variable&nbsp;
+<tt>I</tt>
+:
+<!-- environment: tabbing start embedded generator -->
+</p>
+<p style="margin-left: 40px">
+<!-- TranslatingLineGenerator tabbing ['tabbing'] --><br>
+<p name="switchToTextMode"><br>
+  process 1: <br>
+<tt>I=I+2</tt><br>
+<br>
+  process 2: <br>
+<tt>I=I+3</tt><br>
+<br>
+</p>
+<!-- environment: tabbing end embedded generator -->
+<p name="switchToTextMode">
+This is a legitimate activity if the variable is an accumulator for
+values computed by independent processes.
+The result of these two updates
+depends on the sequence in which the processors read and
+write the variable.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- environment block purpose: [[ environment=figure ]] -->
+<figure>
+<float mode=figure>
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<!-- environment: tabular start embedded generator -->
+<table>
+<tr>
+<td>
+<!-- TranslatingLineGenerator tabular ['tabular'] -->
+    </td></tr>
+<tr><td>
+    scenario 1.</td><td> scenario 1.</td><td>
+    scenario 3.\ </td></tr>
+<tr><td>
+    \multicolumn{6}{|c|}{$
+<tt>I</tt>
+=0$}\ </td></tr>
+<tr><td>
+    read $
+<tt>I</tt>
+=0$</td><td>read $
+<tt>I</tt>
+=0$</td><td>
+    read $
+<tt>I</tt>
+=0$</td><td>read $
+<tt>I</tt>
+=0$</td><td>
+    read $
+<tt>I</tt>
+=0$</td><td> </td></tr>
+<tr><td>
+    compute $
+<tt>I</tt>
+=2$</td><td>compute $
+<tt>I</tt>
+=3$</td><td>
+    compute $
+<tt>I</tt>
+=2$</td><td>compute $
+<tt>I</tt>
+=3$</td><td>
+    compute $
+<tt>I</tt>
+=2$</td><td> </td></tr>
+<tr><td>
+    write $
+<tt>I</tt>
+=2$</td><td> </td><td> </td><td>write $
+<tt>I</tt>
+=3$</td><td>write $
+<tt>I</tt>
+=2$</td><td> </td></tr>
+<tr><td>
+    </td><td>write $
+<tt>I</tt>
+=3$</td><td>write $
+<tt>I</tt>
+=2$</td><td> </td><td> </td><td>read $
+<tt>I</tt>
+=2$</td></tr>
+<tr><td>
+    </td><td></td><td></td><td></td><td></td><td>compute $
+<tt>I</tt>
+=5$</td></tr>
+<tr><td>
+    </td><td></td><td></td><td></td><td></td><td>write $
+<tt>I</tt>
+=5$</td></tr>
+<tr><td>
+    </td></tr>
+<tr><td>
+    \multicolumn{2}{|c|}{$
+<tt>I</tt>
+=3$}</td><td> \multicolumn{2}{|c|}{$
+<tt>I</tt>
+=2$}</td><td>
+    \multicolumn{2}{|c|}{$
+<tt>I</tt>
+=5$}\ </td></tr>
+<tr><td>
+</td>
+</tr>
+</table>
+<!-- environment: tabular end embedded generator -->
+<p name="caption">
+FIGURE 23.1: Three executions of a data race scenario
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+Figure&nbsp;
+23.1
+ illustrates
+three scenarios.
+Such a scenario,
+where the final result depends on `micro-timing' of the actions of a thread,
+is known as a 
+<i>race condition</i>
+ or
+<i>data race</i>
+<!-- index -->
+.
+A&nbsp;formal definition would be:
+<!-- environment: quotation start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=quotation ]] -->
+<quotation>
+
+<p name="quotation">
+<!-- TranslatingLineGenerator quotation ['quotation'] -->
+  We talk of a a 
+<i>data race</i>
+ if there are two statements&nbsp;$S_1,S_2$,
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+that are not causally related;
+<li>
+that both access a location&nbsp;$L$; and
+<li>
+at least one access is a write.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</quotation>
+<!-- environment: quotation end embedded generator -->
+<p name="switchToTextMode">
+Enclosing the update statement in a critical section,
+or making it atomic by some other mechanism,
+enforces scenario&nbsp;3 of the above figure.
+</p>
+
+<h3><a id="<tt>critical<tt>and<tt>atomic<tt>">23.2.2</a> <tt>critical</tt> and <tt>atomic</tt></h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Mutualexclusion">Mutual exclusion</a> > <a href="omp-sync.html#<tt>critical<tt>and<tt>atomic<tt>"><tt>critical</tt> and <tt>atomic</tt></a>
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+There are two pragmas for critical sections: 
+<tt>critical</tt>
+ and 
+<tt>atomic</tt>
+.
+Both denote 
+<i>atomic operations</i>
+
+in a technical sense.
+The first one is general and can contain an arbitrary sequence of instructions;
+the second one is more limited but has performance advantages.
+</p>
+
+<p name="switchToTextMode">
+The typical application of a critical section is to update a variable:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel
+{
+  int mytid = omp_get_thread_num();
+  double tmp = some_function(mytid);
+#pragma omp critical
+  sum += tmp;
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: exercise start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Consider  a loop where each iteration updates a variable.
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel for shared(result)
+  for ( i ) {
+      result += some_function_of(i);
+  }
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+  Discuss qualitatively
+  the difference between:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+turning the update statement into a critical section, versus
+<li>
+letting the threads accumulate into a private variable 
+<tt>tmp</tt>
+ as above,
+    and summing these after the loop.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+  Do an Ahmdal-style quantitative analysis of the first case, assuming
+  that you do $n$ iterations on $p$ threads, and each iteration has a
+  critical section that takes a fraction&nbsp;$f$.  Assume the number of
+  iterations&nbsp;$n$ is a multiple of the number of threads&nbsp;$p$. Also
+  assume the default static distribution of loop iterations over the
+  threads.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+A 
+<tt>critical</tt>
+ section works by acquiring a lock, which carries a substantial overhead.
+Furthermore, if your code has multiple critical sections, they are all mutually exclusive:
+if a thread is in one critical section, the other ones are all blocked.
+</p>
+
+<p name="switchToTextMode">
+On the other hand, the syntax for 
+<tt>atomic</tt>
+ sections is limited to the update
+of a single memory location, but such sections
+are not exclusive and they can be more efficient, since they assume that there is a hardware
+mechanism for making them critical.
+</p>
+
+<p name="switchToTextMode">
+The problem with 
+<tt>critical</tt>
+ sections being mutually exclusive can be mitigated by naming them:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp critical (optional_name_in_parens)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Critical sections are an easy way to turn an existing code into a correct parallel code.
+However, there are performance disadvantages to critical sections,
+and sometimes a more drastic rewrite
+is called for.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Locks">23.3</a> Locks</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Locks">Locks</a>
+</p>
+<!-- index -->
+
+</p>
+
+<p name="switchToTextMode">
+OpenMP also has the traditional mechanism of a 
+<i>lock</i>
+. A&nbsp;lock is somewhat similar to
+a critical section: it guarantees that some instructions can only be performed by one
+process at a time. However, a critical section is indeed about code; a&nbsp;lock is about data.
+With a lock you make sure that some data elements can only be touched by one process at a time.
+</p>
+
+<p name="switchToTextMode">
+One simple example of the use of locks is generation of a 
+<i>histogram</i>
+.
+A&nbsp;histogram consists of a number of bins, that get updated depending on some data.
+Here is the basic structure of such a code:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int count[100];
+float x = some_function();
+int ix = (int)x;
+if (ix&gt;=100)
+  error();
+else
+  count[ix]++;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+It would be possible to guard the last line:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp critical
+  count[ix]++;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+but that is unnecessarily restrictive. If there are enough bins in the
+histogram, and if the 
+<tt>some_function</tt>
+ takes enough time, there are unlikely to be
+conflicting writes. The solution then is to create an array of locks, with
+one lock for each 
+<tt>count</tt>
+ location.
+</p>
+
+<p name="switchToTextMode">
+Create/destroy:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+void omp_init_lock(omp_lock_t *lock);
+void omp_destroy_lock(omp_lock_t *lock);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Set and release:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+void omp_set_lock(omp_lock_t *lock);
+void omp_unset_lock(omp_lock_t *lock);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Since the set call is blocking, there is also
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+omp_test_lock();
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+Unsetting a lock needs to be done by the thread that set it.
+</p>
+
+<p name="switchToTextMode">
+Lock operations implicitly have a 
+<tt>flush</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+
+  In the following code, one process sets array&nbsp;A and then uses it to
+  update&nbsp;B; the other process sets array&nbsp;B and then uses it to
+  update&nbsp;A.
+  Argue that this code can deadlock. How could you fix this?
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp parallel shared(a, b, nthreads, locka, lockb)
+  #pragma omp sections nowait
+    {
+    #pragma omp section
+      {
+      omp_set_lock(&locka);
+      for (i=0; i&lt;N; i++)
+        a[i] = ..
+
+
+      omp_set_lock(&lockb);
+      for (i=0; i&lt;N; i++)
+        b[i] = .. a[i] ..
+      omp_unset_lock(&lockb);
+      omp_unset_lock(&locka);
+      }
+
+
+    #pragma omp section
+      {
+      omp_set_lock(&lockb);
+      for (i=0; i&lt;N; i++)
+        b[i] = ...
+
+
+      omp_set_lock(&locka);
+      for (i=0; i&lt;N; i++)
+        a[i] = .. b[i] ..
+      omp_unset_lock(&locka);
+      omp_unset_lock(&lockb);
+      }
+    }  /* end of sections */
+  }  /* end of parallel region */
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Nestedlocks">23.3.1</a> Nested locks</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Locks">Locks</a> > <a href="omp-sync.html#Nestedlocks">Nested locks</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+A lock as explained above can not be locked if it is already locked.
+A&nbsp;
+<i>nested lock</i>
+ can be locked multiple times by the same
+thread before being unlocked.
+</p>
+
+<!-- environment: itemize start embedded generator -->
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>omp_init_nest_lock</tt>
+<li>
+<tt>omp_destroy_nest_lock</tt>
+<li>
+<tt>omp_set_nest_lock</tt>
+<li>
+<tt>omp_unset_nest_lock</tt>
+<li>
+<tt>omp_test_nest_lock</tt>
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Example:objectwithatomicupdate">23.3.2</a> Example: object with atomic update</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Locks">Locks</a> > <a href="omp-sync.html#Example:objectwithatomicupdate">Example: object with atomic update</a>
+</p>
+</p>
+
+<span title="acronym" ><i>OO</i></span>
+<p name="switchToTextMode">
+ languages such as C++ allow for syntactic simplification,
+for instance building the locking and unlocking actions into
+the update operator.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#lockobject" aria-expanded="false" aria-controls="lockobject">
+        C Code: lockobject
+      </button>
+    </h5>
+  </div>
+  <div id="lockobject" class="collapse">
+  <pre>
+// lockobject.cxx
+class object {
+private:
+  omp_lock_t the_lock;
+  int _value{0};
+public:
+  object() {
+    omp_init_lock(&the_lock);
+  };
+  &nbsp;object() {
+    omp_destroy_lock(&the_lock);
+  };
+  int operator +=( int i ) {
+// let's waste a little time,
+// otherwise the threads finish before they start
+    float s = i;
+    for (int i=0; i&lt;1000; i++)
+      s += sin(i)*sin(i);
+
+// atomic increment
+    omp_set_lock(&the_lock);
+    _value += (s&gt;0); int rv = _value;
+    omp_unset_lock(&the_lock);
+    return rv;
+  };
+  auto value() { return _value; };
+};
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Running this:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#lockobjectuse" aria-expanded="false" aria-controls="lockobjectuse">
+        C Code: lockobjectuse
+      </button>
+    </h5>
+  </div>
+  <div id="lockobjectuse" class="collapse">
+  <pre>
+for (int ithread=0; ithread&lt;NTHREADS; ithread++) {
+  threads.push_back
+    ( thread(
+	       [&my_object] () {
+		 for (int iop=0; iop&lt;NOPS; iop++)
+		   my_object += iop; } ) );
+}
+for ( auto &t : threads )
+  t.join();
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<i>lock|)</i>
+</p>
+
+<h2><a id="Example:Fibonaccicomputation">23.4</a> Example: Fibonacci computation</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Example:Fibonaccicomputation">Example: Fibonacci computation</a>
+</p>
+<!-- index -->
+<p name="switchToTextMode">
+
+The 
+<i>Fibonacci sequence</i>
+ is recursively defined as
+\[
+ F(0)=1,\qquad F(1)=1,\qquad F(n)=F(n-1)+F(n-2)
+\hbox{ for $n\geq2$}.
+\]
+We start by sketching the basic single-threaded solution.
+The naive code looks like:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int main() {
+  value = new int[nmax+1];
+  value[0] = 1;
+  value[1] = 1;
+  fib(10);
+}
+
+
+int fib(int n) {
+  int i, j, result;
+  if (n&gt;=2) {
+    i=fib(n-1); j=fib(n-2);
+    value[n] = i+j;
+  }
+  return value[n];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+However, this is inefficient, since most intermediate values will be computed
+more than once. We solve this by keeping track of which results are known:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  ...
+  done = new int[nmax+1];
+  for (i=0; i&lt;=nmax; i++)
+    done[i] = 0;
+  done[0] = 1;
+  done[1] = 1;
+  ...
+int fib(int n) {
+  int i, j;
+  if (!done[n]) {
+    i = fib(n-1); j = fib(n-2);
+    value[n] = i+j; done[n] = 1;
+  }
+  return value[n];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The OpenMP parallel solution calls for two different ideas. First of all,
+we parallelize the recursion by using tasks (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-sync.html#Reviewquestions">23.6</a>
+:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int fib(int n) {
+  int i, j;
+  if (n&gt;=2) {
+#pragma omp task shared(i) firstprivate(n)
+    i=fib(n-1);
+#pragma omp task shared(j) firstprivate(n)
+    j=fib(n-2);
+#pragma omp taskwait
+    value[n] = i+j;
+  }
+  return value[n];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This computes the right solution, but, as in the naive single-threaded solution,
+it recomputes many of the intermediate values.
+</p>
+
+<p name="switchToTextMode">
+A naive addition of the 
+<tt>done</tt>
+ array leads to data races, and probably an
+incorrect solution:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int fib(int n) {
+  int i, j, result;
+  if (!done[n]) {
+#pragma omp task shared(i) firstprivate(n)
+    i=fib(n-1);
+#pragma omp task shared(i) firstprivate(n)
+    j=fib(n-2);
+#pragma omp taskwait
+    value[n] = i+j;
+    done[n] = 1;
+  }
+  return value[n];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+For instance, there is no guarantee that the 
+<tt>done</tt>
+ array is updated
+later than the 
+<tt>value</tt>
+ array, so a thread can think that 
+<tt>done[n-1]</tt>
+
+is true, but 
+<tt>value[n-1]</tt>
+ does not have the right value yet.
+</p>
+
+<p name="switchToTextMode">
+One solution to this problem is to use a lock, and make sure that,
+for a given index&nbsp;
+<tt>n</tt>
+, the values 
+<tt>done[n]</tt>
+ and 
+<tt>value[n]</tt>
+
+are never touched by more than one thread at a time:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int fib(int n)
+{
+  int i, j;
+  omp_set_lock( &(dolock[n]) );
+  if (!done[n]) {
+#pragma omp task shared(i) firstprivate(n)
+    i = fib(n-1);
+#pragma omp task shared(j) firstprivate(n)
+    j = fib(n-2);
+#pragma omp taskwait
+    value[n] = i+j;
+    done[n] = 1;
+  }
+  omp_unset_lock( &(dolock[n]) );
+  return value[n];
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+This solution is correct, optimally efficient in the sense that it
+does not recompute anything, and it uses tasks to obtain a parallel execution.
+</p>
+
+<p name="switchToTextMode">
+However, the efficiency of this solution is only up to a constant.
+A&nbsp;lock is still being set, even if a value is already computed and therefore
+will only be read. This can be solved with a complicated use of critical sections,
+but we will forego this.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Review">23.5</a> Review</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Review">Review</a>
+</p>
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  C++ only.\\
+  Write a class for a scalar that can be atommically updated:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompatomicinc" aria-expanded="false" aria-controls="ompatomicinc">
+        C++ Code: ompatomicinc
+      </button>
+    </h5>
+  </div>
+  <div id="ompatomicinc" class="collapse">
+  <pre>
+object my_object;
+#pragma omp parallel
+#pragma omp single
+#pragma omp taskgroup
+for (int ithread=0; ithread&lt;NTHREADS; ithread++) {
+#pragma omp task shared(my_object)
+  for (int iop=0; iop&lt;NOPS; iop++)
+    my_object.inc(iop);
+}
+</pre>
+</div>
+</div>
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Reviewquestions">23.6</a> Review questions</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-sync.html">omp-sync</a> > <a href="omp-sync.html#Reviewquestions">Review questions</a>
+</p>
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  C++ only: write a class with an atomic update method,
+  so as to make the following code work:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  object my_object;
+#pragma omp parallel
+#pragma omp single
+#pragma omp taskgroup
+  for (int ithread=0; ithread&lt;NTHREADS; ithread++) {
+#pragma omp task shared(my_object)
+    for (int iop=0; iop&lt;NOPS; iop++)
+      my_object.inc(iop);
+  }
+  cout &lt;&lt; "Did " &lt;&lt; NTHREADS * NOPS &lt;&lt; " updates, over " &lt;&lt; NTHREADS
+       &lt;&lt; " threads, resulting in " &lt;&lt; my_object.value() &lt;&lt; endl;
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

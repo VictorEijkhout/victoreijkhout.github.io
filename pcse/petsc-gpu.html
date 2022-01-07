@@ -1,0 +1,292 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>PETSc GPU support</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+38.1 : <a href="petsc-gpu.html#InstallationwithGPUs">Installation with GPUs</a><br>
+38.2 : <a href="petsc-gpu.html#SetupforGPU">Setup for GPU</a><br>
+38.3 : <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a><br>
+38.4 : <a href="petsc-gpu.html#Other">Other</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>38 PETSc GPU support</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<h2><a id="InstallationwithGPUs">38.1</a> Installation with GPUs</h2>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#InstallationwithGPUs">Installation with GPUs</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+PETSc can be configured with options
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+--with-cuda   --with-cudac=nvcc?
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+You can test the presence of CUDA with:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#petsccudavar" aria-expanded="false" aria-controls="petsccudavar">
+        C Code: petsccudavar
+      </button>
+    </h5>
+  </div>
+  <div id="petsccudavar" class="collapse">
+  <pre>
+// cudainstalled.c
+#ifndef PETSC_HAVE_CUDA
+#error "CUDA is not installed in this version of PETSC"
+#endif
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Some GPUs can accomodate MPI by being directly connected to the network
+through 
+<i>GPUDirect</i>
+<span title="acronym" ><i>RMA</i></span>
+.
+If not, use this runtime option:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+-use_gpu_aware_mpi 0
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+More conveniently, add this to your 
+<tt>.petscrc</tt>
+ file;
+section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/petsc-tools.html#Wheretospecifyoptions">39.3.3</a>
+.
+</p>
+
+<h2><a id="SetupforGPU">38.2</a> Setup for GPU</h2>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#SetupforGPU">Setup for GPU</a>
+</p>
+<p name="switchToTextMode">
+
+GPUs need to be initialized.
+This can be done implicitly when a GPU object is created,
+or explicitly through 
+<tt>PetscCUDAInitialize</tt>
+.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pcudainit" aria-expanded="false" aria-controls="pcudainit">
+        C Code: pcudainit
+      </button>
+    </h5>
+  </div>
+  <div id="pcudainit" class="collapse">
+  <pre>
+// cudamatself.c
+ierr = PetscCUDAInitialize(comm,PETSC_DECIDE); CHKERRQ(ierr);
+ierr = PetscCUDAInitializeCheck(); CHKERRQ(ierr);
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+<h2><a id="Distributedobjects">38.3</a> Distributed objects</h2>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+Dense matrices:
+<tt>MatCreateDenseCUDA</tt>
+,
+<tt>MatCreateSeqDenseCUDA</tt>
+,
+giving types
+<tt>MATMPIDENSECUDA</tt>
+,
+<tt>MATDENSECUDA</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+Sparse matrices:
+<tt>MATAIJCUSPARSE</tt>
+which is sequential or distributed
+depending on how the program is started.
+</p>
+
+<p name="switchToTextMode">
+Also
+<tt>VecCreateSeqCUDA</tt>
+,
+<tt>VecCreateMPICUDAWithArray</tt>
+,
+<tt>VECCUDA</tt>
+,
+<tt>VECSEQCUDA</tt>
+,
+<tt>VECMPICUDA</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+All sorts of `array' operations such as
+<tt>MatDenseCUDAGetArray</tt>
+,
+<tt>VecCUDAGetArray</tt>
+,
+</p>
+
+<p name="switchToTextMode">
+Set 
+<tt>PetscMalloc</tt>
+ to use the GPU:
+<tt>PetscMallocSetCUDAHost</tt>
+,
+and switch back with
+<tt>PetscMallocResetCUDAHost</tt>
+.
+</p>
+
+<h2><a id="Other">38.4</a> Other</h2>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#Other">Other</a>
+</p>
+
+<p name="switchToTextMode">
+
+The memories of a CPU and GPU are not coherent.
+This means that routines such as 
+<tt>PetscMalloc1</tt>
+can not immediately be used for GPU allocation.
+Use the routines 
+<tt>PetscMallocSetCUDAHost</tt>
+and 
+<tt>PetscMallocResetCUDAHost</tt>
+to switch the allocator to GPU memory and back.
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pccudaalloc" aria-expanded="false" aria-controls="pccudaalloc">
+        C Code: pccudaalloc
+      </button>
+    </h5>
+  </div>
+  <div id="pccudaalloc" class="collapse">
+  <pre>
+Mat cuda_matrix;
+PetscScalar *matdata;
+ierr = PetscMallocSetCUDAHost(); CHKERRQ(ierr);
+ierr = PetscMalloc1(global_size*global_size,&matdata); CHKERRQ(ierr);
+ierr = PetscMallocResetCUDAHost(); CHKERRQ(ierr);
+ierr = MatCreateDenseCUDA
+  (comm,
+   global_size,global_size,global_size,global_size,
+   matdata,
+   &cuda_matrix); CHKERRQ(ierr);
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+</div>
+<a href="index.html">Back to Table of Contents</a>

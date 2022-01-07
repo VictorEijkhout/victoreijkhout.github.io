@@ -1,0 +1,3 @@
+21.1 : <a href="omp-share.html#Sections">Sections</a><br>
+21.2 : <a href="omp-share.html#Singlemaster">Single/master</a><br>
+21.3 : <a href="omp-share.html#Fortranarraysyntaxparallelization">Fortran array syntax parallelization</a><br>

@@ -1,0 +1,230 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>Automata theory</h1>
+        <h5>Experimental html version of downloadable textbook, see https://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+\[
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%
+%%%% This text file is part of the source of 
+%%%% `Introduction to High-Performance Scientific Computing'
+%%%% by Victor Eijkhout, copyright 2012-2020
+%%%%
+%%%% mathjax.tex : macros to facility mathjax use in html version
+%%%%
+%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\newcommand\macro[1]{$\langle$#1$\rangle$}
+\newcommand\dtdxx{\frac{\alpha\Delta t}{\Delta x^2}}
+\]
+
+
+20.1 : <a href="fsa.html#FiniteStateAutomata">Finite State Automata</a><br>
+20.2 : <a href="fsa.html#Generaldiscussion">General discussion</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>20 Automata theory</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+<p name="switchToTextMode">
+
+<!-- index -->
+</p>
+
+<i>Automata</i>
+<p name="switchToTextMode">
+There is an extensive theory of automata; here we will only touch on the basic concepts.
+Let us start with a simple example.
+</p>
+
+<h2><a id="FiniteStateAutomata">20.1</a> Finite State Automata</h2>
+<p name=crumbs>
+crumb trail:  > <a href="fsa.html">fsa</a> > <a href="fsa.html#FiniteStateAutomata">Finite State Automata</a>
+</p>
+<p name="switchToTextMode">
+
+A 
+<i>FSA</i>
+ is a very simple machine, something on the order of
+a vending machine that will dispense a candy bar when a
+quarter has been inserted. There are four actions possible with a
+vending machine: insert a quarter, press `coin return' to ask for any
+inserted money back, open the window to take the candy bar, and close
+the window again. Whether an action is possible (especially the third)
+depends on the 
+<i>state</i>
+ the machine is in. There are three states:
+the begin state, the state where the quarter has been inserted and the
+window unlocked (let us call this `ready to dispense'), and the state
+where the window is open (which we will call `dispensing').
+</p>
+
+<p name="switchToTextMode">
+In certain states, certain
+actions are not possible. For instance, in the beginning state the
+window can not be opened.
+</p>
+
+<p name="switchToTextMode">
+The mathematical description of this vending machine consists of
+1.~the list of states, 2.~a table of how the possible actions make the
+machine go from one state to another. However, rather than writing
+down the table, a graphical representation is usually more insightful.
+</p>
+
+<!-- environment: figure start embedded generator -->
+<!-- TranslatingLineGenerator figure ['figure'] -->
+<img src="graphics/fsa.jpg" width=800></img>
+<p name="caption">
+FIGURE 20.1: A simple real-life automaton
+</p>
+
+</float>
+</figure>
+<!-- environment: figure end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Generaldiscussion">20.2</a> General discussion</h2>
+<p name=crumbs>
+crumb trail:  > <a href="fsa.html">fsa</a> > <a href="fsa.html#Generaldiscussion">General discussion</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+From the vending machine example, you saw an important characteristic of an automaton:
+it allows certain actions, but only in some circumstances, and in the end it has a
+state corresponding to `success', which is only reached if certain sequences of actions
+are taken.
+</p>
+
+<p name="switchToTextMode">
+The formal description of this process is as follows: we call the
+individual actions an `alphabet', and a sequence of actions a `word'
+from based on that alphabet. The `success' result of a machine then
+corresponds to a verdict that a certain word belong to the `language'
+that is accepted by the automaton. Thus there is a correspondence
+between automata theory and language theory.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+Consider the alpha $\{a,b\}$, that is, the alphabet with only the
+letters $a,b$, and consider the language $\{a^mb^n\colon m,n>0\}$,
+that is the words that consist of one or more $a$s followed by one or
+more~$b$s. Draw the automaton that accepts this language.
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+What makes the 
+<span title="acronym" ><i>FSA</i></span>
+ the simplest type is that it has no
+memory. Most vending machines do not complain if you put in more than
+one quarter: they have no memory beyond `a~quarter has been
+inserted'. A more complicated machine would count how many quarters
+you inserted, and then allow you to open that many windows to
+different candy bars. In the above formal way of describing, that
+machine would accept the language $\{q^nw^n\colon n\geq 0\}$, that is,
+the sequences where you deposit as many quarters (`$q$') as you open
+windows~(`$w$'). This language is an example of a
+so-called 
+<i>context-free language</i>
+; the language of the
+original vending machine is a 
+<i>regular language</i>
+.
+</p>
+
+<p name="switchToTextMode">
+These two language types belong to the four level 
+hierarchy} of languages. The famous 
+<i>Turing machine</i>
+, which
+recognizes the 
+<i>recursively enumerable language</i>
+ type, is on the
+top level of the hierarchy. The missing step has
+the 
+<i>context-sensitive language</i>
+ type, which is
+recognized by a 
+<i>linear bounded automaton</i>
+.
+</p>
+
+<p name="switchToTextMode">
+
+<!-- index -->
+</div>
+<a href="index.html">Back to Table of Contents</a>

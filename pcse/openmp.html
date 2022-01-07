@@ -1,0 +1,787 @@
+<html>
+<head>
+<link href="ihpsc.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$']]}
+  });
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+  </script>
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<style>
+</style>
+
+<script type="application/javascript">
+  // First we declare some metadata, primarily to describe
+  // the container environment.
+  var ccrsApiNamespace = "org.xsede.jobrunner.model.ModelApi";
+  var mpiExampleMetaJson = {
+    // CHANGE: for now, leave the appended string as .SysJobMetaData;
+    //         other options will be supported in the future
+    "$type": ccrsApiNamespace + ".SysJobMetaData",
+    // CHANGE: shell to use implicitly when running commands in the container
+    "shell": ["bash"],
+    // CHANGE: should currently be one of: .NixOS, .Singularity
+    "containerType": {
+      "$type":  ccrsApiNamespace + ".NixOS"
+    },
+    // CHANGE: Specify for NixOS for all jobs, or for Singularity when resuming existing jobs
+    "containerId": ["vicOpenMPI"],
+    // CHANGE: Specify the singularity image name
+    "image": [],
+    // Directories on the host to mount in the container, if any:
+    "binds": [],
+    // Only for singularity:
+    "overlay": [],
+    // CHANGE: should be filled in dynamically to contain the (student) user,
+    //         but this is a demo, so we use a static user name:
+    "user": "test0",
+    "address": [],
+    "hostname": [],
+    "url": window.location.href
+  };
+  var mpiExampleMeta = CCRS.sysJobMetaData(mpiExampleMetaJson);
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="pagehead">
+        <h1>OpenMP remaining topics</h1>
+        <h5>Experimental html version of downloadable textbook, see http://www.tacc.utexas.edu/~eijkhout/istc/istc.html</h5>
+      </div>
+    </div>
+  </div>
+  <div>
+
+
+\[
+\newcommand\inv{^{-1}}\newcommand\invt{^{-t}}
+\newcommand\bbP{\mathbb{P}}
+\newcommand\bbR{\mathbb{R}}
+\newcommand\defined{
+  \mathrel{\lower 5pt \hbox{${\equiv\atop\mathrm{\scriptstyle D}}$}}}
+\]
+
+
+29.1 : <a href="openmp.html#Runtimefunctionsandinternalcontrolvariables">Runtime functions and internal control variables</a><br>
+29.2 : <a href="openmp.html#Timing">Timing</a><br>
+29.3 : <a href="openmp.html#Threadsafety">Thread safety</a><br>
+29.4 : <a href="openmp.html#Performanceandtuning">Performance and tuning</a><br>
+29.5 : <a href="openmp.html#Accelerators">Accelerators</a><br>
+29.6 : <a href="openmp.html#Toolsinterface">Tools interface</a><br>
+<a href="index.html">Back to Table of Contents</a>
+<h1>29 OpenMP remaining topics</h1>
+<!-- TranslatingLineGenerator file ['file'] -->
+</p>
+
+<h2><a id="Runtimefunctionsandinternalcontrolvariables">29.1</a> Runtime functions and internal control variables</h2>
+<p name=crumbs>
+crumb trail:  > <a href="openmp.html">openmp</a> > <a href="openmp.html#Runtimefunctionsandinternalcontrolvariables">Runtime functions and internal control variables</a>
+</p>
+
+<!-- index -->
+<!-- index -->
+<!-- index -->
+<p name="switchToTextMode">
+
+OpenMP has a number of settings that can be set through 
+<i>environment variables</i>
+,
+and both queried and set through 
+<i>library routines</i>
+. These settings are called
+\emph{ \acfp{ICV}
+}: an OpenMP implementation behaves as if there is an internal variable
+storing this setting.
+</p>
+
+<p name="switchToTextMode">
+The runtime functions are:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Counting threads and cores: 
+<tt>omp_set_num_threads</tt>
+,
+<tt>omp_get_num_threads</tt>
+,
+<tt>omp_get_max_threads</tt>
+, 
+<tt>omp_get_num_procs</tt>
+;
+  see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Creatingparallelism">17.5</a>
+.
+<li>
+Querying the current thread: 
+<tt>omp_get_thread_num</tt>
+, 
+<tt>omp_in_parallel</tt>
+<li>
+<tt>omp_set_dynamic</tt>
+<li>
+<tt>omp_get_dynamic</tt>
+<li>
+<tt>omp_set_nested</tt>
+<li>
+<tt>omp_get_nested</tt>
+<li>
+<tt>omp_get_wtime</tt>
+<li>
+<tt>omp_get_wtick</tt>
+<li>
+<tt>omp_set_schedule</tt>
+<li>
+<tt>omp_get_schedule</tt>
+<li>
+<tt>omp_set_max_active_levels</tt>
+<li>
+<tt>omp_get_max_active_levels</tt>
+<li>
+<tt>omp_get_thread_limit</tt>
+<li>
+<tt>omp_get_level</tt>
+<li>
+<tt>omp_get_active_level</tt>
+<li>
+<tt>omp_get_ancestor_thread_num</tt>
+<li>
+<tt>omp_get_team_size</tt>
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Here are the OpenMP 
+<i>environment variables</i>
+:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>OMP_CANCELLATION</tt>
+ Set whether cancellation is activated;
+  see section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-parallel.html#Cancelparallelconstruct">18.3</a>
+.
+<li>
+<tt>OMP_DISPLAY_ENV</tt>
+ Show OpenMP version and environment variables
+<li>
+<tt>OMP_DEFAULT_DEVICE</tt>
+ Set the device used in target regions
+<li>
+<tt>OMP_DYNAMIC</tt>
+ Dynamic adjustment of threads
+<li>
+<tt>OMP_MAX_ACTIVE_LEVELS</tt>
+ Set the maximum number of nested parallel
+  regions; section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-parallel.html#Nestedparallelism">18.2</a>
+.
+<li>
+<tt>OMP_MAX_TASK_PRIORITY</tt>
+ Set the maximum task priority value
+<li>
+<tt>OMP_NESTED</tt>
+ Nested parallel regions
+<li>
+<tt>OMP_NUM_THREADS</tt>
+ Specifies the number of threads to use
+<li>
+<tt>OMP_PROC_BIND</tt>
+ Whether theads may be moved between CPUs;
+  section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-affinity.html#OpenMPthreadaffinitycontrol">25.1</a>
+.
+<li>
+<tt>OMP_PLACES</tt>
+ Specifies on which CPUs the theads should be placed;
+  section~
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-affinity.html#OpenMPthreadaffinitycontrol">25.1</a>
+.
+<li>
+<tt>OMP_STACKSIZE</tt>
+ Set default thread stack size
+<li>
+<tt>OMP_SCHEDULE</tt>
+ How threads are scheduled
+<li>
+<tt>OMP_THREAD_LIMIT</tt>
+ Set the maximum number of threads
+<li>
+<tt>OMP_WAIT_POLICY</tt>
+ How waiting threads are
+  handled; 
+<span title="acronym" ><i>ICV</i></span>
+<tt>wait-policy-var</tt>
+. Values:
+  
+<tt>ACTIVE</tt>
+ for keeping threads spinning, 
+<tt>PASSIVE</tt>
+ for possibly
+  yielding the processor when threads are waiting.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+There are 4 
+<span title="acronym" ><i>ICVs</i></span>
+ that behave as if each thread has its own copy of them.
+The default is implementation-defined unless otherwise noted.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+It may be possible to adjust dynamically the number of threads
+    for a parallel region. Variable: 
+<tt>OMP_DYNAMIC</tt>
+;
+    routines: 
+<tt>omp_set_dynamic</tt>
+,
+<tt>omp_get_dynamic</tt>
+.
+<li>
+If a code contains 
+<i>nested parallel regions</i>
+,
+    the inner regions may create new teams, or they may be executed by
+    the single thread that encounters them. Variable:
+<tt>OMP_NESTED</tt>
+; routines 
+<tt>omp_set_nested</tt>
+,
+<tt>omp_get_nested</tt>
+. Allowed values are 
+<tt>TRUE</tt>
+ and
+    
+<tt>FALSE</tt>
+; the default is false.
+<li>
+The number of threads used for an encountered parallel region
+    can be controlled. Variable: 
+<tt>OMP_NUM_THREADS</tt>
+;
+    routines 
+<tt>omp_set_num_threads</tt>
+,
+<tt>omp_get_max_threads</tt>
+.
+<li>
+The schedule for a parallel loop can be set. Variable:
+<tt>OMP_SCHEDULE</tt>
+; routines
+<tt>omp_set_schedule</tt>
+, 
+<tt>omp_get_schedule</tt>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Nonobvious syntax:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+export OMP_SCHEDULE="static,100"
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Other settings:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>omp_get_num_threads</tt>
+: query the number of threads
+  active at the current place in the code; this can be lower than what
+  was set with 
+<tt>omp_set_num_threads</tt>
+. For a meaningful answer, this
+  should be done in a parallel region.
+<li>
+<tt>omp_get_thread_num</tt>
+<li>
+<tt>omp_in_parallel</tt>
+: test if you are in a parallel
+  region (see for instance section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Creatingparallelism">17.5</a>
+).
+<li>
+<tt>omp_get_num_procs</tt>
+: query the physical number of cores available.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Other environment variables:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>OMP_STACKSIZE</tt>
+ controls the amount of space that is
+  allocated as per-thread 
+<i>stack</i>
+; the space for private
+  variables.
+<li>
+<tt>OMP_WAIT_POLICY</tt>
+ determines the behavior of
+  threads that wait, for instance for 
+<i>critical section</i>
+:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>ACTIVE</tt>
+ puts the thread in a 
+<i>spin-lock</i>
+, where
+    it actively checks whether it can continue;
+<li>
+
+<tt>PASSIVE</tt>
+ puts the thread to sleep until the 
+<span title="acronym" ><i>OS</i></span>
+ wakes
+    it up.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+  The `active' strategy uses CPU while the thread is waiting; on the
+  other hand, activating it after the wait is instantaneous. With the
+  `passive' strategy, the thread does not use any CPU while waiting,
+  but activating it again is expensive. Thus, the passive strategy
+  only makes sense if threads will be waiting for a (relatively) long
+  time.
+<li>
+<tt>OMP_PROC_BIND</tt>
+ with values 
+<tt>TRUE</tt>
+ and 
+<tt>FALSE</tt>
+
+  can bind threads to a processor. On the one hand, doing so can
+  minimize data movement; on the other hand, it may increase load
+  imbalance.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- index -->
+<!-- index -->
+<!-- index -->
+</p>
+
+<h2><a id="Timing">29.2</a> Timing</h2>
+<p name=crumbs>
+crumb trail:  > <a href="openmp.html">openmp</a> > <a href="openmp.html#Timing">Timing</a>
+</p>
+
+<p name="switchToTextMode">
+
+OpenMP has a wall clock timer routine 
+<tt>omp_get_wtime</tt>
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+double omp_get_wtime(void);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The starting point is arbitrary and is different for each program run;
+however, in one run it is identical for all threads.
+This timer has a resolution given by 
+<tt>omp_get_wtick</tt>
+.
+</p>
+
+<!-- environment: exercise start embedded generator -->
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Use the timing routines to demonstrate speedup from using
+  multiple threads.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Write a code segment that takes a measurable amount of time, that is,
+    it should take a multiple of the tick time.
+<li>
+Write a parallel loop and measure the speedup. You can for instance do this
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+for (int use_threads=1; use_threads&lt;=nthreads; use_threads++) {
+#pragma omp parallel for num_threads(use_threads)
+    for (int i=0; i&lt;nthreads; i++) {
+        .....
+    }
+    if (use_threads==1)
+      time1 = tend-tstart;
+    else // compute speedup
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<li>
+In order to prevent the compiler from optimizing your loop away, let
+  the body compute a result and use a reduction to preserve these results.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Threadsafety">29.3</a> Thread safety</h2>
+<p name=crumbs>
+crumb trail:  > <a href="openmp.html">openmp</a> > <a href="openmp.html#Threadsafety">Thread safety</a>
+</p>
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+With OpenMP it is relatively easy to take existing code and make
+it parallel by introducing parallel sections. If you're careful
+to declare the appropriate variables shared and private,
+this may work fine. However, your code may include
+calls to library routines that include a 
+<i>race condition</i>
+;
+such code is said not to be 
+<i>thread-safe</i>
+.
+</p>
+
+<p name="switchToTextMode">
+For example a routine
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+static int isave;
+int next_one() {
+ int i = isave;
+ isave += 1;
+ return i;
+}
+
+
+...
+for ( .... ) {
+  int ivalue = next_one();
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+has a clear race condition, as the iterations of the loop
+may get different 
+<tt>next_one</tt>
+ values, as they are supposed to,
+or not. This can be solved by using an 
+<tt>critical</tt>
+pragma for the 
+<tt>next_one</tt>
+ call; another solution
+is to use an 
+<tt>threadprivate</tt>
+ declaration for 
+<tt>isave</tt>
+.
+This is for instance the right solution if  the 
+<tt>next_one</tt>
+
+routine implements a 
+<i>random number generator</i>
+.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h2><a id="Performanceandtuning">29.4</a> Performance and tuning</h2>
+<p name=crumbs>
+crumb trail:  > <a href="openmp.html">openmp</a> > <a href="openmp.html#Performanceandtuning">Performance and tuning</a>
+</p>
+</p>
+
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/bibliography.html#epcc-ompbench">[epcc-ompbench]</a>
+<p name="switchToTextMode">
+.
+</p>
+
+<p name="switchToTextMode">
+The performance of an OpenMP code can be influenced by the following.
+</p>
+
+<!-- environment: description start embedded generator -->
+<!-- environment block purpose: [[ environment=description ]] -->
+<description>
+<ul>
+<!-- TranslatingLineGenerator description ['description'] -->
+<li>
+[Amdahl effects] Your code needs to have enough parts that are
+  parallel (see&nbsp;
+<i>Eijkhout:IntroHPC</i>
+). Sequential parts may be sped up
+  by having them executed redundantly on each thread, since that keeps
+  data locally.
+<li>
+[Dynamism] Creating a thread team takes time. In practice, a team
+  is not created and deleted for each parallel region, but creating
+  teams of different sizes, or recursize thread creation, may
+  introduce overhead.
+<li>
+[Load imbalance] Even if your program is parallel, you need to
+  worry about load balance. In the case of a parallel loop you can set
+  the 
+<tt>dynamic</tt>
+, which evens out
+  the work, but may cause increased communication.
+<li>
+[Communication] Cache coherence causes communication. Threads
+  should, as much as possible, refer to their own data.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+Threads are likely to read from each other's data. That is
+    largely unavoidable.
+<li>
+Threads writing to each other's data should be avoided: it may
+    require synchronization, and it causes coherence traffic.
+<li>
+If threads can migrate, data that was local at one time is no
+    longer local after migration.
+<li>
+Reading data from one socket that was allocated on another
+    socket is inefficient; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-affinity.html#First-touch">25.2</a>
+.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<li>
+[Affinity] Both data and execution threads can be bound to a
+  specific locale to some extent. Using local data is more efficient
+  than remote data, so you want to use local data, and minimize the extent to which data
+  or execution can move.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+See the above points about phenomena that cause communication.
+<li>
+Section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-affinity.html#Threadbinding">25.1.1</a>
+ describes how you can specify the
+    binding of threads to places. There can, but does not need, to be
+    an effect on affinity. For instance, if an OpenMP thread can
+    migrate between hardware threads, cached data will stay local.
+    Leaving an OpenMP thread completely free to migrate can be
+    advantageous for load balancing, but you should only do that if
+    data affinity is of lesser importance.
+<li>
+Static loop schedules have a higher chance of using data that
+    has affinity with the place of execution, but they are worse for
+    load balancing. On the other hand, the 
+    can aleviate some of the problems with static loop schedules.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<li>
+[Binding] You can choose to put OpenMP threads close together or
+  to spread them apart. Having them close together makes sense if they
+  use lots of shared data. Spreading them apart may increase
+  bandwidth. (See the examples in section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-affinity.html#Effectsofthreadbinding">25.1.2</a>
+.)
+<li>
+[Synchronization] Barriers are a form of synchronization. They
+  are expensive by themselves, and they expose load
+  imbalance. Implicit barriers happen at the end of worksharing
+  constructs; they can be removed with 
+<tt>nowait</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+  Critical sections imply a loss of parallelism, but they are also
+  slow as they are realized through 
+<i>operating system</i>
+  functions. These are often quite costly, taking many thousands of
+  cycles.  Critical sections should be used only if the parallel work
+  far outweighs it.
+</ul>
+</description>
+<!-- environment: description end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Accelerators">29.5</a> Accelerators</h2>
+<p name=crumbs>
+crumb trail:  > <a href="openmp.html">openmp</a> > <a href="openmp.html#Accelerators">Accelerators</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+In OpenMP- there is support for offloading work to an
+<i>accelerator</i>
+<!-- index -->
+or
+<i>co-processor</i>
+<!-- index -->
+:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp target [clauses]
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+with clauses such as
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+
+<tt>data</tt>
+: place data
+<li>
+
+<tt>update</tt>
+: make data consistent between host and device
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+<h2><a id="Toolsinterface">29.6</a> Tools interface</h2>
+<p name=crumbs>
+crumb trail:  > <a href="openmp.html">openmp</a> > <a href="openmp.html#Toolsinterface">Tools interface</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The OpenMP- defines a tools interface.
+This means that routines can be defined that get called by the OpenMP runtime.
+For instance, the following example defines callback that are evaluated
+when OpenMP is initialized and finalized, thereby giving the
+runtime for the application.
+</p>
+
+<!-- environment: lstlisting start embedded generator -->
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int ompt_initialize(ompt_function_lookup_t lookup, int initial_device_num,
+                    ompt_data_t *tool_data) {
+  printf("libomp init time: %f\n",
+         omp_get_wtime() - *(double *)(tool_data-&gt;ptr));
+  *(double *)(tool_data-&gt;ptr) = omp_get_wtime();
+  return 1; // success: activates tool
+}
+
+
+void ompt_finalize(ompt_data_t *tool_data) {
+  printf("application runtime: %f\n",
+         omp_get_wtime() - *(double *)(tool_data-&gt;ptr));
+}
+
+
+ompt_start_tool_result_t *ompt_start_tool(unsigned int omp_version,
+                                          const char *runtime_version) {
+  static double time = 0; // static defintion needs constant assigment
+  time = omp_get_wtime();
+  static ompt_start_tool_result_t ompt_start_tool_result = {
+      &ompt_initialize, &ompt_finalize, {.ptr = &time}};
+  return &ompt_start_tool_result; // success: registers tool
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+(Example courtesy of 
+<a href=https://git.rwth-aachen.de/OpenMPTools/OMPT-Examples>https://git.rwth-aachen.de/OpenMPTools/OMPT-Examples</a>
+.)
+</p>
+
+</div>
+<a href="index.html">Back to Table of Contents</a>
