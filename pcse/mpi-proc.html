@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -504,6 +504,13 @@ crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Pr
 <p name="switchToTextMode">
 Instead of spawning a single executable, you can spawn multiple with
 <tt>MPI_Comm_spawn_multiple</tt>
+.
+In that case a process can retrieve with
+the attribute
+<tt>MPI_APPNUM</tt>
+which of the executables it is;
+section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Attributes">15.1.2</a>
 .
 </p>
 

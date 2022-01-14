@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -761,11 +761,16 @@ Also:
 <tt>MPI_APPNUM</tt>
 : if MPI is used in 
 <span title="acronym" ><i>MPMD</i></span>
- mode, or
+ mode
+  (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Multipleprogramstart">15.9.4</a>
+), or
   if 
 <tt>MPI_Comm_spawn_multiple</tt>
- is used, this attribute
-  reports the how-manieth program we are in.
+ is used (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html#Processspawning">8.1</a>
+),
+  this attribute reports the how-manieth program we are in.
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
@@ -2282,7 +2287,7 @@ Short blocking messages are handled by a simpler mechanism than
 longer. The limit on what is considered `short' is known as the
 <i>eager limit</i>
  (section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Eagerlimit">4.1.4.2</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Eagervsrendezvousprotocol">4.1.4.2</a>
 ), and you could
 tune your code by increasing its value. However, note that a process
 may likely have a buffer accomodating eager sends for every single
@@ -2765,13 +2770,43 @@ crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Shellinteraction"
 </p>
 
 <p name="switchToTextMode">
-The sort of script of section&nbsp;
+If the MPI application consists of sub-applications,
+that is, if we have a true 
+<i>MPMD</i>
+ runs,
+there are usually two ways of starting this up.
+(Once started, each process can retrieve with
+<tt>MPI_APPNUM</tt>
+ to which application it belongs.)
+</p>
+
+<p name="switchToTextMode">
+The first possibility is that the job starter,
+<tt>mpirun</tt>
+ or a local variant,
+accepts multiple executables:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+mpiexec spec0 [ : spec1 [ : spec2 : ... ] ]
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+Absent this mechanism,
+the sort of script of section&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Standardinput">15.9.1</a>
 can also be used to implement 
 <i>MPMD</i>
- runs:
-we let the script start one of a number of programs. For this, we use
-the fact that the MPI rank is known in the environment as
+ runs.
+We let the script start one of a number of programs,
+and we use
+the fact that the MPI rank is known in the environment.
+The name of the variable is implemntation dependent,
+try 
 <tt>PMI_RANK</tt>
 . Use a script 
 <tt>mpmdscript</tt>
@@ -2803,44 +2838,20 @@ mpiexec -n 25 mpmdscript
 <!-- environment: verbatim end embedded generator -->
 <p name="switchToTextMode">
 
-<h2><a id="Theoriginofone-sidedcommunicationinShMem">15.10</a> The origin of one-sided communication in ShMem</h2>
-<p name=crumbs>
-crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Theoriginofone-sidedcommunicationinShMem">The origin of one-sided communication in ShMem</a>
-</p>
-</p>
-
-<p name="switchToTextMode">
-The 
-<i>Cray T3E</i>
- had a library called 
-<i>shmem</i>
-which offered a type of shared memory. Rather than having a true
-global address space it worked by supporting variables that were
-guaranteed to be identical between processors, and indeed, were
-guaranteed to occupy the same location in memory. Variables could be
-declared to be shared a `symmetric' pragma or directive; their values
-could be retrieved or set by 
-<tt>shmem_get</tt>
- and 
-<tt>shmem_put</tt>
- calls.
-</p>
-
-<h2><a id="Leftovertopics">15.11</a> Leftover topics</h2>
+<h2><a id="Leftovertopics">15.10</a> Leftover topics</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Leftovertopics">Leftover topics</a>
 </p>
-<p name="switchToTextMode">
+</p>
 
-<h3><a id="MPIconstants">15.11.1</a> MPI constants</h3>
+<h3><a id="MPIconstants">15.10.1</a> MPI constants</h3>
 <p name=crumbs>
 crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Leftovertopics">Leftover topics</a> > <a href="mpi.html#MPIconstants">MPI constants</a>
 </p>
 
 <!-- index -->
-</p>
-
 <p name="switchToTextMode">
+
 MPI has a number of built-in 
 <i>constants</i>
 . These do not all behave
@@ -3021,7 +3032,7 @@ Assorted constants:
 <!-- index -->
 <p name="switchToTextMode">
 
-<h3><a id="Cancellingmessages">15.11.2</a> Cancelling messages</h3>
+<h3><a id="Cancellingmessages">15.10.2</a> Cancelling messages</h3>
 <p name=crumbs>
 crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Leftovertopics">Leftover topics</a> > <a href="mpi.html#Cancellingmessages">Cancelling messages</a>
 </p>
@@ -3116,13 +3127,35 @@ or one-sided transfers.
 <!-- environment: remark end embedded generator -->
 <p name="switchToTextMode">
 
-<h2><a id="Literature">15.12</a> Literature</h2>
+<h3><a id="Theoriginofone-sidedcommunicationinShMem">15.10.3</a> The origin of one-sided communication in ShMem</h3>
 <p name=crumbs>
-crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Literature">Literature</a>
+crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Leftovertopics">Leftover topics</a> > <a href="mpi.html#Theoriginofone-sidedcommunicationinShMem">The origin of one-sided communication in ShMem</a>
 </p>
 </p>
 
 <p name="switchToTextMode">
+The 
+<i>Cray T3E</i>
+ had a library called 
+<i>shmem</i>
+which offered a type of shared memory. Rather than having a true
+global address space it worked by supporting variables that were
+guaranteed to be identical between processors, and indeed, were
+guaranteed to occupy the same location in memory. Variables could be
+declared to be shared a `symmetric' pragma or directive; their values
+could be retrieved or set by 
+<tt>shmem_get</tt>
+ and 
+<tt>shmem_put</tt>
+ calls.
+</p>
+
+<h2><a id="Literature">15.11</a> Literature</h2>
+<p name=crumbs>
+crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Literature">Literature</a>
+</p>
+<p name="switchToTextMode">
+
 Online resources:
 <!-- environment: itemize start embedded generator -->
 </p>

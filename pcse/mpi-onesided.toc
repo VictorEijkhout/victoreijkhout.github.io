@@ -2,7 +2,8 @@
 9.1.1 : <a href="mpi-onesided.html#Windowcreationandallocation">Window creation and allocation</a><br>
 9.1.2 : <a href="mpi-onesided.html#Addressarithmetic">Address arithmetic</a><br>
 9.2 : <a href="mpi-onesided.html#Activetargetsynchronization:epochs">Active target synchronization: epochs</a><br>
-9.2.1 : <a href="mpi-onesided.html#Non-globaltargetsynchronization">Non-global target synchronization</a><br>
+9.2.1 : <a href="mpi-onesided.html#Fenceassertions">Fence assertions</a><br>
+9.2.2 : <a href="mpi-onesided.html#Non-globaltargetsynchronization">Non-global target synchronization</a><br>
 9.3 : <a href="mpi-onesided.html#Put,get,accumulate">Put, get, accumulate</a><br>
 9.3.1 : <a href="mpi-onesided.html#Put">Put</a><br>
 9.3.2 : <a href="mpi-onesided.html#Get">Get</a><br>

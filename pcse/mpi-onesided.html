@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -79,6 +79,7 @@ initialize();
 
 9.1 : <a href="mpi-onesided.html#Windows">Windows</a><br>
 9.1.1 : <a href="mpi-onesided.html#Windowcreationandallocation">Window creation and allocation</a><br>
+9.1.2 : <a href="mpi-onesided.html#Addressarithmetic">Address arithmetic</a><br>
 9.2 : <a href="mpi-onesided.html#Activetargetsynchronization:epochs">Active target synchronization: epochs</a><br>
 9.2.1 : <a href="mpi-onesided.html#Non-globaltargetsynchronization">Non-global target synchronization</a><br>
 9.3 : <a href="mpi-onesided.html#Put,get,accumulate">Put, get, accumulate</a><br>
@@ -809,9 +810,6 @@ win.Fence(self, int assertion=0)
 <i>MPI_Win_fence</i>
 .
 This operation is collective on the communicator of the window.
-It is comparable to 
-<tt>MPI_Wait</tt>
- calls for nonblocking communication.
 (Another, more sophisticated mechanism for active target synchronization
 is discussed in section&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Non-globaltargetsynchronization">9.2.1</a>
@@ -819,28 +817,27 @@ is discussed in section&nbsp;
 </p>
 
 <p name="switchToTextMode">
-The use of fences is somewhat complicated. The interval between two fences
-is known as an 
+The interval between two fences is known as an 
 <i>epoch</i>
 .
-You can give various hints to the system about this epoch versus the ones
-before and after through the 
-<tt>assert</tt>
- parameter.
+Roughly speaking, in an epoch you can make one-sided communication calls,
+and after the concluding fence all these communications are concluded.
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
 <lstlisting>
 <pre>
-MPI_Win_fence((MPI_MODE_NOPUT | MPI_MODE_NOPRECEDE), win);
+MPI_Win_fence(0,win);
 MPI_Get( /* operands */, win);
-MPI_Win_fence(MPI_MODE_NOSUCCEED, win);
+MPI_Win_fence(0, win);
+// the `got' data is available
 </pre>
 </lstlisting>
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
-In between the two fences the window is exposed, and while it is you
-should not access it locally. If you absolutely need to access it
+In between the two fences the window is exposed,
+and while it is you should not access it locally.
+If you absolutely need to access it
 locally, you can use an 
 <span title="acronym" ><i>RMA</i></span>
  operation for that. Also, there can be only one
@@ -902,7 +899,53 @@ origin, and as an
  on the target.
 </p>
 
+<h3><a id="Fenceassertions">9.2.1</a> Fence assertions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-onesided.html">mpi-onesided</a> > <a href="mpi-onesided.html#Activetargetsynchronization:epochs">Active target synchronization: epochs</a> > <a href="mpi-onesided.html#Fenceassertions">Fence assertions</a>
+</p>
 <p name="switchToTextMode">
+
+You can give various hints to the system about this epoch versus the ones
+before and after through the 
+<tt>assert</tt>
+ parameter.
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_MODE_NOSTORE</tt>
+  This value can be specified or not per process.
+<li>
+<tt>MPI_MODE_NOPUT</tt>
+  This value can be specified or not per process.
+<li>
+<tt>MPI_MODE_NOPRECEDE</tt>
+  This value has to be specified or not the same on all processes.
+<li>
+<tt>MPI_MODE_NOSUCCEED</tt>
+  This value has to be specified or not the same on all processes.
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+Example:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+MPI_Win_fence((MPI_MODE_NOPUT | MPI_MODE_NOPRECEDE), win);
+MPI_Get( /* operands */, win);
+MPI_Win_fence(MPI_MODE_NOSUCCEED, win);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
 Assertions are an integer parameter: you can combine assertions by
 adding them or using logical-or.
 The value zero is always correct. For further information, see
@@ -911,7 +954,7 @@ section&nbsp;
 .
 </p>
 
-<h3><a id="Non-globaltargetsynchronization">9.2.1</a> Non-global target synchronization</h3>
+<h3><a id="Non-globaltargetsynchronization">9.2.2</a> Non-global target synchronization</h3>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-onesided.html">mpi-onesided</a> > <a href="mpi-onesided.html#Activetargetsynchronization:epochs">Active target synchronization: epochs</a> > <a href="mpi-onesided.html#Non-globaltargetsynchronization">Non-global target synchronization</a>
 </p>
@@ -955,8 +998,9 @@ FIGURE 9.4: Window locking calls in fine-grained active target synchronization
 
 You start and complete an 
 <i>exposure epoch</i>
- with%
+ with
 <tt>MPI_Win_post</tt>
+&nbsp;/ 
 <tt>MPI_Win_wait</tt>
 :
 <!-- environment: lstlisting start embedded generator -->
@@ -1252,9 +1296,7 @@ MPI_Win_free(&the_window);
 </p>
 
 <p name="switchToTextMode">
-Prior to 
-<i>Fortran2008</i>
-,
+Prior to \fstandard{2008},
 specifying a literal constant, such as&nbsp;
 <tt>0</tt>
 , could lead to bizarre
@@ -2919,7 +2961,9 @@ This is not necessarily true, and the
 actual state of affairs is called the
 <i>memory model</i>
 <!-- index -->
-. There are two memory models:
+<!-- index -->
+.
+There are two memory models:
 <!-- environment: itemize start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=itemize ]] -->
@@ -2948,6 +2992,9 @@ Under the
   To get this, the window needs to be created with
 <tt>MPI_Win_allocate_shared</tt>
 .
+  This memory model is required for MPI shared memory; chapter&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-shared.html">MPI topic: Shared memory</a>
+.
 <li>
 Under the 
 <i>separate</i>
@@ -2965,6 +3012,46 @@ Under the
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+You can query the model of a window
+using the 
+<tt>MPI_Win_get_attr</tt>
+ call
+with the 
+<tt>MPI_WIN_MODEL</tt>
+ keyword:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+int *memory_model;
+MPI_Win_get_attr(win, MPI_WIN_MODEL, &memory_model, &flag);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+with possible values:
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_WIN_SEPARATE</tt>
+,
+<li>
+<tt>MPI_WIN_UNIFIED</tt>
+,
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+</p>
+
 <p name="switchToTextMode">
 (Window models can be queried as attributes; see section&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Windowinformation">9.5.4</a>
@@ -3251,18 +3338,26 @@ crumb trail:  > <a href="mpi-onesided.html">mpi-onesided</a> > <a href="mpi-ones
 <p name="switchToTextMode">
 The 
 <tt>MPI_Info</tt>
- parameter can be used to pass implementation-dependent
-information; see section&nbsp;
+ parameter
+(see section&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Infoobjects">15.1.1</a>
-.
+ for info objects)
+can be used to pass implementation-dependent
+information.
 </p>
 
 <p name="switchToTextMode">
 A number of attributes are stored with a window when it is created.
+<!-- environment: itemize start embedded generator -->
 </p>
-
-<p name="switchToTextMode">
-Obtaining a pointer to the start of the window area:
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+<tt>MPI_WIN_BASE</tt>
+ for
+  obtaining a pointer to the start of the window area:
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
@@ -3273,9 +3368,12 @@ MPI_Win_get_attr(win, MPI_WIN_BASE, &base, &flag)
 </pre>
 </lstlisting>
 <!-- environment: lstlisting end embedded generator -->
-<p name="switchToTextMode">
-
-Obtaining the size and 
+<li>
+<tt>MPI_WIN_SIZE</tt>
+ and 
+<tt>MPI_WIN_DISP_UNIT</tt>
+ for
+  obtaining the size and 
 <i>window displacement unit</i>
 :
 <!-- environment: lstlisting start embedded generator -->
@@ -3290,9 +3388,10 @@ MPI_Win_get_attr(win, MPI_WIN_DISP_UNIT, &disp_unit, &flag),
 </pre>
 </lstlisting>
 <!-- environment: lstlisting end embedded generator -->
-<p name="switchToTextMode">
-
-The type of create call used:
+<li>
+<tt>MPI_WIN_CREATE_FLAVOR</tt>
+ for determining
+the type of create call used:
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
@@ -3340,39 +3439,21 @@ with possible values:
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
-<p name="switchToTextMode">
-
-The window model:
-<!-- environment: lstlisting start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=lstlisting ]] -->
-<lstlisting>
-<pre>
-int *memory_model;
-MPI_Win_get_attr(win, MPI_WIN_MODEL, &memory_model, &flag);
-</pre>
-</lstlisting>
-<!-- environment: lstlisting end embedded generator -->
-<p name="switchToTextMode">
-with possible values:
-<!-- environment: itemize start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=itemize ]] -->
-<itemize>
-<ul>
-<!-- TranslatingLineGenerator itemize ['itemize'] -->
 <li>
-<tt>MPI_WIN_SEPARATE</tt>
-,
-<li>
-<tt>MPI_WIN_UNIFIED</tt>
-,
+<tt>MPI_WIN_MODEL</tt>
+ for
+  querying the window memory model; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Memorymodels">9.5.1</a>
+.
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <p name="switchToTextMode">
 
-Get the group of processes associated with a window:
+Get the group of processes (see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Communicatorsandgroups">7.5</a>
+)
+associated with a window:
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
@@ -3384,7 +3465,10 @@ int MPI_Win_get_group(MPI_Win win, MPI_Group *group)
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
 
-Window information objects:
+Window information objects (see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Infoobjects">15.1.1</a>
+)
+can be set and retrieved:
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
@@ -3412,11 +3496,32 @@ crumb trail:  > <a href="mpi-onesided.html">mpi-onesided</a> > <a href="mpi-ones
 </p>
 
 <p name="switchToTextMode">
-The 
+The routines
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+(Active target synchronization)
 <tt>MPI_Win_fence</tt>
- call, as well 
+,
+<tt>MPI_Win_post</tt>
+,
 <tt>MPI_Win_start</tt>
- and such, take an argument
+;
+<li>
+(Passive target synchronization)
+<tt>MPI_Win_lock</tt>
+,
+<tt>MPI_Win_lockall</tt>
+,
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+take an argument
 through which assertions can be passed about the activity before, after, and during the epoch.
 The value zero is always allowed, by you can make your program more efficient by specifying
 one or more of the following, combined by bitwise OR in C/C++ or

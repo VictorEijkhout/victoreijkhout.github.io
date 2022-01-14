@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -829,7 +829,7 @@ synchronous variants, and only differ in their semantics.
 
 <p name="switchToTextMode">
 See section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Eagerlimit">4.1.4.2</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Eagervsrendezvousprotocol">4.1.4.2</a>
  for examples.
 </p>
 
@@ -852,7 +852,7 @@ The MPI standard does not dictate whether communication is buffered.
 If a message is buffered, a send call can complete,
 even if no corresponding send has been posted yet.
 See section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Eagerlimit">4.1.4.2</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Eagervsrendezvousprotocol">4.1.4.2</a>
 .
 Thus, in the standard communication, a send operation
 is 

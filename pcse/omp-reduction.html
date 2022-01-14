@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -341,13 +341,18 @@ double result = 0;
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
 
-<h2><a id="Built-inreductionoperators">20.2</a> Built-in reduction operators</h2>
+<h2><a id="Built-inreduction">20.2</a> Built-in reduction</h2>
 <p name=crumbs>
-crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Built-inreductionoperators">Built-in reduction operators</a>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Built-inreduction">Built-in reduction</a>
 </p>
 </p>
 
+<h3><a id="Operators">20.2.1</a> Operators</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Built-inreduction">Built-in reduction</a> > <a href="omp-reduction.html#Operators">Operators</a>
+</p>
 <p name="switchToTextMode">
+
 Arithmetic reductions: 
 <tt>+,*,-,max,min</tt>
 .
@@ -385,9 +390,9 @@ Logical operator reductions in Fortran:
 <!-- environment: exercise end embedded generator -->
 <p name="switchToTextMode">
 
-<h2><a id="Supportedtypes">20.3</a> Supported types</h2>
+<h3><a id="Types">20.2.2</a> Types</h3>
 <p name=crumbs>
-crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Supportedtypes">Supported types</a>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Built-inreduction">Built-in reduction</a> > <a href="omp-reduction.html#Types">Types</a>
 </p>
 </p>
 
@@ -398,144 +403,7 @@ The types to which
  are applicable are limited.
 </p>
 
-<!-- environment: fortrannote start embedded generator -->
-<!-- environment block purpose: [[ environment=fortrannote ]] -->
-<remark>
-<b>Fortran note</b>
-<p name="remark">
-<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
-  Reduction can be applied to any derived type that has the
-  reduction operator defined.
-<!-- environment: multicols start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=multicols ]] -->
-<multicols>
-
-<p name="multicols">
-<!-- TranslatingLineGenerator multicols ['multicols'] -->
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#ftypeopdef" aria-expanded="false" aria-controls="ftypeopdef">
-        Fortran Code: ftypeopdef
-      </button>
-    </h5>
-  </div>
-  <div id="ftypeopdef" class="collapse">
-  <pre>
-!! reducttype.F90
-  Type inttype
-     integer :: value = 0
-  end type inttype
-  Interface operator(+)
-     module procedure addints
-  end Interface operator(+)
-</pre>
-</div>
-</div>
-</p>
-
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#ftypeopuse" aria-expanded="false" aria-controls="ftypeopuse">
-        Fortran Code: ftypeopuse
-      </button>
-    </h5>
-  </div>
-  <div id="ftypeopuse" class="collapse">
-  <pre>
-Type(inttype),dimension(nsize) :: intarray
-Type(inttype) :: intsum = inttype(0)
-!$OMP parallel for reduction(+:intsum)
-do i=1,nsize
-   intsum = intsum + intarray(i)
-end do
-!$OMP end parallel
-</pre>
-</div>
-</div>
-</multicols>
-<!-- environment: multicols end embedded generator -->
-<p name="switchToTextMode">
-
-</p name="remark">
-</remark>
-<!-- environment: fortrannote end embedded generator -->
-<p name="switchToTextMode">
-{User defined reductions}
-</p>
-
-<p name="switchToTextMode">
-\begin{cppnote}
-  Reduction can be applied to any class for which the
-  reduction operator is defined as 
-<tt>operator+</tt>
-
-  or whichever operator the case may be.
-<!-- environment: multicols start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=multicols ]] -->
-<multicols>
-
-<p name="multicols">
-<!-- TranslatingLineGenerator multicols ['multicols'] -->
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#ompclassop" aria-expanded="false" aria-controls="ompclassop">
-        C++ Code: ompclassop
-      </button>
-    </h5>
-  </div>
-  <div id="ompclassop" class="collapse">
-  <pre>
-// reductcomplex.cxx
-class Thing {
-private:
-  float x;
-public:
-  Thing() : Thing( 0.f ) {};
-  Thing( float x ) : x(x) {};
-  Thing operator+( Thing other ) {
-    return Thing( x + other.x );
-  };
-};
-</pre>
-</div>
-</div>
-</p>
-
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#ompreductop" aria-expanded="false" aria-controls="ompreductop">
-        C++ Code: ompreductop
-      </button>
-    </h5>
-  </div>
-  <div id="ompreductop" class="collapse">
-  <pre>
-vector&lt; Thing &gt; things(500,Thing(1.f) );
-Thing result(0.f);
-#pragma omp parallel for reduction( +:result )
-for ( const auto& t : things )
-  result = result + t;
-</pre>
-</div>
-</div>
-</multicols>
-<!-- environment: multicols end embedded generator -->
-<p name="switchToTextMode">
-  A default constructor is required for the
-  internally used init value;
-  see figure&nbsp;
-20.1
-.
-\end{cppnote}
-</p>
-
-<h2><a id="Initialvalueforreductions">20.4</a> Initial value for reductions</h2>
+<h2><a id="Initialvalueforreductions">20.3</a> Initial value for reductions</h2>
 <p name=crumbs>
 crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Initialvalueforreductions">Initial value for reductions</a>
 </p>
@@ -616,7 +484,7 @@ The figure is based on execution using two threads.
 <!-- environment: answer end embedded generator -->
 <p name="switchToTextMode">
 
-<h2><a id="User-definedreductions">20.5</a> User-defined reductions</h2>
+<h2><a id="User-definedreductions">20.4</a> User-defined reductions</h2>
 <p name=crumbs>
 crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#User-definedreductions">User-defined reductions</a>
 </p>
@@ -624,10 +492,51 @@ crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-re
 </p>
 
 <p name="switchToTextMode">
+In a loop that performs a reduction,
+most of the element-by-element reduction as done in user code.
+However, in a parallel version of that loop,
+OpenMP needs to perform that same reduction on the partial results
+from the threads.
+Thus, if you want to perform your own reduction,
+you need to declare this reduction to OpenMP.
+</p>
+
+<p name="switchToTextMode">
 With 
 <i>user-defined reductions</i>
 , the programmer specifies the
 function that does the elementwise comparison.
+We discuss two strategies:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+In non-
+<span title="acronym" ><i>OO</i></span>
+ languages you can define a function,
+  and declare that to be a reduction operator with the
+<tt>declare</tt>
+&nbsp;
+<li>
+In 
+<span title="acronym" ><i>OO</i></span>
+ languages (C++ and \fstandard{2003})
+  you can overload ordinary operators for a class.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+
+<h3><a id="Reductionfunctions">20.4.1</a> Reduction functions</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#User-definedreductions">User-defined reductions</a> > <a href="omp-reduction.html#Reductionfunctions">Reduction functions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
 This takes two steps.
 <!-- environment: enumerate start embedded generator -->
 </p>
@@ -711,6 +620,74 @@ where:
 <!-- environment: description end embedded generator -->
 <p name="switchToTextMode">
 
+<h4><a id="Explicitexpressions">20.4.1.1</a> Explicit expressions</h4>
+<p name=crumbs>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#User-definedreductions">User-defined reductions</a> > <a href="omp-reduction.html#Reductionfunctions">Reduction functions</a> > <a href="omp-reduction.html#Explicitexpressions">Explicit expressions</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+For very simple cases:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompminabsloop" aria-expanded="false" aria-controls="ompminabsloop">
+        C Code: ompminabsloop
+      </button>
+    </h5>
+  </div>
+  <div id="ompminabsloop" class="collapse">
+  <pre>
+for (i=0; i&lt;N; i++) {
+  if (abs(data[i]) &lt; result) {
+    result = abs(data[i]);
+  }
+}
+</pre>
+</div>
+</div>
+you can declare the reduction through an expression:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompminabsdef" aria-expanded="false" aria-controls="ompminabsdef">
+        C Code: ompminabsdef
+      </button>
+    </h5>
+  </div>
+  <div id="ompminabsdef" class="collapse">
+  <pre>
+// reductexpr.c
+#pragma omp declare reduction\
+  (minabs : int :							\
+   omp_out = abs(omp_in) &gt; omp_out ? omp_out : abs(omp_in) )		\
+  initializer (omp_priv=LARGENUM)
+</pre>
+</div>
+</div>
+and use that in the 
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompminabsclause" aria-expanded="false" aria-controls="ompminabsclause">
+        C Code: ompminabsclause
+      </button>
+    </h5>
+  </div>
+  <div id="ompminabsclause" class="collapse">
+  <pre>
+#pragma omp parallel for reduction(minabs:result)
+</pre>
+</div>
+</div>
+</p>
+
+<h4><a id="Reductionfunctions">20.4.1.2</a> Reduction functions</h4>
+<p name=crumbs>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#User-definedreductions">User-defined reductions</a> > <a href="omp-reduction.html#Reductionfunctions">Reduction functions</a> > <a href="omp-reduction.html#Reductionfunctions">Reduction functions</a>
+</p>
+<p name="switchToTextMode">
+
 For instance, recreating the maximum reduction would look like this:
 <div class="card">
   <div class="card-header" id="headingOne">
@@ -763,6 +740,7 @@ int mymax(int r,int n) {
 <p name="switchToTextMode">
 
 \begin{cppnote}
+{Reduction over iterators}
   Support for
   
 <i>C++ iterators</i>
@@ -782,10 +760,203 @@ int mymax(int r,int n) {
 \end{cppnote}
 </p>
 
+<p name="switchToTextMode">
+\begin{cppnote}
+{Templated reductions}
+  You can reduce with a templated function
+  if you put both the declaration and the reduction
+  in the same templated function:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompreducttemplate" aria-expanded="false" aria-controls="ompreducttemplate">
+        C++ Code: ompreducttemplate
+      </button>
+    </h5>
+  </div>
+  <div id="ompreducttemplate" class="collapse">
+  <pre>
+template&lt;typename T&gt;
+T generic_reduction( vector&lt;T&gt; tdata ) {
+#pragma omp declare reduction					\
+  (rwzt:T:omp_out=reduce_without_zero&lt;T&gt;(omp_out,omp_in))	\
+  initializer(omp_priv=-1.f)
+
+  T tmin = -1;
+#pragma omp parallel for reduction(rwzt:tmin)
+  for (int id=0; id&lt;tdata.size(); id++)
+    tmin = reduce_without_zero&lt;T&gt;(tmin,tdata[id]);
+  return tmin;
+};
+</pre>
+</div>
+</div>
+  which is then called with specific data:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompreducttcall" aria-expanded="false" aria-controls="ompreducttcall">
+        C++ Code: ompreducttcall
+      </button>
+    </h5>
+  </div>
+  <div id="ompreducttcall" class="collapse">
+  <pre>
+auto tmin = generic_reduction&lt;float&gt;(fdata);
+</pre>
+</div>
+</div>
+\end{cppnote}
+</p>
+
+<h3><a id="Overloadedoperators">20.4.2</a> Overloaded operators</h3>
+<p name=crumbs>
+crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#User-definedreductions">User-defined reductions</a> > <a href="omp-reduction.html#Overloadedoperators">Overloaded operators</a>
+</p>
+<p name="switchToTextMode">
+
+<!-- environment: fortrannote start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=fortrannote ]] -->
+<remark>
+<b>Fortran note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
+  Reduction can be applied to any derived type that has the
+  reduction operator defined.
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ftypeopdef" aria-expanded="false" aria-controls="ftypeopdef">
+        Fortran Code: ftypeopdef
+      </button>
+    </h5>
+  </div>
+  <div id="ftypeopdef" class="collapse">
+  <pre>
+!! reducttype.F90
+  Type inttype
+     integer :: value = 0
+  end type inttype
+  Interface operator(+)
+     module procedure addints
+  end Interface operator(+)
+</pre>
+</div>
+</div>
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ftypeopuse" aria-expanded="false" aria-controls="ftypeopuse">
+        Fortran Code: ftypeopuse
+      </button>
+    </h5>
+  </div>
+  <div id="ftypeopuse" class="collapse">
+  <pre>
+Type(inttype),dimension(nsize) :: intarray
+Type(inttype) :: intsum = inttype(0)
+!$OMP parallel for reduction(+:intsum)
+do i=1,nsize
+   intsum = intsum + intarray(i)
+end do
+!$OMP end parallel
+</pre>
+</div>
+</div>
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+
+</p name="remark">
+</remark>
+<!-- environment: fortrannote end embedded generator -->
+<p name="switchToTextMode">
+{Reductions on derived types}
+</p>
+
+<p name="switchToTextMode">
+\begin{cppnote}
+  Reduction can be applied to any class for which the
+  reduction operator is defined as 
+<tt>operator+</tt>
+
+  or whichever operator the case may be.
+<!-- environment: multicols start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=multicols ]] -->
+<multicols>
+
+<p name="multicols">
+<!-- TranslatingLineGenerator multicols ['multicols'] -->
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompclassop" aria-expanded="false" aria-controls="ompclassop">
+        C++ Code: ompclassop
+      </button>
+    </h5>
+  </div>
+  <div id="ompclassop" class="collapse">
+  <pre>
+// reductcomplex.cxx
+class Thing {
+private:
+  float x;
+public:
+  Thing() : Thing( 0.f ) {};
+  Thing( float x ) : x(x) {};
+  Thing operator+( Thing other ) {
+    return Thing( x + other.x );
+  };
+};
+</pre>
+</div>
+</div>
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompreductop" aria-expanded="false" aria-controls="ompreductop">
+        C++ Code: ompreductop
+      </button>
+    </h5>
+  </div>
+  <div id="ompreductop" class="collapse">
+  <pre>
+vector&lt; Thing &gt; things(500,Thing(1.f) );
+Thing result(0.f);
+#pragma omp parallel for reduction( +:result )
+for ( const auto& t : things )
+  result = result + t;
+</pre>
+</div>
+</div>
+</multicols>
+<!-- environment: multicols end embedded generator -->
+<p name="switchToTextMode">
+  A default constructor is required for the
+  internally used init value;
+  see figure&nbsp;
+20.1
+.
+\end{cppnote}
+</p>
+
 <!-- index -->
 <p name="switchToTextMode">
 
-<h2><a id="Reductionsandfloating-pointmath">20.6</a> Reductions and floating-point math</h2>
+<h2><a id="Reductionsandfloating-pointmath">20.5</a> Reductions and floating-point math</h2>
 <p name=crumbs>
 crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-reduction.html#Reductionsandfloating-pointmath">Reductions and floating-point math</a>
 </p>

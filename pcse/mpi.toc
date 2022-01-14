@@ -34,8 +34,8 @@
 15.9.2 : <a href="mpi.html#Standardoutanderror">Standard out and error</a><br>
 15.9.3 : <a href="mpi.html#Processstatus">Process status</a><br>
 15.9.4 : <a href="mpi.html#Multipleprogramstart">Multiple program start</a><br>
-15.10 : <a href="mpi.html#Theoriginofone-sidedcommunicationinShMem">The origin of one-sided communication in ShMem</a><br>
-15.11 : <a href="mpi.html#Leftovertopics">Leftover topics</a><br>
-15.11.1 : <a href="mpi.html#MPIconstants">MPI constants</a><br>
-15.11.2 : <a href="mpi.html#Cancellingmessages">Cancelling messages</a><br>
-15.12 : <a href="mpi.html#Literature">Literature</a><br>
+15.10 : <a href="mpi.html#Leftovertopics">Leftover topics</a><br>
+15.10.1 : <a href="mpi.html#MPIconstants">MPI constants</a><br>
+15.10.2 : <a href="mpi.html#Cancellingmessages">Cancelling messages</a><br>
+15.10.3 : <a href="mpi.html#Theoriginofone-sidedcommunicationinShMem">The origin of one-sided communication in ShMem</a><br>
+15.11 : <a href="mpi.html#Literature">Literature</a><br>

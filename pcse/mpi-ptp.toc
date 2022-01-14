@@ -4,7 +4,7 @@
 4.1.3 : <a href="mpi-ptp.html#Receivecall">Receive call</a><br>
 4.1.4 : <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a><br>
 4.1.4.1 : <a href="mpi-ptp.html#Deadlock">Deadlock</a><br>
-4.1.4.2 : <a href="mpi-ptp.html#Eagerlimit">Eager limit</a><br>
+4.1.4.2 : <a href="mpi-ptp.html#Eagervsrendezvousprotocol">Eager vs rendezvous protocol</a><br>
 4.1.4.3 : <a href="mpi-ptp.html#Serialization">Serialization</a><br>
 4.1.5 : <a href="mpi-ptp.html#Bucketbrigade">Bucket brigade</a><br>
 4.1.6 : <a href="mpi-ptp.html#Pairwiseexchange">Pairwise exchange</a><br>
@@ -29,4 +29,5 @@
 4.3.2.3 : <a href="mpi-ptp.html#Error">Error</a><br>
 4.3.2.4 : <a href="mpi-ptp.html#Count">Count</a><br>
 4.3.2.5 : <a href="mpi-ptp.html#Example:receivingfromanysource">Example: receiving from any source</a><br>
+4.3.3 : <a href="mpi-ptp.html#Messageenvelope">Message envelope</a><br>
 4.4 : <a href="mpi-ptp.html#Reviewquestions">Review questions</a><br>

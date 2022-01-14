@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -332,7 +332,14 @@ In order to do such user-level copying:
 <li>
 We need to create a shared memory area with
 <tt>MPI_Win_allocate_shared</tt>
-, and
+.
+  This creates a window with the
+  
+<i>unified memory model</i>
+
+<!-- index -->
+;
+  and
 <li>
 We need to get pointers to where a process' area is in this
   shared space; this is done with 

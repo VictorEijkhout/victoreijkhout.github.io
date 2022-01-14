@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="http://ccrs.cac.cornell.edu:8080/client.0.1.js"></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
 <style>
 </style>
 
@@ -1005,15 +1005,64 @@ This is known as
 .
 </p>
 
-<h4><a id="Eagerlimit">4.1.4.2</a> Eager limit</h4>
+<h4><a id="Eagervsrendezvousprotocol">4.1.4.2</a> Eager vs rendezvous protocol</h4>
 <p name=crumbs>
-crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a> > <a href="mpi-ptp.html#Eagerlimit">Eager limit</a>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Blockingpoint-to-pointoperations">Blocking point-to-point operations</a> > <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a> > <a href="mpi-ptp.html#Eagervsrendezvousprotocol">Eager vs rendezvous protocol</a>
 </p>
 
 <!-- index -->
 <p name="switchToTextMode">
 
-If you reverse the send and receive call:
+Messages can be sent using (at least) two different
+<i>protocol</i>
+s:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+Rendezvous protocol, and
+<li>
+Eager protocol.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+The 
+<i>rendezvous protocol</i>
+ is the most general.
+Sending a message takes several steps:
+<!-- environment: enumerate start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=enumerate ]] -->
+<enumerate>
+<ol>
+<!-- TranslatingLineGenerator enumerate ['enumerate'] -->
+<li>
+the sender sends a header,
+  typically containing the 
+<i>message envelope</i>
+;
+<li>
+the receiver returns a `ready-to-send' message;
+<li>
+the sender sends the actual data.
+</ol>
+</enumerate>
+<!-- environment: enumerate end embedded generator -->
+<p name="switchToTextMode">
+The purpose of this is to to prepare the receiver buffer space
+for large messages. However, it implies that the sender has to
+wait for some return message from the receiver,
+making the behavior a 
+<i>synchronous message</i>
+.
+</p>
+
+<p name="switchToTextMode">
+For the eager protocol, consider the example:
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
@@ -1026,7 +1075,7 @@ receive(source=other);
 </lstlisting>
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
-you should get deadlock,
+With a synchronous protocol you should get deadlock,
 since the send calls will be waiting for the receive operation to be posted.
 </p>
 
@@ -1040,34 +1089,15 @@ is used is sometimes referred to as the
 .
 </p>
 
-<p name="switchToTextMode">
-The following code is guaranteed to block, since a 
-<tt>MPI_Recv</tt>
-always blocks:
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#recvblock" aria-expanded="false" aria-controls="recvblock">
-        C Code: recvblock
-      </button>
-    </h5>
-  </div>
-  <div id="recvblock" class="collapse">
-  <pre>
-// recvblock.c
-other = 1-procno;
-MPI_Recv(&recvbuf,1,MPI_INT,other,0,comm,&status);
-MPI_Send(&sendbuf,1,MPI_INT,other,0,comm);
-printf("This statement will not be reached on %d\n",procno);
-</pre>
-</div>
-</div>
-On the other hand, if we put the send call before the receive,
-code may not block for small messages
-that fall under the eager limit.
-</p>
+<!-- environment: comment start embedded generator -->
+<!-- environment block purpose: [[ environment=comment ]] -->
+<comment>
 
+
+</comment>
+<!-- environment: comment end embedded generator -->
 <p name="switchToTextMode">
+
 To illustrate eager and blocking behavior in 
 <tt>MPI_Send</tt>
 ,
@@ -4154,7 +4184,7 @@ if (procno==nprocs-1) {
 </div>
 <p name="switchToTextMode">
 
-In Fortran2008 style, the source is a member of the \flstinline{Status} type.
+In \fstandard{2003} style, the source is a member of the \flstinline{Status} type.
 </p>
 
 <div class="card">
@@ -4178,7 +4208,7 @@ In Fortran2008 style, the source is a member of the \flstinline{Status} type.
 </div>
 <p name="switchToTextMode">
 
-In Fortran90 style, the source is an index in the \flstinline{Status} array.
+In \fstandard{90} style, the source is an index in the \flstinline{Status} array.
 </p>
 
 <div class="card">
@@ -4587,6 +4617,26 @@ This design patterns offers an opportunity for inspecting the
  field of the 
 <tt>MPI_Status</tt>
 object describing the data that was received.
+</p>
+
+<!-- index -->
+<p name="switchToTextMode">
+
+<h3><a id="Messageenvelope">4.3.3</a> Message envelope</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#Messageenvelope">Message envelope</a>
+</p>
+
+<!-- index -->
+<!-- index -->
+</p>
+
+<p name="switchToTextMode">
+Apart from its bare data, each message has a 
+<i>message envelope</i>
+.
+This has enough information to distinguish messages from each other:
+the source, destination, tag, communicator.
 </p>
 
 <!-- index -->
