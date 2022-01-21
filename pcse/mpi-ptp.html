@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -83,7 +111,7 @@ initialize();
 4.1.3 : <a href="mpi-ptp.html#Receivecall">Receive call</a><br>
 4.1.4 : <a href="mpi-ptp.html#Problemswithblockingcommunication">Problems with blocking communication</a><br>
 4.1.4.1 : <a href="mpi-ptp.html#Deadlock">Deadlock</a><br>
-4.1.4.2 : <a href="mpi-ptp.html#Eagerlimit">Eager limit</a><br>
+4.1.4.2 : <a href="mpi-ptp.html#Eagervsrendezvousprotocol">Eager vs rendezvous protocol</a><br>
 4.1.4.3 : <a href="mpi-ptp.html#Serialization">Serialization</a><br>
 4.1.5 : <a href="mpi-ptp.html#Bucketbrigade">Bucket brigade</a><br>
 4.1.6 : <a href="mpi-ptp.html#Pairwiseexchange">Pairwise exchange</a><br>
@@ -108,6 +136,7 @@ initialize();
 4.3.2.3 : <a href="mpi-ptp.html#Error">Error</a><br>
 4.3.2.4 : <a href="mpi-ptp.html#Count">Count</a><br>
 4.3.2.5 : <a href="mpi-ptp.html#Example:receivingfromanysource">Example: receiving from any source</a><br>
+4.3.3 : <a href="mpi-ptp.html#Messageenvelope">Message envelope</a><br>
 4.4 : <a href="mpi-ptp.html#Reviewquestions">Review questions</a><br>
 <a href="index.html">Back to Table of Contents</a>
 <h1>4 MPI topic: Point-to-point</h1>
@@ -840,7 +869,7 @@ for more about the status object.
   as `output'; this `direction' of the parameter of course only applies
   if you do not specify this constant.
   (See also section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#MPIconstants">15.11.1</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#MPIconstants">15.10.1</a>
 .)
 </p name="remark">
 </remark>
@@ -885,9 +914,13 @@ Then modify the program
 <p name="switchToTextMode">
   For bonus points, can you do a regression to determine&nbsp;$\alpha,\beta$?
 <!-- skeleton start: pingpong -->
-<button id="runBtn">pingpong</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnpingpong", 
+    "editorDivpingpong", "outputPrepingpong", 
+    "skeletons/pingpong.c", 
+    "mpicc skeletons/pingpong.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnpingpong">Compile and run pingpong</button>
+<div id="editorDivpingpong" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrepingpong"></pre>
 <!-- skeleton end: pingpong -->
 </p name="exercise">
 </exercise>
@@ -1400,9 +1433,13 @@ figure&nbsp;
   If you don't have TAU, can you show this serialization
   behavior using timings, for instance running it on an increasing number of processes?
 <!-- skeleton start: rightsend -->
-<button id="runBtn">rightsend</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnrightsend", 
+    "editorDivrightsend", "outputPrerightsend", 
+    "skeletons/rightsend.c", 
+    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnrightsend">Compile and run rightsend</button>
+<div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrerightsend"></pre>
 <!-- skeleton end: rightsend -->
 </p name="exercise">
 </exercise>
@@ -1480,9 +1517,13 @@ successively passed down a sequence of processors.
 <p name="switchToTextMode">
   Question: could you have done this with a collective call?
 <!-- skeleton start: bucketblock -->
-<button id="runBtn">bucketblock</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnbucketblock", 
+    "editorDivbucketblock", "outputPrebucketblock", 
+    "skeletons/bucketblock.c", 
+    "mpicc skeletons/bucketblock.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnbucketblock">Compile and run bucketblock</button>
+<div id="editorDivbucketblock" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrebucketblock"></pre>
 <!-- skeleton end: bucketblock -->
 </p name="exercise">
 </exercise>
@@ -1763,9 +1804,13 @@ comm_world.sendrecv
   code with different numbers of processes and show that the runtime
   is essentially constant.
 <!-- skeleton start: rightsend -->
-<button id="runBtn">rightsend</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnrightsend", 
+    "editorDivrightsend", "outputPrerightsend", 
+    "skeletons/rightsend.c", 
+    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnrightsend">Compile and run rightsend</button>
+<div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrerightsend"></pre>
 <!-- skeleton end: rightsend -->
 </p name="exercise">
 </exercise>
@@ -1835,9 +1880,13 @@ see figure&nbsp;
 ;
   every processor only has a single number to send to its neighbor.
 <!-- skeleton start: sendrecv -->
-<button id="runBtn">sendrecv</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnsendrecv", 
+    "editorDivsendrecv", "outputPresendrecv", 
+    "skeletons/sendrecv.c", 
+    "mpicc skeletons/sendrecv.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnsendrecv">Compile and run sendrecv</button>
+<div id="editorDivsendrecv" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPresendrecv"></pre>
 <!-- skeleton end: sendrecv -->
 </p name="exercise">
 </exercise>
@@ -2033,13 +2082,8 @@ IERROR : Fortran only: Error status (integer).
 <!-- environment: exercise end embedded generator -->
 <p name="switchToTextMode">
 
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Non-blocking/persistent sendrecv}
   There are
   
 <i>non-blocking</i>
@@ -2059,22 +2103,20 @@ IERROR : Fortran only: Error status (integer).
 , 
 <tt>MPI_Sendrecv_replace_init</tt>
 .
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
-<p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <!-- TranslatingLineGenerator file ['file'] -->
-</p>
+<p name="switchToTextMode">
 
 <h2><a id="Nonblockingpoint-to-pointoperations">4.2</a> Nonblocking point-to-point operations</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Nonblockingpoint-to-pointoperations">Nonblocking point-to-point operations</a>
 </p>
 
-<p name="switchToTextMode">
+</p>
 
+<p name="switchToTextMode">
 The structure of communication is often a reflection of the structure
 of the operation.
 With some regular applications we also get a regular communication pattern.
@@ -2676,9 +2718,13 @@ If you don't need the status objects, you can pass
 <tt>MPI_Wait</tt>
 s?
 <!-- skeleton start: bucketpipenonblock -->
-<button id="runBtn">bucketpipenonblock</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnbucketpipenonblock", 
+    "editorDivbucketpipenonblock", "outputPrebucketpipenonblock", 
+    "skeletons/bucketpipenonblock.c", 
+    "mpicc skeletons/bucketpipenonblock.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnbucketpipenonblock">Compile and run bucketpipenonblock</button>
+<div id="editorDivbucketpipenonblock" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrebucketpipenonblock"></pre>
 <!-- skeleton end: bucketpipenonblock -->
 </p name="exercise">
 </exercise>
@@ -2711,9 +2757,13 @@ s?
   Why is it not a good idea to do so?
   Solve this exercise instead with a circular bucket brigade algorithm.
 <!-- skeleton start: setdiff -->
-<button id="runBtn">setdiff</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnsetdiff", 
+    "editorDivsetdiff", "outputPresetdiff", 
+    "skeletons/setdiff.c", 
+    "mpicc skeletons/setdiff.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnsetdiff">Compile and run setdiff</button>
+<div id="editorDivsetdiff" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPresetdiff"></pre>
 <!-- skeleton end: setdiff -->
 </p name="exercise">
 </exercise>
@@ -3016,40 +3066,7 @@ The
 <i>polling</i>
 : occasionally check for incoming messages while
 other work is going on.
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#waitforany" aria-expanded="false" aria-controls="waitforany">
-        C Code: waitforany
-      </button>
-    </h5>
-  </div>
-  <div id="waitforany" class="collapse">
-  <pre>
-// irecvsource.c
-if (procno==nprocs-1) {
-  int *recv_buffer;
-  MPI_Request *request; MPI_Status status;
-  recv_buffer = (int*) malloc((nprocs-1)*sizeof(int));
-  request = (MPI_Request*) malloc((nprocs-1)*sizeof(MPI_Request));
-
-  for (int p=0; p&lt;nprocs-1; p++) {
-    ierr = MPI_Irecv(recv_buffer+p,1,MPI_INT, p,0,comm,
-		      request+p); CHK(ierr);
-  }
-  for (int p=0; p&lt;nprocs-1; p++) {
-    int index,sender;
-    MPI_Waitany(nprocs-1,request,&index,&status); //MPI_STATUS_IGNORE);
-    if (index!=status.MPI_SOURCE)
-	printf("Mismatch index %d vs source %d\n",index,status.MPI_SOURCE);
-    printf("Message from %d: %d\n",index,recv_buffer[index]);
-  }
-} else {
-  ierr = MPI_Send(&procno,1,MPI_INT, nprocs-1,0,comm); CHK(ierr);
-}
-</pre>
-</div>
-</div>
+\csnippetwithoutput{waitforany}{examples/mpi/c}{irecvsource}
 <div class="card">
   <div class="card-header" id="headingOne">
     <h5 class="mb-0">
@@ -3207,9 +3224,13 @@ for
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: isendirecv -->
-<button id="runBtn">isendirecv</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnisendirecv", 
+    "editorDivisendirecv", "outputPreisendirecv", 
+    "skeletons/isendirecv.c", 
+    "mpicc skeletons/isendirecv.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnisendirecv">Compile and run isendirecv</button>
+<div id="editorDivisendirecv" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreisendirecv"></pre>
 <!-- skeleton end: isendirecv -->
   Now use nonblocking send/receive routines to implement
   the three-point averaging operation
@@ -3290,9 +3311,13 @@ hardware, firmware, and MPI implementation.
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: isendirecvarray -->
-<button id="runBtn">isendirecvarray</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnisendirecvarray", 
+    "editorDivisendirecvarray", "outputPreisendirecvarray", 
+    "skeletons/isendirecvarray.c", 
+    "mpicc skeletons/isendirecvarray.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnisendirecvarray">Compile and run isendirecvarray</button>
+<div id="editorDivisendirecvarray" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreisendirecvarray"></pre>
 <!-- skeleton end: isendirecvarray -->
   Take your code of exercise&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Receivestatusofthewaitcalls">4.2.2.6</a>
@@ -4622,7 +4647,36 @@ object describing the data that was received.
 <!-- index -->
 <p name="switchToTextMode">
 
-<h3><a id="Messageenvelope">4.3.3</a> Message envelope</h3>
+<h3><a id="Errors">4.3.3</a> Errors</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#Errors">Errors</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+MPI routines return 
+<tt>MPI_SUCCESS</tt>
+ upon succesful completion.
+The following error codes can be returned
+(see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Errorcodes">15.2.1</a>
+ for details)
+for completion with error by both send and receive operations:
+<tt>MPI_ERR_COMM</tt>
+,
+<tt>MPI_ERR_COUNT</tt>
+,
+<tt>MPI_ERR_TYPE</tt>
+,
+<tt>MPI_ERR_TAG</tt>
+,
+<tt>MPI_ERR_RANK</tt>
+.
+</p>
+
+<p name="switchToTextMode">
+
+<h3><a id="Messageenvelope">4.3.4</a> Message envelope</h3>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-ptp.html">mpi-ptp</a> > <a href="mpi-ptp.html#Moreaboutpoint-to-pointcommunication">More about point-to-point communication</a> > <a href="mpi-ptp.html#Messageenvelope">Message envelope</a>
 </p>

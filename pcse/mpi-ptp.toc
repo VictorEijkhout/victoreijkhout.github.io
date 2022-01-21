@@ -29,5 +29,6 @@
 4.3.2.3 : <a href="mpi-ptp.html#Error">Error</a><br>
 4.3.2.4 : <a href="mpi-ptp.html#Count">Count</a><br>
 4.3.2.5 : <a href="mpi-ptp.html#Example:receivingfromanysource">Example: receiving from any source</a><br>
-4.3.3 : <a href="mpi-ptp.html#Messageenvelope">Message envelope</a><br>
+4.3.3 : <a href="mpi-ptp.html#Errors">Errors</a><br>
+4.3.4 : <a href="mpi-ptp.html#Messageenvelope">Message envelope</a><br>
 4.4 : <a href="mpi-ptp.html#Reviewquestions">Review questions</a><br>

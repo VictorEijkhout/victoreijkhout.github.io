@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -235,7 +263,7 @@ different nodes, so you don't have to worry about lack of efficiency.
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Multipleprogramstart">15.9.4</a>
 ),
   using options of the 
-<i>mpiexec</i>
+<tt>mpiexec</tt>
  mechanism, or you can use
   MPI's built-in process management; chapter~
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-proc.html">MPI topic: Process management</a>
@@ -422,9 +450,13 @@ int main(int argc,char **argv) {
 <p name="switchToTextMode">
 
 <!-- skeleton start: hello -->
-<button id="runBtn">hello</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnhello", 
+    "editorDivhello", "outputPrehello", 
+    "skeletons/hello.c", 
+    "mpicc skeletons/hello.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnhello">Compile and run hello</button>
+<div id="editorDivhello" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrehello"></pre>
 <!-- skeleton end: hello -->
 </p name="exercise">
 </exercise>
@@ -926,7 +958,7 @@ and
 filters out the arguments to 
 <i>mpirun</i>
  or 
-<i>mpiexec</i>
+<tt>mpiexec</tt>
 ,
 thereby lowering the value of 
 <tt>argc</tt>
@@ -939,7 +971,6 @@ arguments.
 <p name="switchToTextMode">
 On the other hand, the commandline arguments that are meant for 
 <tt>mpiexec</tt>
-
 wind up in the 
 <tt>MPI_INFO_ENV</tt>
  object as a set of
@@ -1011,24 +1042,7 @@ and on return that parameter has the actually used length.
 The maximum needed length is 
 <tt>MPI_MAX_PROCESSOR_NAME</tt>
 .
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#procname" aria-expanded="false" aria-controls="procname">
-        C Code: procname
-      </button>
-    </h5>
-  </div>
-  <div id="procname" class="collapse">
-  <pre>
-// procname.c
-int name_length = MPI_MAX_PROCESSOR_NAME;
-char proc_name[name_length];
-MPI_Get_processor_name(proc_name,&name_length);
-printf("This process is running on node &lt;&lt;%s&gt;&gt;\n",proc_name);
-</pre>
-</div>
-</div>
+\csnippetwithoutput{procname}{examples/mpi/c}{procname}
 (Underallocating the buffer will not lead to a runtime error.)
 </p>
 
@@ -1601,9 +1615,13 @@ Hello from process 2 out of 5!
 <i>On some clusters this may not be     advisable if you have large numbers of processors, since it can     overload the file system.</i>
 
 <!-- skeleton start: commrank -->
-<button id="runBtn">commrank</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtncommrank", 
+    "editorDivcommrank", "outputPrecommrank", 
+    "skeletons/commrank.c", 
+    "mpicc skeletons/commrank.c && mpiexec -n 4 ./a.out" )
+<button id="runBtncommrank">Compile and run commrank</button>
+<div id="editorDivcommrank" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrecommrank"></pre>
 <!-- skeleton end: commrank -->
 </p name="exercise">
 </exercise>
@@ -1761,9 +1779,13 @@ trivial.)
 <p name="switchToTextMode">
   Can you find more than one solution?
 <!-- skeleton start: prime -->
-<button id="runBtn">prime</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnprime", 
+    "editorDivprime", "outputPreprime", 
+    "skeletons/prime.c", 
+    "mpicc skeletons/prime.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnprime">Compile and run prime</button>
+<div id="editorDivprime" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreprime"></pre>
 <!-- skeleton end: prime -->
 </p name="exercise">
 </exercise>

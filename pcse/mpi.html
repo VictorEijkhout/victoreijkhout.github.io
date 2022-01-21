@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -113,11 +141,11 @@ initialize();
 15.9.2 : <a href="mpi.html#Standardoutanderror">Standard out and error</a><br>
 15.9.3 : <a href="mpi.html#Processstatus">Process status</a><br>
 15.9.4 : <a href="mpi.html#Multipleprogramstart">Multiple program start</a><br>
-15.10 : <a href="mpi.html#Theoriginofone-sidedcommunicationinShMem">The origin of one-sided communication in ShMem</a><br>
-15.11 : <a href="mpi.html#Leftovertopics">Leftover topics</a><br>
-15.11.1 : <a href="mpi.html#MPIconstants">MPI constants</a><br>
-15.11.2 : <a href="mpi.html#Cancellingmessages">Cancelling messages</a><br>
-15.12 : <a href="mpi.html#Literature">Literature</a><br>
+15.10 : <a href="mpi.html#Leftovertopics">Leftover topics</a><br>
+15.10.1 : <a href="mpi.html#MPIconstants">MPI constants</a><br>
+15.10.2 : <a href="mpi.html#Cancellingmessages">Cancelling messages</a><br>
+15.10.3 : <a href="mpi.html#Theoriginofone-sidedcommunicationinShMem">The origin of one-sided communication in ShMem</a><br>
+15.11 : <a href="mpi.html#Literature">Literature</a><br>
 <a href="index.html">Back to Table of Contents</a>
 <h1>15 MPI leftover topics</h1>
 <!-- TranslatingLineGenerator file ['file'] -->
@@ -341,12 +369,9 @@ This means that in nonblocking routines they can be freed immediately,
 unlike, for instance, send buffers.
 </p>
 
-<!-- environment: mpifour start embedded generator -->
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+<p name="switchToTextMode">
+\begin{mpifournote}
+{Info with null terminator}
   The routines 
   are not robust with respect to the C language 
 <i>null terminator</i>
@@ -365,19 +390,17 @@ int MPI_Info_get_string
 </pre>
 </lstlisting>
 <!-- environment: lstlisting end embedded generator -->
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
 <p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h4><a id="Environmentinformation">15.1.1.1</a> Environment information</h4>
 <p name=crumbs>
 crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Contextualinformation,attributes,etc.">Contextual information, attributes, etc.</a> > <a href="mpi.html#Infoobjects">Info objects</a> > <a href="mpi.html#Environmentinformation">Environment information</a>
 </p>
 
-</p>
-
 <p name="switchToTextMode">
+
 The object 
 <tt>MPI_INFO_ENV</tt>
  is predefined, containing:
@@ -469,7 +492,9 @@ Copying a communicator with
  does not cause
 the info to be copied; to propagate information to the copy there is
 <tt>MPI_Comm_dup_with_info</tt>
-.
+ (section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-comm.html#Duplicatingcommunicators">7.2</a>
+).
 </p>
 
 <h4><a id="Fileinformation">15.1.1.3</a> File information</h4>
@@ -553,20 +578,12 @@ The following keys are defined in the \mpistandard{2} standard:
 <li>
 <tt>io_node_list</tt>
 : a comma separated list of I/O nodes to use
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Memory alignment}
 <li>
 <tt>mpi_minimum_memory_alignment</tt>
 : aligment of allocated memory.
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
+\end{mpifournote}
 <li>
 <tt>nb_proc</tt>
 : integer number of processes expected to access a file simultaneously
@@ -1053,6 +1070,10 @@ User-defined error codes are all larger than this.
   invalid communicator. A common error is to use a null communicator in
   a call.
 <li>
+<tt>MPI_ERR_COUNT</tt>
+ Invalid count argument, usually this is
+  caused by a negative count value; zero is often a valid count.
+<li>
 <tt>MPI_ERR_INTERN</tt>
  An internal error in MPI has been detected.
 <li>
@@ -1088,21 +1109,22 @@ User-defined error codes are all larger than this.
 : invalid port; this applies to
 <tt>MPI_Comm_connect</tt>
  and such.
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Error code for aborted process}
 <li>
 <tt>MPI_ERR_PROC_ABORTED</tt>
  is returned if a process tries to communicate
     with a process that has aborted.
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
+\end{mpifournote}
+<li>
+<tt>MPI_ERR_RANK</tt>
+: an invalid source or destination rank is specified.
+  Valid ranks are $0&hellip; s-1$ where $s$&nbsp;is the size of the communicator,
+  or 
+<tt>MPI_PROC_NULL</tt>
+, or 
+<tt>MPI_ANY_SOURCE</tt>
+ for receive operations.
 <li>
 <tt>MPI_ERR_SERVICE</tt>
 : invalid service in
@@ -1144,23 +1166,14 @@ other possibilities are
 ,
 <tt>MPI_File_call_errhandler</tt>
 ,
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Error handler for session}
 <tt>MPI_Session_set_errhandler</tt>
 ,
 <tt>MPI_Session_call_errhandler</tt>
 ,
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
+\end{mpifournote}
 <tt>MPI_Win_set_errhandler</tt>
-<p name="switchToTextMode">
 ,
 <tt>MPI_Win_call_errhandler</tt>
 .
@@ -1260,29 +1273,22 @@ The handler
 associated with a communicator, causes the whole application to abort.
 </p>
 
-<!-- environment: mpifour start embedded generator -->
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+<p name="switchToTextMode">
+\begin{mpifournote}
+{Abort on communicator}
   The handler 
 <tt>MPI_ERRORS_ABORT</tt>
  (\mpistandard{4})
   aborts on the processes in the communicator for which it is specified.
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
-<p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h4><a id="Return">15.2.2.2</a> Return</h4>
 <p name=crumbs>
 crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Errorhandling">Error handling</a> > <a href="mpi.html#Errorhandling">Error handling</a> > <a href="mpi.html#Return">Return</a>
 </p>
-</p>
-
 <p name="switchToTextMode">
+
 Another simple possibility is to specify
 <!-- environment: lstlisting start embedded generator -->
 </p>
@@ -2353,7 +2359,7 @@ If a communication between the same pair of processes, involving the
 same buffer, happens regularly, it is possible to set up a
 <i>persistent communication</i>
 . See section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunicationrequests">5.1</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunication">5.1</a>
 .
 </p>
 
@@ -2782,6 +2788,8 @@ there are usually two ways of starting this up.
 
 <p name="switchToTextMode">
 The first possibility is that the job starter,
+<tt>mpiexec</tt>
+ or 
 <tt>mpirun</tt>
  or a local variant,
 accepts multiple executables:

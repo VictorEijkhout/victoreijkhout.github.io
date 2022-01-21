@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -244,7 +272,6 @@ The
  connection
 to each of the hosts, giving them sufficient information that they
 can find each other. All the output of the processors is piped through the
-
 <tt>mpiexec</tt>
  program, and appears on the interactive console.
 </p>
@@ -358,6 +385,26 @@ mpicc -o my_mpi_prog my_mpi_prog.o
 </pre>
 </verbatim>
 <!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  In 
+<i>OpenMPI</i>
+, these commands are
+  binary executables by default,
+  but you can make it a shell script by passing the
+  
+<tt>--enable-script-wrapper-compilers</tt>
+ option at configure time.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
 <p name="switchToTextMode">
 
 MPI programs can be run on many different architectures. Obviously it
@@ -491,12 +538,9 @@ Thus, MPI can be used from C++ by including
 and using the C API.
 </p>
 
-<!-- environment: mpifour start embedded generator -->
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+<p name="switchToTextMode">
+\begin{mpifournote}
+{Header file hpp}
   The \mpistandard{4} standard supports integer arguments larger than 32 bits,
   through the  <tt>MPI_Count</tt>  datatype.
   All MPI routines are now polymorphic between using
@@ -516,12 +560,10 @@ and using the C API.
   rather than 
 <tt>mpi.h</tt>
 .
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
-<p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
+<p name="switchToTextMode">
 The 
 <i>boost</i>
  library has its own version of MPI, but it seems

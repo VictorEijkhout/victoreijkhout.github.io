@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -104,7 +132,7 @@ of running MPI programs.  In some rare cases you may want to run in an
 the 
 <span title="acronym" ><i>OS</i></span>
  level, using options of the 
-<i>mpiexec</i>
+<tt>mpiexec</tt>
  mechanism,
 or you can use MPI's built-in process management. Read on if you're
 interested in the latter.
@@ -390,7 +418,6 @@ if (is_child) {
  requires you to pass an option 
 <tt>-usize</tt>
  to
-
 <tt>mpiexec</tt>
  indicating the size of the comm universe. With the TACC
 jobs starter 
@@ -954,13 +981,8 @@ crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Se
 
 <p name="switchToTextMode">
 
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Session model}
 </p>
 
 <p name="switchToTextMode">
@@ -1144,24 +1166,19 @@ This info object always has the key
 <!-- environment: comment end embedded generator -->
 <p name="switchToTextMode">
 
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
-<p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h2><a id="Functionalityavailableoutsideinitfinalize">8.4</a> Functionality available outside init/finalize</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Functionalityavailableoutsideinitfinalize">Functionality available outside init/finalize</a>
 </p>
-</p>
-
 <p name="switchToTextMode">
+
 \begin{raggedlist}
 <tt>MPI_Initialized</tt>
 <tt>MPI_Finalized</tt>
 <tt>MPI_Get_version</tt>
-<tt>MPI_Get_library_version</tt>
 <tt>MPI_Info_create</tt>
 <tt>MPI_Info_create_env</tt>
 <tt>MPI_Info_set</tt>

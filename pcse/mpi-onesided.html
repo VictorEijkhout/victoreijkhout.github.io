@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -81,7 +109,8 @@ initialize();
 9.1.1 : <a href="mpi-onesided.html#Windowcreationandallocation">Window creation and allocation</a><br>
 9.1.2 : <a href="mpi-onesided.html#Addressarithmetic">Address arithmetic</a><br>
 9.2 : <a href="mpi-onesided.html#Activetargetsynchronization:epochs">Active target synchronization: epochs</a><br>
-9.2.1 : <a href="mpi-onesided.html#Non-globaltargetsynchronization">Non-global target synchronization</a><br>
+9.2.1 : <a href="mpi-onesided.html#Fenceassertions">Fence assertions</a><br>
+9.2.2 : <a href="mpi-onesided.html#Non-globaltargetsynchronization">Non-global target synchronization</a><br>
 9.3 : <a href="mpi-onesided.html#Put,get,accumulate">Put, get, accumulate</a><br>
 9.3.1 : <a href="mpi-onesided.html#Put">Put</a><br>
 9.3.2 : <a href="mpi-onesided.html#Get">Get</a><br>
@@ -314,7 +343,9 @@ The window is the target of data in a put operation, or the
 .
 <li>
 There can be memory associated with a window, so it needs to be
-  freed explicitly.
+  freed explicitly with 
+<tt>MPI_Win_free</tt>
+.
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
@@ -621,13 +652,8 @@ part of
 <tt>MPI_ERR_NO_MEM</tt>
  indicates that
   no memory could be allocated.
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Info key for alignment}
 <li>
     Allocated memory can be aligned by specifying an 
 <tt>MPI_Info</tt>
@@ -635,10 +661,7 @@ part of
     of 
 <tt>mpi_minimum_memory_alignment</tt>
 .
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
+\end{mpifournote}
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
@@ -676,7 +699,8 @@ There will be more discussion of window memory in section&nbsp;
 <!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
 <p name="switchToTextMode">
   Unlike in&nbsp;C, the python window allocate call does not return a pointer
-  to the buffer memory. Should you need this, there are the following options:
+  to the buffer memory, but an  <tt>MPI.memory</tt>  object.
+  Should you need the bare memory, there are the following options:
 <!-- environment: itemize start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=itemize ]] -->
@@ -812,7 +836,7 @@ win.Fence(self, int assertion=0)
 This operation is collective on the communicator of the window.
 (Another, more sophisticated mechanism for active target synchronization
 is discussed in section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Non-globaltargetsynchronization">9.2.1</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-onesided.html#Non-globaltargetsynchronization">9.2.2</a>
 .)
 </p>
 
@@ -1032,6 +1056,7 @@ You start and complete an
 <i>access epoch</i>
  with%
 <tt>MPI_Win_start</tt>
+&nbsp;/ 
 <tt>MPI_Win_complete</tt>
 :
 <!-- environment: lstlisting start embedded generator -->
@@ -1334,9 +1359,13 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 <tt>MPI_Put</tt>
 .
 <!-- skeleton start: rightput -->
-<button id="runBtn">rightput</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnrightput", 
+    "editorDivrightput", "outputPrerightput", 
+    "skeletons/rightput.c", 
+    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnrightput">Compile and run rightput</button>
+<div id="editorDivrightput" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrerightput"></pre>
 <!-- skeleton end: rightput -->
 </p name="exercise">
 </exercise>
@@ -1368,9 +1397,13 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: randomput -->
-<button id="runBtn">randomput</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnrandomput", 
+    "editorDivrandomput", "outputPrerandomput", 
+    "skeletons/randomput.c", 
+    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnrandomput">Compile and run randomput</button>
+<div id="editorDivrandomput" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrerandomput"></pre>
 <!-- skeleton end: randomput -->
 </exercise>
 <!-- environment: exercise end embedded generator -->
@@ -2568,9 +2601,13 @@ while the remaining process spins until the others have performed their update.
   Use an atomic operation for the latter process to read out the shared value.\\
   Can you replace the exclusive lock with a shared one?
 <!-- skeleton start: lockfetch -->
-<button id="runBtn">lockfetch</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnlockfetch", 
+    "editorDivlockfetch", "outputPrelockfetch", 
+    "skeletons/lockfetch.c", 
+    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnlockfetch">Compile and run lockfetch</button>
+<div id="editorDivlockfetch" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrelockfetch"></pre>
 <!-- skeleton end: lockfetch -->
 </p name="exercise">
 </exercise>
@@ -2601,9 +2638,13 @@ while the remaining process spins until the others have performed their update.
 <tt>MPI_Fetch_and_op</tt>
 .
 <!-- skeleton start: lockfetchshared -->
-<button id="runBtn">lockfetchshared</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnlockfetchshared", 
+    "editorDivlockfetchshared", "outputPrelockfetchshared", 
+    "skeletons/lockfetchshared.c", 
+    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnlockfetchshared">Compile and run lockfetchshared</button>
+<div id="editorDivlockfetchshared" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrelockfetchshared"></pre>
 <!-- skeleton end: lockfetchshared -->
 </p name="exercise">
 </exercise>

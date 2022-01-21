@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -80,13 +108,14 @@ initialize();
 24.1 : <a href="omp-task.html#Taskdata">Task data</a><br>
 24.2 : <a href="omp-task.html#Tasksynchronization">Task synchronization</a><br>
 24.3 : <a href="omp-task.html#Taskdependencies">Task dependencies</a><br>
-24.4 : <a href="omp-task.html#More">More</a><br>
-24.4.1 : <a href="omp-task.html#Schedulingpoints">Scheduling points</a><br>
-24.4.2 : <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a><br>
-24.4.3 : <a href="omp-task.html#Taskcancelling">Task cancelling</a><br>
-24.5 : <a href="omp-task.html#Examples">Examples</a><br>
-24.5.1 : <a href="omp-task.html#Fibonacci">Fibonacci</a><br>
-24.5.2 : <a href="omp-task.html#Binomialcoefficients">Binomial coefficients</a><br>
+24.4 : <a href="omp-task.html#Taskreduction">Task reduction</a><br>
+24.5 : <a href="omp-task.html#More">More</a><br>
+24.5.1 : <a href="omp-task.html#Schedulingpoints">Scheduling points</a><br>
+24.5.2 : <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a><br>
+24.5.3 : <a href="omp-task.html#Taskcancelling">Task cancelling</a><br>
+24.6 : <a href="omp-task.html#Examples">Examples</a><br>
+24.6.1 : <a href="omp-task.html#Fibonacci">Fibonacci</a><br>
+24.6.2 : <a href="omp-task.html#Binomialcoefficients">Binomial coefficients</a><br>
 <a href="index.html">Back to Table of Contents</a>
 <h1>24 OpenMP topic: Tasks</h1>
 <!-- TranslatingLineGenerator file ['file'] -->
@@ -835,18 +864,80 @@ there are four types of dependencies.
 <!-- index -->
 <p name="switchToTextMode">
 
-<h2><a id="More">24.4</a> More</h2>
+<h2><a id="Taskreduction">24.4</a> Task reduction</h2>
+<p name=crumbs>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Taskreduction">Task reduction</a>
+</p>
+</p>
+
+<p name="switchToTextMode">
+The 
+not to 
+<tt>taskgroup</tt>
+ loops of tasks.
+To do a reduction over computations in tasks you need the
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp taskgroup task_reduction(+:sum)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+The task group can contain both task that contribute to the reduction,
+and ones that don't. The former type needs a clause 
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp task in_reduction(+:sum)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+As an example, here the sum $\sum_{i=1}^{100} i$ is computed with tasks:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#omptaskreduct" aria-expanded="false" aria-controls="omptaskreduct">
+        C Code: omptaskreduct
+      </button>
+    </h5>
+  </div>
+  <div id="omptaskreduct" class="collapse">
+  <pre>
+// taskreduct.c
+#pragma omp parallel
+#pragma omp single
+  {
+  #pragma omp taskgroup task_reduction(+:sum)
+  for (int itask=1; itask&lt;=bound; itask++) {
+    #pragma omp task in_reduction(+:sum)
+    sum += itask;
+    }
+  }
+</pre>
+</div>
+</div>
+</p>
+
+<h2><a id="More">24.5</a> More</h2>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a>
 </p>
-</p>
+<p name="switchToTextMode">
 
-<h3><a id="Schedulingpoints">24.4.1</a> Scheduling points</h3>
+<h3><a id="Schedulingpoints">24.5.1</a> Scheduling points</h3>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Schedulingpoints">Scheduling points</a>
 </p>
-<p name="switchToTextMode">
+</p>
 
+<p name="switchToTextMode">
 Normally, a task stays tied to the thread that first executes it.
 However, at a 
 <i>task scheduling point</i>
@@ -897,7 +988,7 @@ while (!omp_test_lock(lock))
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
 
-<h3><a id="Avoidingsmalltasks">24.4.2</a> Avoiding small tasks</h3>
+<h3><a id="Avoidingsmalltasks">24.5.2</a> Avoiding small tasks</h3>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a>
 </p>
@@ -949,7 +1040,7 @@ The
 <!-- environment: itemize end embedded generator -->
 <p name="switchToTextMode">
 
-<h3><a id="Taskcancelling">24.4.3</a> Task cancelling</h3>
+<h3><a id="Taskcancelling">24.5.3</a> Task cancelling</h3>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Taskcancelling">Task cancelling</a>
 </p>
@@ -979,13 +1070,13 @@ See section&nbsp;
 <!-- environment: exercise end embedded generator -->
 <p name="switchToTextMode">
 
-<h2><a id="Examples">24.5</a> Examples</h2>
+<h2><a id="Examples">24.6</a> Examples</h2>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Examples">Examples</a>
 </p>
 </p>
 
-<h3><a id="Fibonacci">24.5.1</a> Fibonacci</h3>
+<h3><a id="Fibonacci">24.6.1</a> Fibonacci</h3>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Examples">Examples</a> > <a href="omp-task.html#Fibonacci">Fibonacci</a>
 </p>
@@ -999,7 +1090,7 @@ To solve this, we put dependencies on the tasks:
 \cverbatimsnippet[examples/omp/c/taskgroup2.c]{fibotaskdepend}
 </p>
 
-<h3><a id="Binomialcoefficients">24.5.2</a> Binomial coefficients</h3>
+<h3><a id="Binomialcoefficients">24.6.2</a> Binomial coefficients</h3>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#Examples">Examples</a> > <a href="omp-task.html#Binomialcoefficients">Binomial coefficients</a>
 </p>

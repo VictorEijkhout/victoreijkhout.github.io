@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -592,13 +620,8 @@ call MPI_Type_size_x(my_type, count)
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
 
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Count type}
   For every routine 
 <tt>MPI_Something</tt>
 
@@ -618,20 +641,16 @@ call MPI_Type_size_x(my_type, count)
 <tt>MPI_Something_x</tt>
  routines
   will probably be deprecated in the \mpistandard{4.1} standard.
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
-<p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h4><a id="Bytecountingtypes">6.2.2.2</a> Byte counting types</h4>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-data.html">mpi-data</a> > <a href="mpi-data.html#Elementarydatatypes">Elementary data types</a> > <a href="mpi-data.html#Fortran">Fortran</a> > <a href="mpi-data.html#Bytecountingtypes">Byte counting types</a>
 </p>
 
-</p>
-
 <p name="switchToTextMode">
+
 Kind 
 <tt>MPI_ADDRESS_KIND</tt>
  is used for 
@@ -2480,9 +2499,13 @@ FIGURE 6.5: Send strided data from process zero to all others
 <p name="switchToTextMode">
   For testing, define the array as $x[i]=i$.
 <!-- skeleton start: stridesend -->
-<button id="runBtn">stridesend</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnstridesend", 
+    "editorDivstridesend", "outputPrestridesend", 
+    "skeletons/stridesend.c", 
+    "mpicc skeletons/stridesend.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnstridesend">Compile and run stridesend</button>
+<div id="editorDivstridesend" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrestridesend"></pre>
 <!-- skeleton end: stridesend -->
 </p name="exercise">
 </exercise>
@@ -2602,9 +2625,13 @@ mpl::subarray_layout&lt;int&gt;(
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: cubegather -->
-<button id="runBtn">cubegather</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtncubegather", 
+    "editorDivcubegather", "outputPrecubegather", 
+    "skeletons/cubegather.c", 
+    "mpicc skeletons/cubegather.c && mpiexec -n 4 ./a.out" )
+<button id="runBtncubegather">Compile and run cubegather</button>
+<div id="editorDivcubegather" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrecubegather"></pre>
 <!-- skeleton end: cubegather -->
 </p>
 
@@ -3056,8 +3083,8 @@ above
 <tt>MPI_Type_indexed</tt>
 : that one described offsets from
 a base location; these routines describes absolute memory addresses.
-You can use this to send for instance the elements of a linked
-list. You would traverse the list, recording the addresses of the
+You can use this to send for instance the elements of a linked list.
+You would traverse the list, recording the addresses of the
 elements with 
 <div class="card">
   <div class="card-header" id="headingOne">
@@ -3085,6 +3112,7 @@ address : address of location (address)
 </div>
 <i>MPI_Get_address</i>
 .
+(The routine 
 </p>
 
 <p name="switchToTextMode">
@@ -3474,12 +3502,9 @@ larger count parameter.
 The implementation of this depends somewhat on the language.
 </p>
 
-<!-- environment: mpifour start embedded generator -->
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+<p name="switchToTextMode">
+\begin{mpifournote}
+{MPI Count type}
 </p>
 
 <h3><a id="C">6.4.1</a> C</h3>
@@ -3541,18 +3566,16 @@ Integer(kind=MPI_COUNT_KIND) :: count
 Since Fortran has polymorphism, the same routine names can be used.
 </p>
 
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
 <p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h3><a id="Countdatatype">6.4.3</a> Count datatype</h3>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-data.html">mpi-data</a> > <a href="mpi-data.html#Bigdatatypes">Big data types</a> > <a href="mpi-data.html#Countdatatype">Count datatype</a>
 </p>
-</p>
-
 <p name="switchToTextMode">
+
 The 
 <tt>MPI_Count</tt>
  datatype is defined as being large enough
@@ -4952,41 +4975,11 @@ parameter to specify how much data is sent, but the receiving routine
 does not know this value a&nbsp;priori, so has to specify an upper bound.
 </p>
 
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#packunpack" aria-expanded="false" aria-controls="packunpack">
-        C Code: packunpack
-      </button>
-    </h5>
-  </div>
-  <div id="packunpack" class="collapse">
-  <pre>
-// pack.c
-if (procno==sender) {
-  MPI_Pack(&nsends,1,MPI_INT,buffer,buflen,&position,comm);
-  for (int i=0; i&lt;nsends; i++) {
-    double value = rand()/(double)RAND_MAX;
-    MPI_Pack(&value,1,MPI_DOUBLE,buffer,buflen,&position,comm);
-  }
-  MPI_Pack(&nsends,1,MPI_INT,buffer,buflen,&position,comm);
-  MPI_Send(buffer,position,MPI_PACKED,other,0,comm);
-} else if (procno==receiver) {
-  int irecv_value;
-  double xrecv_value;
-  MPI_Recv(buffer,buflen,MPI_PACKED,other,0,comm,MPI_STATUS_IGNORE);
-  MPI_Unpack(buffer,buflen,&position,&nsends,1,MPI_INT,comm);
-  for (int i=0; i&lt;nsends; i++) {
-    MPI_Unpack(buffer,buflen,&position,&xrecv_value,1,MPI_DOUBLE,comm);
-  }
-  MPI_Unpack(buffer,buflen,&position,&irecv_value,1,MPI_INT,comm);
-  ASSERT(irecv_value==nsends);
-}
-</pre>
-</div>
-</div>
 <p name="switchToTextMode">
+\csnippetwithoutput{packunpack}{examples/mpi/pack}{pack}
+</p>
 
+<p name="switchToTextMode">
 You can precompute the size of the required buffer with
 <div class="card">
   <div class="card-header" id="headingOne">

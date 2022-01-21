@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -433,7 +461,30 @@ crumb trail:  > <a href="petsc-design.html">petsc-design</a> > <a href="petsc-de
 
 A PETSc compilation needs a number of include and library paths,
 probably too many to specify interactively. The easiest solution is to
-create a makefile:
+create a makefile and load the standard variables and compilation rules.
+(You can use 
+<tt>$PETSC_DIR/share/petsc/Makefile.user</tt>
+ for inspiration.)
+</p>
+
+<p name="switchToTextMode">
+Throughout, we will assume that variables 
+<tt>PETSC_DIR</tt>
+ and
+<tt>PETSC_ARCH</tt>
+ have been set.
+These depend on your local installation; see section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/petsc-design.html#PETScinstallation">32.3</a>
+.
+</p>
+
+<p name="switchToTextMode">
+In the easiest setup, you leave the compilation to PETSc and
+your make rules only do the link step, using 
+<tt>CLINKER</tt>
+or 
+<tt>FLINKER</tt>
+ for C/Fortran respectively:
 <!-- environment: verbatim start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=verbatim ]] -->
@@ -452,31 +503,6 @@ variable.
 </p>
 
 <p name="switchToTextMode">
-If you want to write your own compile rule,
-there is an example makefile 
- <tt>$PETSC_DIR/share/petsc/Makefile.user</tt> 
-you can take for inspiration. Invoked without arguments it prints out
-the relevant variables:
-<!-- environment: verbatim start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=verbatim ]] -->
-<verbatim>
-<pre>
-[c:246] make -f ! $PETSC_DIR/share/petsc/Makefile.user
-CC=/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/bin/mpicc
-CXX=/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/bin/mpicxx
-FC=/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/bin/mpif90
-CFLAGS=-Wall -Wwrite-strings -Wno-strict-aliasing -Wno-unknown-pragmas -fstack-protector -Qunused-arguments -fvisibility=hidden -g3
-CXXFLAGS=-Wall -Wwrite-strings -Wno-strict-aliasing -Wno-unknown-pragmas -fstack-protector -fvisibility=hidden -g
-FFLAGS=-m64 -g
-CPPFLAGS=-I/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/include -I/Users/eijkhout/Installation/petsc/petsc-3.13/include
-LDFLAGS=-L/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/lib -Wl,-rpath,/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/lib
-LDLIBS=-lpetsc -lm
-</pre>
-</verbatim>
-<!-- environment: verbatim end embedded generator -->
-<p name="switchToTextMode">
-
 You can use these rules:
 <!-- environment: verbatim start embedded generator -->
 </p>
@@ -525,6 +551,7 @@ the include options by:
 <pre>
 cd $PETSC_DIR
 make getincludedirs
+make getlinklibs
 </pre>
 </verbatim>
 <!-- environment: verbatim end embedded generator -->
@@ -533,18 +560,32 @@ and copying the results into your compilation script.
 </p>
 
 <p name="switchToTextMode">
-The build process assumes that variables 
-<tt>PETSC_DIR</tt>
- and
-<tt>PETSC_ARCH</tt>
- have been set. These depend on your local
-installation. Usually there will be one installation with debug
-settings and one with production settings. Develop your code with the
-former: it will do memory and bound checking. Then recompile and run
-your code with the optimized production installation.
+There is an example makefile 
+ <tt>$PETSC_DIR/share/petsc/Makefile.user</tt> 
+you can take for inspiration. Invoked without arguments it prints out
+the relevant variables:
+<!-- environment: verbatim start embedded generator -->
 </p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+[c:246] make -f ! $PETSC_DIR/share/petsc/Makefile.user
+CC=/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/bin/mpicc
+CXX=/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/bin/mpicxx
+FC=/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/bin/mpif90
+CFLAGS=-Wall -Wwrite-strings -Wno-strict-aliasing -Wno-unknown-pragmas -fstack-protector -Qunused-arguments -fvisibility=hidden -g3
+CXXFLAGS=-Wall -Wwrite-strings -Wno-strict-aliasing -Wno-unknown-pragmas -fstack-protector -fvisibility=hidden -g
+FFLAGS=-m64 -g
+CPPFLAGS=-I/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/include -I/Users/eijkhout/Installation/petsc/petsc-3.13/include
+LDFLAGS=-L/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/lib -Wl,-rpath,/Users/eijkhout/Installation/petsc/petsc-3.13/macx-clang-debug/lib
+LDLIBS=-lpetsc -lm
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
 
 <!-- environment: taccnote start embedded generator -->
+</p>
 <!-- environment block purpose: [[ environment=taccnote ]] -->
 <remark>
 <b>TACC note</b>
@@ -556,7 +597,7 @@ your code with the optimized production installation.
 <!-- environment block purpose: [[ environment=verbatim ]] -->
 <verbatim>
 <pre>
-module load petsc/3.11
+module load petsc/3.16
 </pre>
 </verbatim>
 <!-- environment: verbatim end embedded generator -->
@@ -951,7 +992,8 @@ one with
 .
 See section&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/petsc-tools.html#Debugmode">39.1.1</a>
- for more detail.
+ for more detail
+on the differences between debug and non-debug mode.
 </p>
 
 <h3><a id="Environmentoptions">32.3.2</a> Environment options</h3>

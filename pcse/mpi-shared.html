@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -185,13 +213,8 @@ Here the
 <tt>MPI_COMM_TYPE_SHARED</tt>
 : split the communicator into subcommunicators
   of processes sharing a memory area.
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Split by guided types}
 <li>
 <tt>MPI_COMM_TYPE_HW_GUIDED</tt>
  (\mpistandard{4}):
@@ -210,17 +233,17 @@ Here the
     On processes where this condition can not be fullfilled,
 <tt>MPI_COMM_NULL</tt>
  will be returned.
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
+\end{mpifournote}
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <p name="switchToTextMode">
 
-<!-- environment: exercise start embedded generator -->
+Splitting by shared memory:
+\csnippetwithoutput{commsplittype}{examples/mpi/c}{commsplittype}
 </p>
+
+<!-- environment: exercise start embedded generator -->
 <!-- environment block purpose: [[ environment=exercise ]] -->
 <exercise>
 <b>Exercise</b>
@@ -289,36 +312,13 @@ How many processes there are on each node.
 <!-- environment: mplnote end embedded generator -->
 <p name="switchToTextMode">
 
-In the following example, 
-<tt>CORES_PER_NODE</tt>
- is a platform-dependent
-constant:
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#commsplittype" aria-expanded="false" aria-controls="commsplittype">
-        C Code: commsplittype
-      </button>
-    </h5>
-  </div>
-  <div id="commsplittype" class="collapse">
-  <pre>
-// commsplittype.c
-MPI_Info info;
-MPI_Comm_split_type(MPI_COMM_WORLD,MPI_COMM_TYPE_SHARED,procno,info,&sharedcomm);
-MPI_Comm_size(sharedcomm,&new_nprocs);
-MPI_Comm_rank(sharedcomm,&new_procno);
-</pre>
-</div>
-</div>
-</p>
-
 <h2><a id="Sharedmemoryforwindows">12.2</a> Shared memory for windows</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-shared.html">mpi-shared</a> > <a href="mpi-shared.html#Sharedmemoryforwindows">Shared memory for windows</a>
 </p>
-<p name="switchToTextMode">
+</p>
 
+<p name="switchToTextMode">
 Processes that exist on the same physical shared memory should be able
 to move data by copying, rather than through MPI send/receive calls
 --~which of course will do a copy operation under the hood.
@@ -452,13 +452,8 @@ would increase latency for some processes. To prevent this, the key
  in the
 <tt>MPI_Info</tt>
  object.
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Window memory alignment}
   In the contiguous case, the 
 <tt>mpi_minimum_memory_alignment</tt>
   info argument
@@ -467,11 +462,8 @@ would increase latency for some processes. To prevent this, the key
 )
   applies only to the memory on the first process;
   in the noncontiguous case it applies to all.
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
-<p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <div class="card">
   <div class="card-header" id="headingOne">
@@ -494,9 +486,8 @@ MPI_Info_free(&window_info);
 </pre>
 </div>
 </div>
-</p>
-
 <p name="switchToTextMode">
+
 Let's explore this.
 We create a shared window where each process stores exactly one double,
 that is, 8~bytes.
@@ -753,9 +744,13 @@ broadcast the shared data to the processes zero on each node.
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: shareddata -->
-<button id="runBtn">shareddata</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnshareddata", 
+    "editorDivshareddata", "outputPreshareddata", 
+    "skeletons/shareddata.c", 
+    "mpicc skeletons/shareddata.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnshareddata">Compile and run shareddata</button>
+<div id="editorDivshareddata" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreshareddata"></pre>
 <!-- skeleton end: shareddata -->
 </exercise>
 <!-- environment: exercise end embedded generator -->

@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -141,7 +169,7 @@ There are three predefined communicators:
 <tt>MPI_COMM_WORLD</tt>
  comprises all processes that were started
   together by 
-<i>mpiexec</i>
+<tt>mpiexec</tt>
  (or some related program).
 <li>
 <tt>MPI_COMM_SELF</tt>
@@ -406,61 +434,10 @@ The call
 <tt>MPI_IDENT</tt>
 if two communicator values are the same,
 and not if one is derived from the other by duplication:
-<!-- environment: multicols start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=multicols ]] -->
-<multicols>
-
-<p name="multicols">
-<!-- TranslatingLineGenerator multicols ['multicols'] -->
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#commcopycompare" aria-expanded="false" aria-controls="commcopycompare">
-        C Code: commcopycompare
-      </button>
-    </h5>
-  </div>
-  <div id="commcopycompare" class="collapse">
-  <pre>
-// commcompare.c
-int result;
-MPI_Comm copy = comm;
-MPI_Comm_compare(comm,copy,&result);
-printf("assign:    comm==copy: %d \n",result==MPI_IDENT);
-printf("            congruent: %d \n",result==MPI_CONGRUENT);
-printf("            not equal: %d \n",result==MPI_UNEQUAL);
-
-MPI_Comm_dup(comm,&copy);
-MPI_Comm_compare(comm,copy,&result);
-printf("duplicate: comm==copy: %d \n",result==MPI_IDENT);
-printf("            congruent: %d \n",result==MPI_CONGRUENT);
-printf("            not equal: %d \n",result==MPI_UNEQUAL);
-</pre>
-</div>
-</div>
+\csnippetwithoutput{commcopycompare}{examples/mpi/c}{commcompare}
 </p>
 
 <p name="switchToTextMode">
-Output:
-<!-- environment: verbatim start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=verbatim ]] -->
-<verbatim>
-<pre>
-assign:    comm==copy: 1
-            congruent: 0
-            not equal: 0
-duplicate: comm==copy: 0
-            congruent: 1
-            not equal: 0
-</pre>
-</verbatim>
-<!-- environment: verbatim end embedded generator -->
-</multicols>
-<!-- environment: multicols end embedded generator -->
-<p name="switchToTextMode">
-
 Communicators that are not actually the same can be
 <!-- environment: itemize start embedded generator -->
 </p>
@@ -1151,9 +1128,13 @@ Global ranks:  Ranks in row:  Ranks in colum:
 </tacc>
 <!-- environment: tacc end embedded generator -->
 <!-- skeleton start: procgrid -->
-<button id="runBtn">procgrid</button>
-<div id="editorDiv"></div>
-<pre id="outputPre"></pre>
+<let example1 = new Example("buttonrunBtnprocgrid", 
+    "editorDivprocgrid", "outputPreprocgrid", 
+    "skeletons/procgrid.c", 
+    "mpicc skeletons/procgrid.c && mpiexec -n 4 ./a.out" )
+<button id="runBtnprocgrid">Compile and run procgrid</button>
+<div id="editorDivprocgrid" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreprocgrid"></pre>
 <!-- skeleton end: procgrid -->
 </exercise>
 <!-- environment: exercise end embedded generator -->

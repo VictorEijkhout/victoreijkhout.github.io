@@ -26,8 +26,36 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
-<style>
-</style>
+<script id="script">
+class Example {
+  constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
+    this.buttonID = buttonID;
+    this.editorID = editorID;
+    this.outputID = outputID;
+    this.sourceFile = sourceFile;
+    this.fileName = fileName;
+    this.commandStr = commandStr;
+  }
+    
+  async display(results, object) {
+    if (results.stdout.length > 0)
+      document.getElementById(object.outputID).textContent = results.stdout;
+    else
+      document.getElementById(object.outputID).textContent = results.stderr;
+  }
+
+  async initialize() {
+    this.editor = await MonacoEditorFileSource.create(this.editorID);
+    this.editor.setTextFromFile(this.sourceFile);
+    this.job = await Job.create(JobType.MPI);
+    this.command = new CommandWithFiles(this.job, this.commandStr);
+    this.command.addFileSource(this.editor, this.fileName);
+    this.trigger = new ButtonTrigger(this.command, this.display, this.buttonID, this);
+    document.getElementById(this.buttonID).disabled = false;
+  }
+}
+</script>
+<style></style>
 
 <script type="application/javascript">
 let fileRoot      = "hello";
@@ -94,9 +122,9 @@ initialize();
 <!-- TranslatingLineGenerator file ['file'] -->
 <p name="switchToTextMode">
 
-<h2><a id="Persistentcommunicationrequests">5.1</a> Persistent communication requests</h2>
+<h2><a id="Persistentcommunication">5.1</a> Persistent communication</h2>
 <p name=crumbs>
-crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunicationrequests">Persistent communication requests</a>
+crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunication">Persistent communication</a>
 </p>
 <!-- index -->
 
@@ -155,9 +183,6 @@ The wait call does not release the request object,
   The request object is only freed with 
 <tt>MPI_Request_free</tt>
 .
-  See section~
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Moreaboutrequests">4.2.4</a>
- for the non-persistent handling of requests.
 </ol>
 </enumerate>
 <!-- environment: enumerate end embedded generator -->
@@ -217,7 +242,7 @@ instead of an
 
 <h3><a id="Persistentpoint-to-pointcommunication">5.1.1</a> Persistent point-to-point communication</h3>
 <p name=crumbs>
-crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunicationrequests">Persistent communication requests</a> > <a href="mpi-persist.html#Persistentpoint-to-pointcommunication">Persistent point-to-point communication</a>
+crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunication">Persistent communication</a> > <a href="mpi-persist.html#Persistentpoint-to-pointcommunication">Persistent point-to-point communication</a>
 </p>
 
 <!-- index -->
@@ -225,7 +250,45 @@ crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persis
 
 <p name="switchToTextMode">
 The main persistent point-to-point routines are
-<tt>MPI_Send_init</tt>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Send_init" aria-expanded="false" aria-controls="MPI_Send_init">
+        Routine reference: MPI_Send_init
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Send_init" class="collapse">
+  <pre>
+C:
+int MPI_Send_init(
+  const void* buf, int count, MPI_Datatype datatype,
+  int dest, int tag, MPI_Comm comm, MPI_Request *request)
+
+Fortran:
+MPI_Send_init(buf, count, datatype, dest, tag, comm, request, ierror)
+TYPE(*), DIMENSION(..), INTENT(IN), ASYNCHRONOUS :: buf
+INTEGER, INTENT(IN) :: count, dest, tag
+TYPE(MPI_Datatype), INTENT(IN) :: datatype
+TYPE(MPI_Comm), INTENT(IN) :: comm
+TYPE(MPI_Request), INTENT(OUT) :: request
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+
+Python:
+MPI.Comm.Send_init(self, buf, int dest, int tag=0)
+
+Semantics:
+IN buf: initial address of send buffer (choice)
+IN count: number of elements sent (non-negative integer)
+IN datatype: type of each element (handle)
+IN dest: rank of destination (integer)
+IN tag: message tag (integer)
+IN comm: communicator (handle)
+OUT request: communication request (handle)
+</pre>
+</div>
+</div>
+<i>MPI_Send_init</i>
 , which has the same calling sequence as
 <tt>MPI_Isend</tt>
 , and 
@@ -240,43 +303,45 @@ calling sequence as
 In the following example a ping-pong is implemented with persistent communication.
 Since we use persistent operations for both send and receive on the `ping' process,
 we use 
-<tt>MPI_Startall</tt>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#MPI_Startall" aria-expanded="false" aria-controls="MPI_Startall">
+        Routine reference: MPI_Startall
+      </button>
+    </h5>
+  </div>
+  <div id="MPI_Startall" class="collapse">
+  <pre>
+C:
+int MPI_Startall(int count, MPI_Request array_of_requests[])
+
+Fortran:
+MPI_Startall(count, array_of_requests, ierror)
+INTEGER, INTENT(IN) :: count
+TYPE(MPI_Request), INTENT(INOUT) :: array_of_requests(count)
+INTEGER, OPTIONAL, INTENT(OUT) :: ierror
+MPI_STARTALL(COUNT, ARRAY_OF_REQUESTS, IERROR)
+INTEGER COUNT, ARRAY_OF_REQUESTS(*), IERROR
+
+Python:
+MPI.Prequest.Startall(type cls, requests)
+
+Semantics:
+IN countlist length (non-negative integer)
+INOUT array_of_requestsarray of requests (array of handle)
+</pre>
+</div>
+</div>
+<i>MPI_Startall</i>
  to start both at the same time,
 and 
 <tt>MPI_Waitall</tt>
  to test their completion.
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#persist" aria-expanded="false" aria-controls="persist">
-        C Code: persist
-      </button>
-    </h5>
-  </div>
-  <div id="persist" class="collapse">
-  <pre>
-// persist.c
-if (procno==src) {
-  MPI_Send_init(send,s,MPI_DOUBLE,tgt,0,comm,requests+0);
-  MPI_Recv_init(recv,s,MPI_DOUBLE,tgt,0,comm,requests+1);
-  printf("Size %d\n",s);
-  for (int n=0; n&lt;NEXPERIMENTS; n++) {
-	fill_buffer(send,s,n);
-	MPI_Startall(2,requests);
-	MPI_Waitall(2,requests,MPI_STATUSES_IGNORE);
-	int r = chck_buffer(send,s,n);
-	if (!r) printf("buffer problem %d\n",s);
-  }
-  MPI_Request_free(requests+0); MPI_Request_free(requests+1);
-} else if (procno==tgt) {
-  for (int n=0; n&lt;NEXPERIMENTS; n++) {
-	MPI_Recv(recv,s,MPI_DOUBLE,src,0,comm,MPI_STATUS_IGNORE);
-	MPI_Send(recv,s,MPI_DOUBLE,src,0,comm);
-  }
-}
-</pre>
-</div>
-</div>
+(There is 
+<tt>MPI_Start</tt>
+ for starting a single persistent transfer.)
+\csnippetwithoutput{persist}{examples/mpi/c}{persist}
 <div class="card">
   <div class="card-header" id="headingOne">
     <h5 class="mb-0">
@@ -310,6 +375,7 @@ elif procid==tgt:
 
 <p name="switchToTextMode">
 As with ordinary send commands, there are persistent variants
+of the other send modes:
 <!-- environment: itemize start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=itemize ]] -->
@@ -341,17 +407,12 @@ As with ordinary send commands, there are persistent variants
 
 <h3><a id="Persistentcollectives">5.1.2</a> Persistent collectives</h3>
 <p name=crumbs>
-crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunicationrequests">Persistent communication requests</a> > <a href="mpi-persist.html#Persistentcollectives">Persistent collectives</a>
+crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunication">Persistent communication</a> > <a href="mpi-persist.html#Persistentcollectives">Persistent collectives</a>
 </p>
 <p name="switchToTextMode">
 
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Persistent collectives}
 <!-- index -->
 For each collective call, there is a persistent variant.
 As with persistent point-to-point calls (section&nbsp;
@@ -495,23 +556,18 @@ and in different order among the processes.
 </p>
 
 <!-- index -->
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
 <p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h3><a id="Persistentneighborcommunications">5.1.3</a> Persistent neighbor communications</h3>
 <p name=crumbs>
-crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunicationrequests">Persistent communication requests</a> > <a href="mpi-persist.html#Persistentneighborcommunications">Persistent neighbor communications</a>
+crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Persistentcommunication">Persistent communication</a> > <a href="mpi-persist.html#Persistentneighborcommunications">Persistent neighbor communications</a>
 </p>
-</p>
+<p name="switchToTextMode">
 
-<!-- environment: mpifour start embedded generator -->
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+\begin{mpifournote}
+{Neighborhood collectives, init}
 </p>
 
 <tt>MPI_Neighbor_allgather_init</tt>
@@ -527,22 +583,17 @@ crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persis
 ,
 </p>
 
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
 <p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h2><a id="Partitionedcommunication">5.2</a> Partitioned communication</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persist.html#Partitionedcommunication">Partitioned communication</a>
 </p>
-<!-- environment: mpifour start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=mpifour ]] -->
-<remark>
-<b>MPI 4 Standard only</b>
-<p name="remark">
-<!-- TranslatingLineGenerator mpifour ['mpifour'] -->
+<p name="switchToTextMode">
+\begin{mpifournote}
+{Partitioned communication}
 
 <!-- index -->
 <!-- index -->
@@ -679,6 +730,7 @@ MPI_Psend_init
 for (int it=0; it&lt;ITERATIONS; it++) {
   MPI_Start(&send_request);
   for (int ip=0; ip&lt;nparts; ip++)
+	  fill_buffer(sendbuffer,partitions[ip],partitions[ip+],ip);
     MPI_Pready(ip,send_request);
   MPI_Wait(&send_request,MPI_STATUS_IGNORE);
 }
@@ -689,6 +741,32 @@ MPI_Request_free(&send_request);
 <p name="switchToTextMode">
 
 The receiving side is largely the mirror image of the sending side:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#psendrecv" aria-expanded="false" aria-controls="psendrecv">
+        C Code: psendrecv
+      </button>
+    </h5>
+  </div>
+  <div id="psendrecv" class="collapse">
+  <pre>
+double *recvbuffer = (double*)malloc(bufsize*sizeof(double));
+MPI_Request recv_request;
+MPI_Precv_init
+  (recvbuffer,nparts,SIZE,MPI_DOUBLE,src,0,
+   comm,MPI_INFO_NULL,&recv_request);
+for (int it=0; it&lt;ITERATIONS; it++) {
+  MPI_Start(&recv_request);
+  MPI_Wait(&recv_request,MPI_STATUS_IGNORE);
+  int r = 1;
+	for (ip=0; ip&lt;nparts; ip++)
+	  r *= chck_buffer(recvbuffer,partitions[ip],partitions[ip+1],ip);
+}
+MPI_Request_free(&recv_request);
+</pre>
+</div>
+</div>
 <!-- environment: itemize start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=itemize ]] -->
@@ -732,38 +810,10 @@ Again, the
 be used to test for completion of the full receive operation.
 </p>
 
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#psendrecv" aria-expanded="false" aria-controls="psendrecv">
-        C Code: psendrecv
-      </button>
-    </h5>
-  </div>
-  <div id="psendrecv" class="collapse">
-  <pre>
-double *recvbuffer = (double*)malloc(bufsize*sizeof(double));
-MPI_Request recv_request;
-MPI_Precv_init
-  (recvbuffer,nparts,SIZE,MPI_DOUBLE,src,0,
-   comm,MPI_INFO_NULL,&recv_request);
-for (int it=0; it&lt;ITERATIONS; it++) {
-  MPI_Start(&recv_request);
-  MPI_Wait(&recv_request,MPI_STATUS_IGNORE);
-  int r = chck_buffer(recvbuffer,bufsize,1);
-}
-MPI_Request_free(&recv_request);
-</pre>
-</div>
-</div>
-<p name="switchToTextMode">
-
 <!-- index -->
-</p name="remark">
-<i>End of MPI 4 note</i>
-</remark>
-<!-- environment: mpifour end embedded generator -->
 <p name="switchToTextMode">
+\end{mpifournote}
+</p>
 
 <h2><a id="Synchronousandasynchronouscommunication">5.3</a> Synchronous and asynchronous communication</h2>
 <p name=crumbs>
@@ -771,9 +821,8 @@ crumb trail:  > <a href="mpi-persist.html">mpi-persist</a> > <a href="mpi-persis
 </p>
 <!-- index -->
 <!-- index -->
-</p>
-
 <p name="switchToTextMode">
+
 It is easiest to think of blocking as a form of synchronization with
 the other process, but that is not quite true. Synchronization is a
 concept in itself, and we talk about 
@@ -1243,7 +1292,7 @@ The asynchronous version is
 <tt>MPI_Ibsend</tt>
 , the persistent
 (see section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunicationrequests">5.1</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunication">5.1</a>
 ) call is 
 <tt>MPI_Bsend_init</tt>
 .
@@ -1288,7 +1337,7 @@ request : communication request (handle)
 <i>MPI_Bsend_init</i>
 of buffered sends, as with regular
 sends (section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunicationrequests">5.1</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunication">5.1</a>
 ).
 </p>
 
