@@ -747,8 +747,8 @@ broadcast the shared data to the processes zero on each node.
 <script name="defSkeletonshareddata">
 <let exampleshareddata = new Example("buttonrunBtnshareddata", 
     "editorDivshareddata", "outputPreshareddata", 
-    "skeletons/shareddata.c", 
-    "mpicc skeletons/shareddata.c && mpiexec -n 4 ./a.out" );
+    "shareddata.c", 
+    "mpicc shareddata.c && mpiexec -n 4 ./a.out" );
 exampleshareddata.initialize();
 </script>
 <button id="runBtnshareddata">Compile and run shareddata</button>

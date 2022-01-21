@@ -1362,8 +1362,8 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 <script name="defSkeletonrightput">
 <let examplerightput = new Example("buttonrunBtnrightput", 
     "editorDivrightput", "outputPrerightput", 
-    "skeletons/rightput.c", 
-    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" );
+    "rightput.c", 
+    "mpicc rightput.c && mpiexec -n 4 ./a.out" );
 examplerightput.initialize();
 </script>
 <button id="runBtnrightput">Compile and run rightput</button>
@@ -1403,8 +1403,8 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 <script name="defSkeletonrandomput">
 <let examplerandomput = new Example("buttonrunBtnrandomput", 
     "editorDivrandomput", "outputPrerandomput", 
-    "skeletons/randomput.c", 
-    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" );
+    "randomput.c", 
+    "mpicc randomput.c && mpiexec -n 4 ./a.out" );
 examplerandomput.initialize();
 </script>
 <button id="runBtnrandomput">Compile and run randomput</button>
@@ -2610,8 +2610,8 @@ while the remaining process spins until the others have performed their update.
 <script name="defSkeletonlockfetch">
 <let examplelockfetch = new Example("buttonrunBtnlockfetch", 
     "editorDivlockfetch", "outputPrelockfetch", 
-    "skeletons/lockfetch.c", 
-    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" );
+    "lockfetch.c", 
+    "mpicc lockfetch.c && mpiexec -n 4 ./a.out" );
 examplelockfetch.initialize();
 </script>
 <button id="runBtnlockfetch">Compile and run lockfetch</button>
@@ -2650,8 +2650,8 @@ examplelockfetch.initialize();
 <script name="defSkeletonlockfetchshared">
 <let examplelockfetchshared = new Example("buttonrunBtnlockfetchshared", 
     "editorDivlockfetchshared", "outputPrelockfetchshared", 
-    "skeletons/lockfetchshared.c", 
-    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" );
+    "lockfetchshared.c", 
+    "mpicc lockfetchshared.c && mpiexec -n 4 ./a.out" );
 examplelockfetchshared.initialize();
 </script>
 <button id="runBtnlockfetchshared">Compile and run lockfetchshared</button>
