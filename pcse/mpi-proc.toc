@@ -7,5 +7,6 @@
 8.2.4 : <a href="mpi-proc.html#Unixsockets">Unix sockets</a><br>
 8.3 : <a href="mpi-proc.html#Sessions">Sessions</a><br>
 8.3.1 : <a href="mpi-proc.html#Worldmodelversussessionsmodel">World model versus sessions model</a><br>
-8.3.2 : <a href="mpi-proc.html#Processsets">Process sets</a><br>
+8.3.2 : <a href="mpi-proc.html#Sessioncreation">Session creation</a><br>
+8.3.3 : <a href="mpi-proc.html#Processsetsandcommunicators">Process sets and communicators</a><br>
 8.4 : <a href="mpi-proc.html#Functionalityavailableoutsideinitfinalize">Functionality available outside init/finalize</a><br>

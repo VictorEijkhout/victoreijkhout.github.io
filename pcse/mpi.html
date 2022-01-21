@@ -1203,7 +1203,14 @@ other possibilities are
 
 Some handlers of type 
 <tt>MPI_Errhandler</tt>
- are predefined,
+ are predefined
+(
+<tt>MPI_ERRORS_ARE_FATAL</tt>
+,
+<tt>MPI_ERRORS_ABORT</tt>
+,
+<tt>MPI_ERRORS_RETURN</tt>
+; see below),
 but you can define your own with
 <tt>MPI_Errhandler_create</tt>
 ,
@@ -1289,7 +1296,9 @@ crumb trail:  > <a href="mpi.html">mpi</a> > <a href="mpi.html#Errorhandling">Er
 </p>
 <p name="switchToTextMode">
 
-Another simple possibility is to specify
+Another simple possibility is to specify 
+<tt>MPI_ERRORS_RETURN</tt>
+:
 <!-- environment: lstlisting start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=lstlisting ]] -->
@@ -2813,10 +2822,16 @@ can also be used to implement
 We let the script start one of a number of programs,
 and we use
 the fact that the MPI rank is known in the environment.
-The name of the variable is implemntation dependent,
-try 
+The name of the variable is implementation dependent,
+for 
+<tt>mpich</tt>
+ and its derivates
+such as 
+<i>Intel MPI</i>
+ it is 
 <tt>PMI_RANK</tt>
-. Use a script 
+.
+Use a script 
 <tt>mpmdscript</tt>
 :
 <!-- environment: verbatim start embedded generator -->

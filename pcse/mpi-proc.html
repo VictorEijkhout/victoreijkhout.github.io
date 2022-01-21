@@ -1045,6 +1045,22 @@ possibly identical or overlapping.
 </p>
 
 <p name="switchToTextMode">
+You can not mix in a single call objects
+from different sessions,
+from a session and from the world model,
+or from a session and from 
+<tt>MPI_Comm_get_parent</tt>
+or 
+<tt>MPI_Comm_join</tt>
+.
+</p>
+
+<h3><a id="Sessioncreation">8.3.2</a> Session creation</h3>
+<p name=crumbs>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Sessions">Sessions</a> > <a href="mpi-proc.html#Sessioncreation">Session creation</a>
+</p>
+<p name="switchToTextMode">
+
 An MPI 
 <i>session</i>
  is initialized and finalized
@@ -1060,50 +1076,85 @@ somewhat similar to
 .
 </p>
 
-<!-- environment: lstlisting start embedded generator -->
-<!-- environment block purpose: [[ environment=lstlisting ]] -->
-<lstlisting>
-<pre>
-MPI_Info       info;
-MPI_Errhandler errhandler;
-MPI_Session    session;
-MPI_Session_init(info,errhandler,&session);
-
-
-MPI_Info info_used;
-MPI_Session_get_info(session,&info_used);
-MPI_Info_free(&info_used);
-
-
-MPI_Session_finalize(&session);
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sessioninit" aria-expanded="false" aria-controls="sessioninit">
+        C Code: sessioninit
+      </button>
+    </h5>
+  </div>
+  <div id="sessioninit" class="collapse">
+  <pre>
+MPI_Session the_session;
+MPI_Session_init( session_request_info,MPI_ERRORS_ARE_FATAL,&the_session );
+MPI_Session_finalize( &the_session );
 </pre>
-</lstlisting>
-<!-- environment: lstlisting end embedded generator -->
+</div>
+</div>
 <p name="switchToTextMode">
 
-The info object can contain implementation-specific data,
+The 
+<tt>MPI_Info</tt>
+ object can be null, or
+it can be used to request a threading level:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sessionreq" aria-expanded="false" aria-controls="sessionreq">
+        C Code: sessionreq
+      </button>
+    </h5>
+  </div>
+  <div id="sessionreq" class="collapse">
+  <pre>
+// session.c
+MPI_Info session_request_info = MPI_INFO_NULL;
+MPI_Info_create(&session_request_info);
+char thread_key[] = "mpi_thread_support_level";
+MPI_Info_set(session_request_info,thread_key,"MPI_THREAD_MULTIPLE");
+</pre>
+</div>
+</div>
+Other info keys can be implementation-dependent,
 but the key 
-<tt>mpi_thread_support_level</tt>
+<tt>thread_support</tt>
  is pre-defined.
 </p>
 
 <p name="switchToTextMode">
-You can not mix in a single call objects
-from different sessions,
-from a session and from the world model,
-or from a session and from 
-<tt>MPI_Comm_get_parent</tt>
-or 
-<tt>MPI_Comm_join</tt>
-.
+Info keys can be retrieved again with 
+<tt>MPI_Session_get_info</tt>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sessioninfohave" aria-expanded="false" aria-controls="sessioninfohave">
+        C Code: sessioninfohave
+      </button>
+    </h5>
+  </div>
+  <div id="sessioninfohave" class="collapse">
+  <pre>
+MPI_Info session_actual_info;
+MPI_Session_get_info( the_session,&session_actual_info );
+char thread_level[100]; int info_len = 100, flag;
+MPI_Info_get_string( session_actual_info,
+		       thread_key,&info_len,thread_level,&flag );
+</pre>
+</div>
+</div>
 </p>
 
-<h3><a id="Processsets">8.3.2</a> Process sets</h3>
+<h3><a id="Processsetsandcommunicators">8.3.3</a> Process sets and communicators</h3>
 <p name=crumbs>
-crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Sessions">Sessions</a> > <a href="mpi-proc.html#Processsets">Process sets</a>
+crumb trail:  > <a href="mpi-proc.html">mpi-proc</a> > <a href="mpi-proc.html#Sessions">Sessions</a> > <a href="mpi-proc.html#Processsetsandcommunicators">Process sets and communicators</a>
 </p>
 <p name="switchToTextMode">
 
+A session has a number of 
+<i>process set</i>
+s.
 Process sets are indicated with a 
 <span title="acronym" ><i>URI</i></span>
 ,
@@ -1116,34 +1167,65 @@ are always defined.
 </p>
 
 <p name="switchToTextMode">
+You query the `psets' with 
+<tt>MPI_Session_get_num_psets</tt>
+and 
+<tt>MPI_Session_get_nth_pset</tt>
+:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sessionpsetq" aria-expanded="false" aria-controls="sessionpsetq">
+        C Code: sessionpsetq
+      </button>
+    </h5>
+  </div>
+  <div id="sessionpsetq" class="collapse">
+  <pre>
+int npsets;
+MPI_Session_get_num_psets( the_session,MPI_INFO_NULL,&npsets );
+if (mainproc) printf("Number of process sets: %d\n",npsets);
+int world_pset=-1; char world_name[] = "mpi://WORLD";
+for (int ipset=0; ipset&lt;npsets; ipset++) {
+  int len_pset; char name_pset[MPI_MAX_PSET_NAME_LEN];
+  MPI_Session_get_nth_pset( the_session,MPI_INFO_NULL,
+			      ipset,&len_pset,name_pset );
+  if (mainproc)
+    printf("Process set %2d: &lt;&lt;%s&gt;&gt;\n",ipset,name_pset);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
 The following partial code creates a communicator equivalent to 
 <tt>MPI_COMM_WORLD</tt>
 in the session model:
-<!-- environment: lstlisting start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=lstlisting ]] -->
-<lstlisting>
-<pre>
-const char pset_name[] = "mpi://WORLD";
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#sessioncommworld" aria-expanded="false" aria-controls="sessioncommworld">
+        C Code: sessioncommworld
+      </button>
+    </h5>
+  </div>
+  <div id="sessioncommworld" class="collapse">
+  <pre>
+MPI_Group world_group = MPI_GROUP_NULL;
+MPI_Comm  world_comm  = MPI_COMM_NULL;
 MPI_Group_from_session_pset
-   (lib_shandle,pset_name,&wgroup);
+  ( the_session,world_name,&world_group );
 MPI_Comm_create_from_group
-   (wgroup,"parcompbook-example",
-    MPI_INFO_NULL,MPI_ERRORS_RETURN,&world_comm);
+  ( world_group,"victor-code-session.c",
+    MPI_INFO_NULL,MPI_ERRORS_ARE_FATAL,
+    &world_comm );
+MPI_Group_free( &world_group );
+int procid = -1, nprocs = 0;
+MPI_Comm_size(world_comm,&nprocs);
+MPI_Comm_rank(world_comm,&procid);
 </pre>
-</lstlisting>
-<!-- environment: lstlisting end embedded generator -->
-<p name="switchToTextMode">
-
-Further process sets can be found: 
-<tt>MPI_Session_get_num_psets</tt>
-.
-</p>
-
-<p name="switchToTextMode">
-Get a specific one: 
-<tt>MPI_Session_get_nth_pset</tt>
-.
+</div>
+</div>
 </p>
 
 <p name="switchToTextMode">

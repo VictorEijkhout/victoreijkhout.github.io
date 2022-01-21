@@ -135,19 +135,34 @@ crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-re
 
 Parallel tasks often produce some quantity that needs to be summed
 or otherwise combined.
-In section~
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-basics.html#Creatingparallelism">17.5</a>
- you saw an example, and it was stated that the
-solution given there was not very good.
+If you write:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+  int sum=0;
+  #pragma omp parallel for
+  for (int i=0; i&lt;N; i++)
+    sum += f(i);
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+you will find that the 
+<tt>sum</tt>
+ value depends on the number of threads,
+and is likely not the same as when you execute the code sequentially.
+The problem here is the 
+<i>race condition</i>
+ involving the 
+<tt>sum</tt>
+
+variable, since this variable is shared between all threads.
 </p>
 
 <p name="switchToTextMode">
-The problem in that example was the 
-<i>race condition</i>
- involving the 
-<tt>result</tt>
-
-variable. We will discuss several strategies of dealing with this.
+We will discuss several strategies of dealing with this.
 </p>
 
 <h3><a id="Codeyourownsolution">20.1.1</a> Code your own solution</h3>
@@ -156,7 +171,7 @@ crumb trail:  > <a href="omp-reduction.html">omp-reduction</a> > <a href="omp-re
 </p>
 <p name="switchToTextMode">
 
-The simplest solution is to eliminate the race condition
+The most immediate way is to eliminate the race condition
 by declaring a 
 <i>critical section</i>
 :
@@ -254,6 +269,37 @@ At the end of the parallel region, the local results are combined, again
 </ul>
 </itemize>
 <!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+
+The simplest case is a reduction over a parallel loop.
+Here we compute $\pi/4$ as a 
+<i>Riemann sum</i>
+:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pi4reduct" aria-expanded="false" aria-controls="pi4reduct">
+        C Code: pi4reduct
+      </button>
+    </h5>
+  </div>
+  <div id="pi4reduct" class="collapse">
+  <pre>
+// pi.c
+#pragma omp parallel for reduction(+:pi4)
+  for (int isample=0; isample&lt;N; isample++) {
+    float xsample = isample * h;
+    float y = sqrt(1-xsample*xsample);
+    pi4 += h*y;
+  }
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+Another reduction, this time over a parallel region, but not a loop:
 <div class="card">
   <div class="card-header" id="headingOne">
     <h5 class="mb-0">
@@ -275,8 +321,9 @@ m = INT_MIN;
 </pre>
 </div>
 </div>
-<p name="switchToTextMode">
+</p>
 
+<p name="switchToTextMode">
 If you want to reduce multiple variables with the same operator, use
 <!-- environment: lstlisting start embedded generator -->
 </p>

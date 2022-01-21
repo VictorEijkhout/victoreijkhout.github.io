@@ -451,13 +451,13 @@ int main(int argc,char **argv) {
 
 <!-- skeleton start: hello -->
 <script name="defSkeletonhello">
-<let examplehello = new Example("buttonrunBtnhello", 
+let examplehello = new Example("buttonrunBtnhello", 
     "editorDivhello", "outputPrehello", 
-    "hello.c", 
-    "mpicc hello.c && mpiexec -n 4 ./a.out" );
+    "skeletons/hello.c", 
+    "mpicc skeletons/hello.c && mpiexec -n 4 ./a.out" );
 examplehello.initialize();
 </script>
-<button id="runBtnhello">Compile and run hello</button>
+<button id="buttonrunBtnhello">Compile and run hello</button>
 <div id="editorDivhello" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrehello"></pre>
 <!-- skeleton end: hello -->
@@ -1619,13 +1619,13 @@ Hello from process 2 out of 5!
 
 <!-- skeleton start: commrank -->
 <script name="defSkeletoncommrank">
-<let examplecommrank = new Example("buttonrunBtncommrank", 
+let examplecommrank = new Example("buttonrunBtncommrank", 
     "editorDivcommrank", "outputPrecommrank", 
-    "commrank.c", 
-    "mpicc commrank.c && mpiexec -n 4 ./a.out" );
+    "skeletons/commrank.c", 
+    "mpicc skeletons/commrank.c && mpiexec -n 4 ./a.out" );
 examplecommrank.initialize();
 </script>
-<button id="runBtncommrank">Compile and run commrank</button>
+<button id="buttonrunBtncommrank">Compile and run commrank</button>
 <div id="editorDivcommrank" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrecommrank"></pre>
 <!-- skeleton end: commrank -->
@@ -1786,13 +1786,13 @@ trivial.)
   Can you find more than one solution?
 <!-- skeleton start: prime -->
 <script name="defSkeletonprime">
-<let exampleprime = new Example("buttonrunBtnprime", 
+let exampleprime = new Example("buttonrunBtnprime", 
     "editorDivprime", "outputPreprime", 
-    "prime.c", 
-    "mpicc prime.c && mpiexec -n 4 ./a.out" );
+    "skeletons/prime.c", 
+    "mpicc skeletons/prime.c && mpiexec -n 4 ./a.out" );
 exampleprime.initialize();
 </script>
-<button id="runBtnprime">Compile and run prime</button>
+<button id="buttonrunBtnprime">Compile and run prime</button>
 <div id="editorDivprime" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreprime"></pre>
 <!-- skeleton end: prime -->

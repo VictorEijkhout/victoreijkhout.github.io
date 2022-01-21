@@ -177,11 +177,11 @@ Communicating a C~structure or Fortran type with more than one
 <!-- environment: itemize end embedded generator -->
 <p name="switchToTextMode">
 The datatypes you have dealt with so far are known as
-<i>elementary datatypes</i>
-; irregular objects
+<i>elementary datatype</i>
+s; irregular objects
 are known as 
-<i>derived datatypes</i>
-.
+<i>derived datatype</i>
+s.
 </p>
 
 <h2><a id="Datatypehandling">6.1</a> Data type handling</h2>
@@ -2500,13 +2500,13 @@ FIGURE 6.5: Send strided data from process zero to all others
   For testing, define the array as $x[i]=i$.
 <!-- skeleton start: stridesend -->
 <script name="defSkeletonstridesend">
-<let examplestridesend = new Example("buttonrunBtnstridesend", 
+let examplestridesend = new Example("buttonrunBtnstridesend", 
     "editorDivstridesend", "outputPrestridesend", 
-    "stridesend.c", 
-    "mpicc stridesend.c && mpiexec -n 4 ./a.out" );
+    "skeletons/stridesend.c", 
+    "mpicc skeletons/stridesend.c && mpiexec -n 4 ./a.out" );
 examplestridesend.initialize();
 </script>
-<button id="runBtnstridesend">Compile and run stridesend</button>
+<button id="buttonrunBtnstridesend">Compile and run stridesend</button>
 <div id="editorDivstridesend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrestridesend"></pre>
 <!-- skeleton end: stridesend -->
@@ -2629,13 +2629,13 @@ mpl::subarray_layout&lt;int&gt;(
 
 <!-- skeleton start: cubegather -->
 <script name="defSkeletoncubegather">
-<let examplecubegather = new Example("buttonrunBtncubegather", 
+let examplecubegather = new Example("buttonrunBtncubegather", 
     "editorDivcubegather", "outputPrecubegather", 
-    "cubegather.c", 
-    "mpicc cubegather.c && mpiexec -n 4 ./a.out" );
+    "skeletons/cubegather.c", 
+    "mpicc skeletons/cubegather.c && mpiexec -n 4 ./a.out" );
 examplecubegather.initialize();
 </script>
-<button id="runBtncubegather">Compile and run cubegather</button>
+<button id="buttonrunBtncubegather">Compile and run cubegather</button>
 <div id="editorDivcubegather" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrecubegather"></pre>
 <!-- skeleton end: cubegather -->

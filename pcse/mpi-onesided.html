@@ -1360,13 +1360,13 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 .
 <!-- skeleton start: rightput -->
 <script name="defSkeletonrightput">
-<let examplerightput = new Example("buttonrunBtnrightput", 
+let examplerightput = new Example("buttonrunBtnrightput", 
     "editorDivrightput", "outputPrerightput", 
-    "rightput.c", 
-    "mpicc rightput.c && mpiexec -n 4 ./a.out" );
+    "skeletons/rightput.c", 
+    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" );
 examplerightput.initialize();
 </script>
-<button id="runBtnrightput">Compile and run rightput</button>
+<button id="buttonrunBtnrightput">Compile and run rightput</button>
 <div id="editorDivrightput" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightput"></pre>
 <!-- skeleton end: rightput -->
@@ -1401,13 +1401,13 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: randomput -->
 <script name="defSkeletonrandomput">
-<let examplerandomput = new Example("buttonrunBtnrandomput", 
+let examplerandomput = new Example("buttonrunBtnrandomput", 
     "editorDivrandomput", "outputPrerandomput", 
-    "randomput.c", 
-    "mpicc randomput.c && mpiexec -n 4 ./a.out" );
+    "skeletons/randomput.c", 
+    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" );
 examplerandomput.initialize();
 </script>
-<button id="runBtnrandomput">Compile and run randomput</button>
+<button id="buttonrunBtnrandomput">Compile and run randomput</button>
 <div id="editorDivrandomput" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerandomput"></pre>
 <!-- skeleton end: randomput -->
@@ -2608,13 +2608,13 @@ while the remaining process spins until the others have performed their update.
   Can you replace the exclusive lock with a shared one?
 <!-- skeleton start: lockfetch -->
 <script name="defSkeletonlockfetch">
-<let examplelockfetch = new Example("buttonrunBtnlockfetch", 
+let examplelockfetch = new Example("buttonrunBtnlockfetch", 
     "editorDivlockfetch", "outputPrelockfetch", 
-    "lockfetch.c", 
-    "mpicc lockfetch.c && mpiexec -n 4 ./a.out" );
+    "skeletons/lockfetch.c", 
+    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" );
 examplelockfetch.initialize();
 </script>
-<button id="runBtnlockfetch">Compile and run lockfetch</button>
+<button id="buttonrunBtnlockfetch">Compile and run lockfetch</button>
 <div id="editorDivlockfetch" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrelockfetch"></pre>
 <!-- skeleton end: lockfetch -->
@@ -2648,13 +2648,13 @@ examplelockfetch.initialize();
 .
 <!-- skeleton start: lockfetchshared -->
 <script name="defSkeletonlockfetchshared">
-<let examplelockfetchshared = new Example("buttonrunBtnlockfetchshared", 
+let examplelockfetchshared = new Example("buttonrunBtnlockfetchshared", 
     "editorDivlockfetchshared", "outputPrelockfetchshared", 
-    "lockfetchshared.c", 
-    "mpicc lockfetchshared.c && mpiexec -n 4 ./a.out" );
+    "skeletons/lockfetchshared.c", 
+    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" );
 examplelockfetchshared.initialize();
 </script>
-<button id="runBtnlockfetchshared">Compile and run lockfetchshared</button>
+<button id="buttonrunBtnlockfetchshared">Compile and run lockfetchshared</button>
 <div id="editorDivlockfetchshared" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrelockfetchshared"></pre>
 <!-- skeleton end: lockfetchshared -->

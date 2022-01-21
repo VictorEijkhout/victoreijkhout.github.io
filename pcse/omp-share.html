@@ -277,14 +277,15 @@ You could then write
   <div id="ompsectreduct" class="collapse">
   <pre>
 // sectionreduct.c
+float y=0;
 #pragma omp parallel reduction(+:y)
 #pragma omp sections
-    {
+{
 #pragma omp section
-      y += f();
+  y += f();
 #pragma omp section
-      y += g();
-    }
+  y += g();
+}
 </pre>
 </div>
 </div>

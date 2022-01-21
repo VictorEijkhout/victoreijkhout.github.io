@@ -1129,13 +1129,13 @@ Global ranks:  Ranks in row:  Ranks in colum:
 <!-- environment: tacc end embedded generator -->
 <!-- skeleton start: procgrid -->
 <script name="defSkeletonprocgrid">
-<let exampleprocgrid = new Example("buttonrunBtnprocgrid", 
+let exampleprocgrid = new Example("buttonrunBtnprocgrid", 
     "editorDivprocgrid", "outputPreprocgrid", 
-    "procgrid.c", 
-    "mpicc procgrid.c && mpiexec -n 4 ./a.out" );
+    "skeletons/procgrid.c", 
+    "mpicc skeletons/procgrid.c && mpiexec -n 4 ./a.out" );
 exampleprocgrid.initialize();
 </script>
-<button id="runBtnprocgrid">Compile and run procgrid</button>
+<button id="buttonrunBtnprocgrid">Compile and run procgrid</button>
 <div id="editorDivprocgrid" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreprocgrid"></pre>
 <!-- skeleton end: procgrid -->

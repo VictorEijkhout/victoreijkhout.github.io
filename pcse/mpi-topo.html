@@ -983,13 +983,13 @@ collectives, but they apply to a graph communicator.
   Use a degree value of&nbsp;1.
 <!-- skeleton start: rightgraph -->
 <script name="defSkeletonrightgraph">
-<let examplerightgraph = new Example("buttonrunBtnrightgraph", 
+let examplerightgraph = new Example("buttonrunBtnrightgraph", 
     "editorDivrightgraph", "outputPrerightgraph", 
-    "rightgraph.c", 
-    "mpicc rightgraph.c && mpiexec -n 4 ./a.out" );
+    "skeletons/rightgraph.c", 
+    "mpicc skeletons/rightgraph.c && mpiexec -n 4 ./a.out" );
 examplerightgraph.initialize();
 </script>
-<button id="runBtnrightgraph">Compile and run rightgraph</button>
+<button id="buttonrunBtnrightgraph">Compile and run rightgraph</button>
 <div id="editorDivrightgraph" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightgraph"></pre>
 <!-- skeleton end: rightgraph -->
