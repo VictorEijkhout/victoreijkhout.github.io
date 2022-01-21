@@ -136,7 +136,8 @@ initialize();
 4.3.2.3 : <a href="mpi-ptp.html#Error">Error</a><br>
 4.3.2.4 : <a href="mpi-ptp.html#Count">Count</a><br>
 4.3.2.5 : <a href="mpi-ptp.html#Example:receivingfromanysource">Example: receiving from any source</a><br>
-4.3.3 : <a href="mpi-ptp.html#Messageenvelope">Message envelope</a><br>
+4.3.3 : <a href="mpi-ptp.html#Errors">Errors</a><br>
+4.3.4 : <a href="mpi-ptp.html#Messageenvelope">Message envelope</a><br>
 4.4 : <a href="mpi-ptp.html#Reviewquestions">Review questions</a><br>
 <a href="index.html">Back to Table of Contents</a>
 <h1>4 MPI topic: Point-to-point</h1>
@@ -914,10 +915,13 @@ Then modify the program
 <p name="switchToTextMode">
   For bonus points, can you do a regression to determine&nbsp;$\alpha,\beta$?
 <!-- skeleton start: pingpong -->
-<let example1 = new Example("buttonrunBtnpingpong", 
+<script name="defSkeletonpingpong">
+<let examplepingpong = new Example("buttonrunBtnpingpong", 
     "editorDivpingpong", "outputPrepingpong", 
     "skeletons/pingpong.c", 
-    "mpicc skeletons/pingpong.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/pingpong.c && mpiexec -n 4 ./a.out" );
+examplepingpong.initialize();
+</script>
 <button id="runBtnpingpong">Compile and run pingpong</button>
 <div id="editorDivpingpong" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrepingpong"></pre>
@@ -1433,10 +1437,13 @@ figure&nbsp;
   If you don't have TAU, can you show this serialization
   behavior using timings, for instance running it on an increasing number of processes?
 <!-- skeleton start: rightsend -->
-<let example1 = new Example("buttonrunBtnrightsend", 
+<script name="defSkeletonrightsend">
+<let examplerightsend = new Example("buttonrunBtnrightsend", 
     "editorDivrightsend", "outputPrerightsend", 
     "skeletons/rightsend.c", 
-    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" );
+examplerightsend.initialize();
+</script>
 <button id="runBtnrightsend">Compile and run rightsend</button>
 <div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightsend"></pre>
@@ -1517,10 +1524,13 @@ successively passed down a sequence of processors.
 <p name="switchToTextMode">
   Question: could you have done this with a collective call?
 <!-- skeleton start: bucketblock -->
-<let example1 = new Example("buttonrunBtnbucketblock", 
+<script name="defSkeletonbucketblock">
+<let examplebucketblock = new Example("buttonrunBtnbucketblock", 
     "editorDivbucketblock", "outputPrebucketblock", 
     "skeletons/bucketblock.c", 
-    "mpicc skeletons/bucketblock.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/bucketblock.c && mpiexec -n 4 ./a.out" );
+examplebucketblock.initialize();
+</script>
 <button id="runBtnbucketblock">Compile and run bucketblock</button>
 <div id="editorDivbucketblock" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrebucketblock"></pre>
@@ -1804,10 +1814,13 @@ comm_world.sendrecv
   code with different numbers of processes and show that the runtime
   is essentially constant.
 <!-- skeleton start: rightsend -->
-<let example1 = new Example("buttonrunBtnrightsend", 
+<script name="defSkeletonrightsend">
+<let examplerightsend = new Example("buttonrunBtnrightsend", 
     "editorDivrightsend", "outputPrerightsend", 
     "skeletons/rightsend.c", 
-    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" );
+examplerightsend.initialize();
+</script>
 <button id="runBtnrightsend">Compile and run rightsend</button>
 <div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightsend"></pre>
@@ -1880,10 +1893,13 @@ see figure&nbsp;
 ;
   every processor only has a single number to send to its neighbor.
 <!-- skeleton start: sendrecv -->
-<let example1 = new Example("buttonrunBtnsendrecv", 
+<script name="defSkeletonsendrecv">
+<let examplesendrecv = new Example("buttonrunBtnsendrecv", 
     "editorDivsendrecv", "outputPresendrecv", 
     "skeletons/sendrecv.c", 
-    "mpicc skeletons/sendrecv.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/sendrecv.c && mpiexec -n 4 ./a.out" );
+examplesendrecv.initialize();
+</script>
 <button id="runBtnsendrecv">Compile and run sendrecv</button>
 <div id="editorDivsendrecv" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPresendrecv"></pre>
@@ -2718,10 +2734,13 @@ If you don't need the status objects, you can pass
 <tt>MPI_Wait</tt>
 s?
 <!-- skeleton start: bucketpipenonblock -->
-<let example1 = new Example("buttonrunBtnbucketpipenonblock", 
+<script name="defSkeletonbucketpipenonblock">
+<let examplebucketpipenonblock = new Example("buttonrunBtnbucketpipenonblock", 
     "editorDivbucketpipenonblock", "outputPrebucketpipenonblock", 
     "skeletons/bucketpipenonblock.c", 
-    "mpicc skeletons/bucketpipenonblock.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/bucketpipenonblock.c && mpiexec -n 4 ./a.out" );
+examplebucketpipenonblock.initialize();
+</script>
 <button id="runBtnbucketpipenonblock">Compile and run bucketpipenonblock</button>
 <div id="editorDivbucketpipenonblock" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrebucketpipenonblock"></pre>
@@ -2757,10 +2776,13 @@ s?
   Why is it not a good idea to do so?
   Solve this exercise instead with a circular bucket brigade algorithm.
 <!-- skeleton start: setdiff -->
-<let example1 = new Example("buttonrunBtnsetdiff", 
+<script name="defSkeletonsetdiff">
+<let examplesetdiff = new Example("buttonrunBtnsetdiff", 
     "editorDivsetdiff", "outputPresetdiff", 
     "skeletons/setdiff.c", 
-    "mpicc skeletons/setdiff.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/setdiff.c && mpiexec -n 4 ./a.out" );
+examplesetdiff.initialize();
+</script>
 <button id="runBtnsetdiff">Compile and run setdiff</button>
 <div id="editorDivsetdiff" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPresetdiff"></pre>
@@ -3224,10 +3246,13 @@ for
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: isendirecv -->
-<let example1 = new Example("buttonrunBtnisendirecv", 
+<script name="defSkeletonisendirecv">
+<let exampleisendirecv = new Example("buttonrunBtnisendirecv", 
     "editorDivisendirecv", "outputPreisendirecv", 
     "skeletons/isendirecv.c", 
-    "mpicc skeletons/isendirecv.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/isendirecv.c && mpiexec -n 4 ./a.out" );
+exampleisendirecv.initialize();
+</script>
 <button id="runBtnisendirecv">Compile and run isendirecv</button>
 <div id="editorDivisendirecv" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreisendirecv"></pre>
@@ -3311,10 +3336,13 @@ hardware, firmware, and MPI implementation.
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: isendirecvarray -->
-<let example1 = new Example("buttonrunBtnisendirecvarray", 
+<script name="defSkeletonisendirecvarray">
+<let exampleisendirecvarray = new Example("buttonrunBtnisendirecvarray", 
     "editorDivisendirecvarray", "outputPreisendirecvarray", 
     "skeletons/isendirecvarray.c", 
-    "mpicc skeletons/isendirecvarray.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/isendirecvarray.c && mpiexec -n 4 ./a.out" );
+exampleisendirecvarray.initialize();
+</script>
 <button id="runBtnisendirecvarray">Compile and run isendirecvarray</button>
 <div id="editorDivisendirecvarray" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreisendirecvarray"></pre>
@@ -3633,7 +3661,7 @@ setting the handle to
 .
 (There is an exception for persistent communications where
 the request is only set to `inactive'; section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunicationrequests">5.1</a>
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-persist.html#Persistentcommunication">5.1</a>
 .)
 Thus, it is wise to issue wait calls even
 if you know that the operation has succeeded. For instance, if all

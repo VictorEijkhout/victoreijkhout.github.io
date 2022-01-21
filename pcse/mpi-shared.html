@@ -744,10 +744,13 @@ broadcast the shared data to the processes zero on each node.
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: shareddata -->
-<let example1 = new Example("buttonrunBtnshareddata", 
+<script name="defSkeletonshareddata">
+<let exampleshareddata = new Example("buttonrunBtnshareddata", 
     "editorDivshareddata", "outputPreshareddata", 
     "skeletons/shareddata.c", 
-    "mpicc skeletons/shareddata.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/shareddata.c && mpiexec -n 4 ./a.out" );
+exampleshareddata.initialize();
+</script>
 <button id="runBtnshareddata">Compile and run shareddata</button>
 <div id="editorDivshareddata" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreshareddata"></pre>

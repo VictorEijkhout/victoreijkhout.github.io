@@ -2499,10 +2499,13 @@ FIGURE 6.5: Send strided data from process zero to all others
 <p name="switchToTextMode">
   For testing, define the array as $x[i]=i$.
 <!-- skeleton start: stridesend -->
-<let example1 = new Example("buttonrunBtnstridesend", 
+<script name="defSkeletonstridesend">
+<let examplestridesend = new Example("buttonrunBtnstridesend", 
     "editorDivstridesend", "outputPrestridesend", 
     "skeletons/stridesend.c", 
-    "mpicc skeletons/stridesend.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/stridesend.c && mpiexec -n 4 ./a.out" );
+examplestridesend.initialize();
+</script>
 <button id="runBtnstridesend">Compile and run stridesend</button>
 <div id="editorDivstridesend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrestridesend"></pre>
@@ -2625,10 +2628,13 @@ mpl::subarray_layout&lt;int&gt;(
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: cubegather -->
-<let example1 = new Example("buttonrunBtncubegather", 
+<script name="defSkeletoncubegather">
+<let examplecubegather = new Example("buttonrunBtncubegather", 
     "editorDivcubegather", "outputPrecubegather", 
     "skeletons/cubegather.c", 
-    "mpicc skeletons/cubegather.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/cubegather.c && mpiexec -n 4 ./a.out" );
+examplecubegather.initialize();
+</script>
 <button id="runBtncubegather">Compile and run cubegather</button>
 <div id="editorDivcubegather" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrecubegather"></pre>

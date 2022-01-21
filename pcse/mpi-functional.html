@@ -450,10 +450,13 @@ int main(int argc,char **argv) {
 <p name="switchToTextMode">
 
 <!-- skeleton start: hello -->
-<let example1 = new Example("buttonrunBtnhello", 
+<script name="defSkeletonhello">
+<let examplehello = new Example("buttonrunBtnhello", 
     "editorDivhello", "outputPrehello", 
     "skeletons/hello.c", 
-    "mpicc skeletons/hello.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/hello.c && mpiexec -n 4 ./a.out" );
+examplehello.initialize();
+</script>
 <button id="runBtnhello">Compile and run hello</button>
 <div id="editorDivhello" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrehello"></pre>
@@ -1615,10 +1618,13 @@ Hello from process 2 out of 5!
 <i>On some clusters this may not be     advisable if you have large numbers of processors, since it can     overload the file system.</i>
 
 <!-- skeleton start: commrank -->
-<let example1 = new Example("buttonrunBtncommrank", 
+<script name="defSkeletoncommrank">
+<let examplecommrank = new Example("buttonrunBtncommrank", 
     "editorDivcommrank", "outputPrecommrank", 
     "skeletons/commrank.c", 
-    "mpicc skeletons/commrank.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/commrank.c && mpiexec -n 4 ./a.out" );
+examplecommrank.initialize();
+</script>
 <button id="runBtncommrank">Compile and run commrank</button>
 <div id="editorDivcommrank" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrecommrank"></pre>
@@ -1779,10 +1785,13 @@ trivial.)
 <p name="switchToTextMode">
   Can you find more than one solution?
 <!-- skeleton start: prime -->
-<let example1 = new Example("buttonrunBtnprime", 
+<script name="defSkeletonprime">
+<let exampleprime = new Example("buttonrunBtnprime", 
     "editorDivprime", "outputPreprime", 
     "skeletons/prime.c", 
-    "mpicc skeletons/prime.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/prime.c && mpiexec -n 4 ./a.out" );
+exampleprime.initialize();
+</script>
 <button id="runBtnprime">Compile and run prime</button>
 <div id="editorDivprime" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreprime"></pre>

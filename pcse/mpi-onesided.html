@@ -1359,10 +1359,13 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 <tt>MPI_Put</tt>
 .
 <!-- skeleton start: rightput -->
-<let example1 = new Example("buttonrunBtnrightput", 
+<script name="defSkeletonrightput">
+<let examplerightput = new Example("buttonrunBtnrightput", 
     "editorDivrightput", "outputPrerightput", 
     "skeletons/rightput.c", 
-    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" );
+examplerightput.initialize();
+</script>
 <button id="runBtnrightput">Compile and run rightput</button>
 <div id="editorDivrightput" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightput"></pre>
@@ -1397,10 +1400,13 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: randomput -->
-<let example1 = new Example("buttonrunBtnrandomput", 
+<script name="defSkeletonrandomput">
+<let examplerandomput = new Example("buttonrunBtnrandomput", 
     "editorDivrandomput", "outputPrerandomput", 
     "skeletons/randomput.c", 
-    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" );
+examplerandomput.initialize();
+</script>
 <button id="runBtnrandomput">Compile and run randomput</button>
 <div id="editorDivrandomput" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerandomput"></pre>
@@ -2601,10 +2607,13 @@ while the remaining process spins until the others have performed their update.
   Use an atomic operation for the latter process to read out the shared value.\\
   Can you replace the exclusive lock with a shared one?
 <!-- skeleton start: lockfetch -->
-<let example1 = new Example("buttonrunBtnlockfetch", 
+<script name="defSkeletonlockfetch">
+<let examplelockfetch = new Example("buttonrunBtnlockfetch", 
     "editorDivlockfetch", "outputPrelockfetch", 
     "skeletons/lockfetch.c", 
-    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" );
+examplelockfetch.initialize();
+</script>
 <button id="runBtnlockfetch">Compile and run lockfetch</button>
 <div id="editorDivlockfetch" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrelockfetch"></pre>
@@ -2638,10 +2647,13 @@ while the remaining process spins until the others have performed their update.
 <tt>MPI_Fetch_and_op</tt>
 .
 <!-- skeleton start: lockfetchshared -->
-<let example1 = new Example("buttonrunBtnlockfetchshared", 
+<script name="defSkeletonlockfetchshared">
+<let examplelockfetchshared = new Example("buttonrunBtnlockfetchshared", 
     "editorDivlockfetchshared", "outputPrelockfetchshared", 
     "skeletons/lockfetchshared.c", 
-    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" );
+examplelockfetchshared.initialize();
+</script>
 <button id="runBtnlockfetchshared">Compile and run lockfetchshared</button>
 <div id="editorDivlockfetchshared" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrelockfetchshared"></pre>

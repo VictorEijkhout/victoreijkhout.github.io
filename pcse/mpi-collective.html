@@ -748,10 +748,13 @@ crumb trail:  > <a href="mpi-collective.html">mpi-collective</a> > <a href="mpi-
 \]
   and check that it is~1.
 <!-- skeleton start: randommax -->
-<let example1 = new Example("buttonrunBtnrandommax", 
+<script name="defSkeletonrandommax">
+<let examplerandommax = new Example("buttonrunBtnrandommax", 
     "editorDivrandommax", "outputPrerandommax", 
     "skeletons/randommax.c", 
-    "mpicc skeletons/randommax.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/randommax.c && mpiexec -n 4 ./a.out" );
+examplerandommax.initialize();
+</script>
 <button id="runBtnrandommax">Compile and run randommax</button>
 <div id="editorDivrandommax" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerandommax"></pre>
@@ -2075,10 +2078,13 @@ For the following exercise, study figure&nbsp;
   scaling vector&nbsp;$\{\ell^{(k)}_i\}_i$. Replicate the right-hand side on
   all processors.
 <!-- skeleton start: jordan -->
-<let example1 = new Example("buttonrunBtnjordan", 
+<script name="defSkeletonjordan">
+<let examplejordan = new Example("buttonrunBtnjordan", 
     "editorDivjordan", "outputPrejordan", 
     "skeletons/jordan.c", 
-    "mpicc skeletons/jordan.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/jordan.c && mpiexec -n 4 ./a.out" );
+examplejordan.initialize();
+</script>
 <button id="runBtnjordan">Compile and run jordan</button>
 <div id="editorDivjordan" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrejordan"></pre>
@@ -2461,10 +2467,13 @@ Fill the array with consecutive integers, so that all local arrays,
 </itemize>
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: scangather -->
-<let example1 = new Example("buttonrunBtnscangather", 
+<script name="defSkeletonscangather">
+<let examplescangather = new Example("buttonrunBtnscangather", 
     "editorDivscangather", "outputPrescangather", 
     "skeletons/scangather.c", 
-    "mpicc skeletons/scangather.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/scangather.c && mpiexec -n 4 ./a.out" );
+examplescangather.initialize();
+</script>
 <button id="runBtnscangather">Compile and run scangather</button>
 <div id="editorDivscangather" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrescangather"></pre>
@@ -2985,10 +2994,13 @@ originates from a different scatter operation.
 <p name="switchToTextMode">
   How do you construct the lengths and displacements arrays?
 <!-- skeleton start: scangather -->
-<let example1 = new Example("buttonrunBtnscangather", 
+<script name="defSkeletonscangather">
+<let examplescangather = new Example("buttonrunBtnscangather", 
     "editorDivscangather", "outputPrescangather", 
     "skeletons/scangather.c", 
-    "mpicc skeletons/scangather.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/scangather.c && mpiexec -n 4 ./a.out" );
+examplescangather.initialize();
+</script>
 <button id="runBtnscangather">Compile and run scangather</button>
 <div id="editorDivscangather" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrescangather"></pre>
@@ -4695,10 +4707,13 @@ It must be associative; it can be optionally commutative, which
  \|x\|_1 \equiv \sum_i |x_i|. 
 \]
 <!-- skeleton start: onenorm -->
-<let example1 = new Example("buttonrunBtnonenorm", 
+<script name="defSkeletononenorm">
+<let exampleonenorm = new Example("buttonrunBtnonenorm", 
     "editorDivonenorm", "outputPreonenorm", 
     "skeletons/onenorm.c", 
-    "mpicc skeletons/onenorm.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/onenorm.c && mpiexec -n 4 ./a.out" );
+exampleonenorm.initialize();
+</script>
 <button id="runBtnonenorm">Compile and run onenorm</button>
 <div id="editorDivonenorm" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreonenorm"></pre>
@@ -4934,10 +4949,13 @@ overlap a nonblocking collective with a blocking one.
   broadcasts, and time the difference between a blocking and a
   nonblocking solution.
 <!-- skeleton start: procgridnonblock -->
-<let example1 = new Example("buttonrunBtnprocgridnonblock", 
+<script name="defSkeletonprocgridnonblock">
+<let exampleprocgridnonblock = new Example("buttonrunBtnprocgridnonblock", 
     "editorDivprocgridnonblock", "outputPreprocgridnonblock", 
     "skeletons/procgridnonblock.c", 
-    "mpicc skeletons/procgridnonblock.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/procgridnonblock.c && mpiexec -n 4 ./a.out" );
+exampleprocgridnonblock.initialize();
+</script>
 <button id="runBtnprocgridnonblock">Compile and run procgridnonblock</button>
 <div id="editorDivprocgridnonblock" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreprocgridnonblock"></pre>

@@ -1007,10 +1007,13 @@ ibrun vec -n 12 -vec_view
 </verbatim>
 <!-- environment: verbatim end embedded generator -->
 <!-- skeleton start: vec -->
-<let example1 = new Example("buttonrunBtnvec", 
+<script name="defSkeletonvec">
+<let examplevec = new Example("buttonrunBtnvec", 
     "editorDivvec", "outputPrevec", 
     "skeletons/vec.c", 
-    "mpicc skeletons/vec.c && mpiexec -n 4 ./a.out" )
+    "mpicc skeletons/vec.c && mpiexec -n 4 ./a.out" );
+examplevec.initialize();
+</script>
 <button id="runBtnvec">Compile and run vec</button>
 <div id="editorDivvec" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrevec"></pre>
