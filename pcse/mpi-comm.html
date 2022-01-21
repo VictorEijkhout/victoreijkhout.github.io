@@ -57,33 +57,6 @@ class Example {
 </script>
 <style></style>
 
-<script type="application/javascript">
-let fileRoot      = "hello";
-let fileName      = fileRoot + ".c";
-let compileCmd    = "mpicc " + fileName + " -o " + fileRoot;
-let runCmd        = "mpirun --oversubscribe -np 8 " + fileRoot;
-let compileRunCmd = [compileCmd, runCmd].join(" && ");
-
-async function afterExecute(results) {
-  document.getElementById('stdoutPre').textContent = results.stdout;
-  document.getElementById('stderrPre').textContent = results.stderr;
-}
-
-async function initialize() {
-  let editor = await MonacoEditorFileSource.create("editorDiv");
-  editor.setTextFromFile("mpiHello.c");
-
-  let job = await Job.create(JobType.MPI);
-  let command = new CommandWithFiles(job, compileRunCmd);
-  command.addFileSource(editor, fileName);
-  let trigger = new ButtonTrigger(command, afterExecute, "executeBtn");
-
-  document.getElementById("executeBtn").disabled = false;
-}
-
-initialize();
-</script>
-
 <div class="container">
   <div class="row">
     <div class="col-12">

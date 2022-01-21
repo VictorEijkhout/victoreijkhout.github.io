@@ -57,33 +57,6 @@ class Example {
 </script>
 <style></style>
 
-<script type="application/javascript">
-let fileRoot      = "hello";
-let fileName      = fileRoot + ".c";
-let compileCmd    = "mpicc " + fileName + " -o " + fileRoot;
-let runCmd        = "mpirun --oversubscribe -np 8 " + fileRoot;
-let compileRunCmd = [compileCmd, runCmd].join(" && ");
-
-async function afterExecute(results) {
-  document.getElementById('stdoutPre').textContent = results.stdout;
-  document.getElementById('stderrPre').textContent = results.stderr;
-}
-
-async function initialize() {
-  let editor = await MonacoEditorFileSource.create("editorDiv");
-  editor.setTextFromFile("mpiHello.c");
-
-  let job = await Job.create(JobType.MPI);
-  let command = new CommandWithFiles(job, compileRunCmd);
-  command.addFileSource(editor, fileName);
-  let trigger = new ButtonTrigger(command, afterExecute, "executeBtn");
-
-  document.getElementById("executeBtn").disabled = false;
-}
-
-initialize();
-</script>
-
 <div class="container">
   <div class="row">
     <div class="col-12">
@@ -1079,7 +1052,6 @@ The
   or 
 <tt>MPI_INFO_NULL</tt>
 . See section&nbsp;
-<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Fileinformation">15.1.1.3</a>
  for more.
   (See 
 <i>T3PIO</i>
@@ -1236,18 +1208,7 @@ Also, these operations are less efficient because of the need to maintain the
 shared pointer.
 </p>
 
-<h2><a id="Fileinformation">10.3</a> File information</h2>
-<p name=crumbs>
-crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Fileinformation">File information</a>
-</p>
-
-<p name="switchToTextMode">
-
-<tt>MPI_File_set_info</tt>
-<tt>MPI_File_get_info</tt>
-</p>
-
-<h2><a id="Consistency">10.4</a> Consistency</h2>
+<h2><a id="Consistency">10.3</a> Consistency</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Consistency">Consistency</a>
 </p>
@@ -1270,7 +1231,7 @@ However, the file also needs to be declared
 .
 </p>
 
-<h2><a id="Constants">10.5</a> Constants</h2>
+<h2><a id="Constants">10.4</a> Constants</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Constants">Constants</a>
 </p>
@@ -1298,7 +1259,7 @@ and such.
 <p name="switchToTextMode">
 
 \newpage
-<h2><a id="Reviewquestions">10.6</a> Review questions</h2>
+<h2><a id="Reviewquestions">10.5</a> Review questions</h2>
 <p name=crumbs>
 crumb trail:  > <a href="mpi-io.html">mpi-io</a> > <a href="mpi-io.html#Reviewquestions">Review questions</a>
 </p>
