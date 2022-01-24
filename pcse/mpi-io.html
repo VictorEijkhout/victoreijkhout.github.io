@@ -84,10 +84,9 @@ class Example {
 10.2.2 : <a href="mpi-io.html#Individualfilepointers,contiguouswrites">Individual file pointers, contiguous writes</a><br>
 10.2.3 : <a href="mpi-io.html#Fileviews">File views</a><br>
 10.2.4 : <a href="mpi-io.html#Sharedfilepointers">Shared file pointers</a><br>
-10.3 : <a href="mpi-io.html#Fileinformation">File information</a><br>
-10.4 : <a href="mpi-io.html#Consistency">Consistency</a><br>
-10.5 : <a href="mpi-io.html#Constants">Constants</a><br>
-10.6 : <a href="mpi-io.html#Reviewquestions">Review questions</a><br>
+10.3 : <a href="mpi-io.html#Consistency">Consistency</a><br>
+10.4 : <a href="mpi-io.html#Constants">Constants</a><br>
+10.5 : <a href="mpi-io.html#Reviewquestions">Review questions</a><br>
 <a href="index.html">Back to Table of Contents</a>
 <h1>10 MPI topic: File I/O</h1>
 <!-- TranslatingLineGenerator file ['file'] -->
@@ -850,6 +849,9 @@ FIGURE 10.1: Writing at an offset
 <tt>MPI_File_write_at</tt>
 .
 <!-- skeleton start: blockwrite -->
+<button id="buttonrunBtnblockwrite">Compile and run blockwrite</button>
+<div id="editorDivblockwrite" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreblockwrite"></pre>
 <script name="defSkeletonblockwrite">
 let exampleblockwrite = new Example("buttonrunBtnblockwrite", 
     "editorDivblockwrite", "outputPreblockwrite", 
@@ -857,9 +859,6 @@ let exampleblockwrite = new Example("buttonrunBtnblockwrite",
     "mpicc skeletons/blockwrite.c && mpiexec -n 4 ./a.out" );
 exampleblockwrite.initialize();
 </script>
-<button id="buttonrunBtnblockwrite">Compile and run blockwrite</button>
-<div id="editorDivblockwrite" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreblockwrite"></pre>
 <!-- skeleton end: blockwrite -->
 </p name="exercise">
 </exercise>
@@ -1052,6 +1051,7 @@ The
   or 
 <tt>MPI_INFO_NULL</tt>
 . See section&nbsp;
+<a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi.html#Fileinformation">15.1.1.3</a>
  for more.
   (See 
 <i>T3PIO</i>
@@ -1089,6 +1089,9 @@ FIGURE 10.2: Writing at a view
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: viewwrite -->
+<button id="buttonrunBtnviewwrite">Compile and run viewwrite</button>
+<div id="editorDivviewwrite" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreviewwrite"></pre>
 <script name="defSkeletonviewwrite">
 let exampleviewwrite = new Example("buttonrunBtnviewwrite", 
     "editorDivviewwrite", "outputPreviewwrite", 
@@ -1096,9 +1099,6 @@ let exampleviewwrite = new Example("buttonrunBtnviewwrite",
     "mpicc skeletons/viewwrite.c && mpiexec -n 4 ./a.out" );
 exampleviewwrite.initialize();
 </script>
-<button id="buttonrunBtnviewwrite">Compile and run viewwrite</button>
-<div id="editorDivviewwrite" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreviewwrite"></pre>
 <!-- skeleton end: viewwrite -->
   Write a file in the same way as in exercise&nbsp;
 10.1

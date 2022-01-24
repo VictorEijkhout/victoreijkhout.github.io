@@ -276,72 +276,8 @@ inside a parallel region.
 </p>
 
 <p name="switchToTextMode">
-As an illustration:\\
-<!-- environment: minipage start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=minipage ]] -->
-<minipage>
-
-<p name="minipage">
-<!-- TranslatingLineGenerator minipage ['minipage'] -->
-<!-- environment: multicols start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=multicols ]] -->
-<multicols>
-
-<p name="multicols">
-<!-- TranslatingLineGenerator multicols ['multicols'] -->
-<div class="card">
-  <div class="card-header" id="headingOne">
-    <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#ompparforthread" aria-expanded="false" aria-controls="ompparforthread">
-        C Code: ompparforthread
-      </button>
-    </h5>
-  </div>
-  <div id="ompparforthread" class="collapse">
-  <pre>
-// parfor.c
-#pragma omp parallel
-  {
-    int
-      nthreads = omp_get_num_threads(),
-      thread_num = omp_get_thread_num();
-    printf("Thread %d entering parallel region\n",nthreads);
-    #pragma omp for
-    for (int iter=0; iter&lt;nthreads; iter++)
-      printf("thread %d executing iter %d\n",
-             thread_num,iter);
-  }
-</pre>
-</div>
-</div>
-</p>
-
-<p name="switchToTextMode">
-    \footnotesize
-<!-- environment: verbatim start embedded generator -->
-</p>
-<!-- environment block purpose: [[ environment=verbatim ]] -->
-<verbatim>
-<pre>
-Thread 4 entering parallel region
-thread 0 executing iteration 0
-Thread 4 entering parallel region
-thread 1 executing iteration 1
-Thread 4 entering parallel region
-thread 2 executing iteration 2
-Thread 4 entering parallel region
-thread 3 executing iteration 3
-</pre>
-</verbatim>
-<!-- environment: verbatim end embedded generator -->
-</multicols>
-<!-- environment: multicols end embedded generator -->
-</minipage>
-<!-- environment: minipage end embedded generator -->
-<p name="switchToTextMode">
-{\hsize}
+As an illustration:
+\csnippetwithoutput{ompparforthread}{examples/omp/c}{parfor}
 </p>
 
 <!-- environment: exercise start embedded generator -->
@@ -380,6 +316,69 @@ It is also possible to have a combined
 </pre>
 </lstlisting>
 <!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  There are certain restrictions on the type of loop
+  that can be executed in parallel.
+  These arise from the fact that iterations need to be scheduled
+  before the loop starts.
+  Thus
+<!-- environment: itemize start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=itemize ]] -->
+<itemize>
+<ul>
+<!-- TranslatingLineGenerator itemize ['itemize'] -->
+<li>
+the loop body is not allowed to change the loop variable:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+      for (int i=0; i&lt;N; ) {
+        // something
+        if (something)
+        i++;
+        else
+        i += 2;
+      }
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+</ul>
+</itemize>
+<!-- environment: itemize end embedded generator -->
+<p name="switchToTextMode">
+  Furthermore, you are not allowed to 
+<tt>break</tt>
+
+  out of a loop.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
+<p name="switchToTextMode">
+
+<!-- environment: remark start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=remark ]] -->
+<remark>
+<b>Remark</b>
+<p name="remark">
+<!-- TranslatingLineGenerator remark ['remark'] -->
+  The loop index needs to be an integer value
+  for the loop to be parallelizable.
+  Unsigned values are allowed as of OpenMP-.
+</p name="remark">
+</remark>
+<!-- environment: remark end embedded generator -->
 <p name="switchToTextMode">
 
 <!-- environment: exercise start embedded generator -->
@@ -565,12 +564,13 @@ Here is the essential code fragment:
   <div id="ompsineloop" class="collapse">
   <pre>
 // speedup.c
-for (int ip=0; ip&lt;N; ip++) {
-  for (int jp=0; jp&lt;M; jp++) {
-    double f = sin( values[ip] );
-    values[ip] = f;
-  }
-}
+#pragma omp parallel for
+      for (int ip=0; ip&lt;N; ip++) {
+        for (int jp=0; jp&lt;M; jp++) {
+          double f = sin( values[ip] );
+          values[ip] = f;
+        }
+      }
 </pre>
 </div>
 </div>
@@ -839,8 +839,10 @@ gets assigned two (blocks of) iterations and these blocks take
 gradually less and less time. You see from the left picture that
 thread&nbsp;1 gets two fairly long blocks, where as thread&nbsp;4 gets two short
 blocks, thus finishing much earlier. (This phenomenon of threads
-having unequal amounts of work is known as 
-  imbalance}.) On the other hand, in the right figure thread&nbsp;4 gets
+having unequal amounts of work is known as
+<i>load imbalance</i>
+.)
+On the other hand, in the right figure thread&nbsp;4 gets
 block&nbsp;5, since it finishes the first set of blocks early. The effect
 is a perfect load balancing.
 </p>
@@ -1337,15 +1339,63 @@ on the nested loop?
 <!-- environment: exercise end embedded generator -->
 <p name="switchToTextMode">
 
+<!-- environment: exercise start embedded generator -->
 </p>
+<!-- environment block purpose: [[ environment=exercise ]] -->
+<exercise>
+<b>Exercise</b>
+<p name="exercise">
+<!-- TranslatingLineGenerator exercise ['exercise'] -->
+  Consider this code for matrix transposition:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+void transposer(int n, int m, double *dst, const double *src) {
+   int blocksize;
+   for (int i = 0; i &lt; n; i += blocksize) {
+      for (int j = 0; j &lt; m; j += blocksize) {
+          // transpose the block beginning at [i,j]
+          for (int k = i; k &lt; i + blocksize; ++k) {
+              for (int l = j; l &lt; j + blocksize; ++l) {
+                  dst[k + l*n] = src[l + k*m];
+               }
+          }
+      }
+   }
+}
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+Assuming that the 
+<tt>src</tt>
+ and 
+<tt>dst</tt>
+
+array are disjoint, which loops are parallel, and how many
+levels can you collapse?
+</p name="exercise">
+</exercise>
+<!-- environment: exercise end embedded generator -->
+<!-- environment: answer start embedded generator -->
+<!-- environment block purpose: [[ environment=answer ]] -->
+<answer>
+
+
+</answer>
+<!-- environment: answer end embedded generator -->
+<p name="switchToTextMode">
 
 <h2><a id="Orderediterations">19.6</a> Ordered iterations</h2>
 <p name=crumbs>
 crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Orderediterations">Ordered iterations</a>
 </p>
 
-<p name="switchToTextMode">
+</p>
 
+<p name="switchToTextMode">
 Iterations in a parallel loop that are executed in parallel do not
 execute in lockstep. That means that in
 <!-- environment: lstlisting start embedded generator -->
@@ -1556,13 +1606,21 @@ crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Sc
 <div class="card">
   <div class="card-header" id="headingOne">
     <h5 class="mb-0">
-      <button class="btn btn-link" data-toggle="collapse" data-target="#scalingsineloop" aria-expanded="false" aria-controls="scalingsineloop">
-        Text: scalingsineloop
+      <button class="btn btn-link" data-toggle="collapse" data-target="#ompsineloop" aria-expanded="false" aria-controls="ompsineloop">
+        Text: ompsineloop
       </button>
     </h5>
   </div>
-  <div id="scalingsineloop" class="collapse">
+  <div id="ompsineloop" class="collapse">
   <pre>
+// speedup.c
+#pragma omp parallel for
+      for (int ip=0; ip&lt;N; ip++) {
+        for (int jp=0; jp&lt;M; jp++) {
+          double f = sin( values[ip] );
+          values[ip] = f;
+        }
+      }
 </pre>
 </div>
 </div>
@@ -1574,7 +1632,12 @@ crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Sc
 </p>
 <p name="switchToTextMode">
 
-Lonestar 6, dual socket Milan, total 112 cores
+Lonestar 6, dual socket 
+<i>AMD Milan</i>
+, total 112 cores:
+figure&nbsp;
+19.6
+.
 </p>
 
 <!-- environment: figure start embedded generator -->
@@ -1604,8 +1667,12 @@ crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Sc
 </p>
 </p>
 
+<i>Intel Cascade Lake</i>
 <p name="switchToTextMode">
-Dual Cascade Lake, 56 cores total
+, dual socket, 56 cores total;
+figure&nbsp;
+19.7
+.
 </p>
 
 <p name="switchToTextMode">
@@ -1649,7 +1716,12 @@ crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Sc
 </p>
 
 <p name="switchToTextMode">
-Dual 24-core
+Dual 24-core 
+<i>Intel Skylake</i>
+;
+figure&nbsp;
+19.8
+.
 </p>
 
 <p name="switchToTextMode">
@@ -1688,6 +1760,14 @@ FIGURE 19.8: Speedup as function of thread count, Stampede2 skylake cluster, dif
 <p name=crumbs>
 crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Scalingtests">Scaling tests</a> > <a href="omp-loop.html#Stampede2KnightsLanding">Stampede2 Knights Landing</a>
 </p>
+</p>
+
+<p name="switchToTextMode">
+Single socket 68-core 
+<i>Intel Knights Landing</i>
+;
+19.9
+.
 </p>
 
 <p name="switchToTextMode">
@@ -1738,7 +1818,10 @@ crumb trail:  > <a href="omp-loop.html">omp-loop</a> > <a href="omp-loop.html#Sc
 </p>
 
 <p name="switchToTextMode">
-Dual 20-core Power9, 4&nbsp;hyperthreads
+Dual 20-core 
+<i>IBM Power9</i>
+, 4&nbsp;hyperthreads;
+19.10
 </p>
 
 <p name="switchToTextMode">

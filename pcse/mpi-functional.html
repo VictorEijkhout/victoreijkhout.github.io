@@ -423,6 +423,9 @@ int main(int argc,char **argv) {
 <p name="switchToTextMode">
 
 <!-- skeleton start: hello -->
+<button id="buttonrunBtnhello">Compile and run hello</button>
+<div id="editorDivhello" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrehello"></pre>
 <script name="defSkeletonhello">
 let examplehello = new Example("buttonrunBtnhello", 
     "editorDivhello", "outputPrehello", 
@@ -430,9 +433,6 @@ let examplehello = new Example("buttonrunBtnhello",
     "mpicc skeletons/hello.c && mpiexec -n 4 ./a.out" );
 examplehello.initialize();
 </script>
-<button id="buttonrunBtnhello">Compile and run hello</button>
-<div id="editorDivhello" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrehello"></pre>
 <!-- skeleton end: hello -->
 </p name="exercise">
 </exercise>
@@ -459,9 +459,9 @@ crumb trail:  > <a href="mpi-functional.html">mpi-functional</a> > <a href="mpi-
 
 If you use MPI commands in a program file, be sure to include
 the proper header file, 
-<i>mpi.h</i>
+<tt>mpi.h</tt>
  or 
-<i>mpif.h</i>
+<tt>mpif.h</tt>
 .
 <!-- environment: verbatim start embedded generator -->
 </p>
@@ -1591,6 +1591,9 @@ Hello from process 2 out of 5!
 <i>On some clusters this may not be     advisable if you have large numbers of processors, since it can     overload the file system.</i>
 
 <!-- skeleton start: commrank -->
+<button id="buttonrunBtncommrank">Compile and run commrank</button>
+<div id="editorDivcommrank" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPrecommrank"></pre>
 <script name="defSkeletoncommrank">
 let examplecommrank = new Example("buttonrunBtncommrank", 
     "editorDivcommrank", "outputPrecommrank", 
@@ -1598,9 +1601,6 @@ let examplecommrank = new Example("buttonrunBtncommrank",
     "mpicc skeletons/commrank.c && mpiexec -n 4 ./a.out" );
 examplecommrank.initialize();
 </script>
-<button id="buttonrunBtncommrank">Compile and run commrank</button>
-<div id="editorDivcommrank" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrecommrank"></pre>
 <!-- skeleton end: commrank -->
 </p name="exercise">
 </exercise>
@@ -1758,6 +1758,9 @@ trivial.)
 <p name="switchToTextMode">
   Can you find more than one solution?
 <!-- skeleton start: prime -->
+<button id="buttonrunBtnprime">Compile and run prime</button>
+<div id="editorDivprime" style="height:125px;border:1px solid black;"></div>
+<pre id="outputPreprime"></pre>
 <script name="defSkeletonprime">
 let exampleprime = new Example("buttonrunBtnprime", 
     "editorDivprime", "outputPreprime", 
@@ -1765,9 +1768,6 @@ let exampleprime = new Example("buttonrunBtnprime",
     "mpicc skeletons/prime.c && mpiexec -n 4 ./a.out" );
 exampleprime.initialize();
 </script>
-<button id="buttonrunBtnprime">Compile and run prime</button>
-<div id="editorDivprime" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreprime"></pre>
 <!-- skeleton end: prime -->
 </p name="exercise">
 </exercise>
