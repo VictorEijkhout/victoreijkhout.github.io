@@ -1335,9 +1335,13 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 "<button id="buttonrunBtnrightput">Compile and run rightput</button>
 <div id="editorDivrightput" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightput"></pre>
-"<button id="buttonrunBtnrightput">Compile and run rightput</button>
-<div id="editorDivrightput" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrerightput"></pre>
+<script name="defSkeletonrightput">
+let examplerightput = new Example("buttonrunBtnrightput",
+    "editorDivrightput", "outputPrerightput", 
+    "skeletons/rightput.c", 
+    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" );
+examplerightput.initialize();
+</script>"
 <!-- skeleton end: rightput -->
 </p name="exercise">
 </exercise>
@@ -1372,9 +1376,13 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 "<button id="buttonrunBtnrandomput">Compile and run randomput</button>
 <div id="editorDivrandomput" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerandomput"></pre>
-"<button id="buttonrunBtnrandomput">Compile and run randomput</button>
-<div id="editorDivrandomput" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrerandomput"></pre>
+<script name="defSkeletonrandomput">
+let examplerandomput = new Example("buttonrunBtnrandomput",
+    "editorDivrandomput", "outputPrerandomput", 
+    "skeletons/randomput.c", 
+    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" );
+examplerandomput.initialize();
+</script>"
 <!-- skeleton end: randomput -->
 </exercise>
 <!-- environment: exercise end embedded generator -->
@@ -2575,9 +2583,13 @@ while the remaining process spins until the others have performed their update.
 "<button id="buttonrunBtnlockfetch">Compile and run lockfetch</button>
 <div id="editorDivlockfetch" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrelockfetch"></pre>
-"<button id="buttonrunBtnlockfetch">Compile and run lockfetch</button>
-<div id="editorDivlockfetch" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrelockfetch"></pre>
+<script name="defSkeletonlockfetch">
+let examplelockfetch = new Example("buttonrunBtnlockfetch",
+    "editorDivlockfetch", "outputPrelockfetch", 
+    "skeletons/lockfetch.c", 
+    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" );
+examplelockfetch.initialize();
+</script>"
 <!-- skeleton end: lockfetch -->
 </p name="exercise">
 </exercise>
@@ -2611,9 +2623,13 @@ while the remaining process spins until the others have performed their update.
 "<button id="buttonrunBtnlockfetchshared">Compile and run lockfetchshared</button>
 <div id="editorDivlockfetchshared" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrelockfetchshared"></pre>
-"<button id="buttonrunBtnlockfetchshared">Compile and run lockfetchshared</button>
-<div id="editorDivlockfetchshared" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrelockfetchshared"></pre>
+<script name="defSkeletonlockfetchshared">
+let examplelockfetchshared = new Example("buttonrunBtnlockfetchshared",
+    "editorDivlockfetchshared", "outputPrelockfetchshared", 
+    "skeletons/lockfetchshared.c", 
+    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" );
+examplelockfetchshared.initialize();
+</script>"
 <!-- skeleton end: lockfetchshared -->
 </p name="exercise">
 </exercise>

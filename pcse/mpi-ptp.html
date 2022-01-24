@@ -891,9 +891,13 @@ Then modify the program
 "<button id="buttonrunBtnpingpong">Compile and run pingpong</button>
 <div id="editorDivpingpong" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrepingpong"></pre>
-"<button id="buttonrunBtnpingpong">Compile and run pingpong</button>
-<div id="editorDivpingpong" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrepingpong"></pre>
+<script name="defSkeletonpingpong">
+let examplepingpong = new Example("buttonrunBtnpingpong",
+    "editorDivpingpong", "outputPrepingpong", 
+    "skeletons/pingpong.c", 
+    "mpicc skeletons/pingpong.c && mpiexec -n 4 ./a.out" );
+examplepingpong.initialize();
+</script>"
 <!-- skeleton end: pingpong -->
 </p name="exercise">
 </exercise>
@@ -1409,9 +1413,13 @@ figure&nbsp;
 "<button id="buttonrunBtnrightsend">Compile and run rightsend</button>
 <div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightsend"></pre>
-"<button id="buttonrunBtnrightsend">Compile and run rightsend</button>
-<div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrerightsend"></pre>
+<script name="defSkeletonrightsend">
+let examplerightsend = new Example("buttonrunBtnrightsend",
+    "editorDivrightsend", "outputPrerightsend", 
+    "skeletons/rightsend.c", 
+    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" );
+examplerightsend.initialize();
+</script>"
 <!-- skeleton end: rightsend -->
 </p name="exercise">
 </exercise>
@@ -1492,9 +1500,13 @@ successively passed down a sequence of processors.
 "<button id="buttonrunBtnbucketblock">Compile and run bucketblock</button>
 <div id="editorDivbucketblock" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrebucketblock"></pre>
-"<button id="buttonrunBtnbucketblock">Compile and run bucketblock</button>
-<div id="editorDivbucketblock" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrebucketblock"></pre>
+<script name="defSkeletonbucketblock">
+let examplebucketblock = new Example("buttonrunBtnbucketblock",
+    "editorDivbucketblock", "outputPrebucketblock", 
+    "skeletons/bucketblock.c", 
+    "mpicc skeletons/bucketblock.c && mpiexec -n 4 ./a.out" );
+examplebucketblock.initialize();
+</script>"
 <!-- skeleton end: bucketblock -->
 </p name="exercise">
 </exercise>
@@ -1778,9 +1790,13 @@ comm_world.sendrecv
 "<button id="buttonrunBtnrightsend">Compile and run rightsend</button>
 <div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrerightsend"></pre>
-"<button id="buttonrunBtnrightsend">Compile and run rightsend</button>
-<div id="editorDivrightsend" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrerightsend"></pre>
+<script name="defSkeletonrightsend">
+let examplerightsend = new Example("buttonrunBtnrightsend",
+    "editorDivrightsend", "outputPrerightsend", 
+    "skeletons/rightsend.c", 
+    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" );
+examplerightsend.initialize();
+</script>"
 <!-- skeleton end: rightsend -->
 </p name="exercise">
 </exercise>
@@ -1853,9 +1869,13 @@ see figure&nbsp;
 "<button id="buttonrunBtnsendrecv">Compile and run sendrecv</button>
 <div id="editorDivsendrecv" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPresendrecv"></pre>
-"<button id="buttonrunBtnsendrecv">Compile and run sendrecv</button>
-<div id="editorDivsendrecv" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPresendrecv"></pre>
+<script name="defSkeletonsendrecv">
+let examplesendrecv = new Example("buttonrunBtnsendrecv",
+    "editorDivsendrecv", "outputPresendrecv", 
+    "skeletons/sendrecv.c", 
+    "mpicc skeletons/sendrecv.c && mpiexec -n 4 ./a.out" );
+examplesendrecv.initialize();
+</script>"
 <!-- skeleton end: sendrecv -->
 </p name="exercise">
 </exercise>
@@ -2690,9 +2710,13 @@ s?
 "<button id="buttonrunBtnbucketpipenonblock">Compile and run bucketpipenonblock</button>
 <div id="editorDivbucketpipenonblock" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrebucketpipenonblock"></pre>
-"<button id="buttonrunBtnbucketpipenonblock">Compile and run bucketpipenonblock</button>
-<div id="editorDivbucketpipenonblock" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrebucketpipenonblock"></pre>
+<script name="defSkeletonbucketpipenonblock">
+let examplebucketpipenonblock = new Example("buttonrunBtnbucketpipenonblock",
+    "editorDivbucketpipenonblock", "outputPrebucketpipenonblock", 
+    "skeletons/bucketpipenonblock.c", 
+    "mpicc skeletons/bucketpipenonblock.c && mpiexec -n 4 ./a.out" );
+examplebucketpipenonblock.initialize();
+</script>"
 <!-- skeleton end: bucketpipenonblock -->
 </p name="exercise">
 </exercise>
@@ -2728,9 +2752,13 @@ s?
 "<button id="buttonrunBtnsetdiff">Compile and run setdiff</button>
 <div id="editorDivsetdiff" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPresetdiff"></pre>
-"<button id="buttonrunBtnsetdiff">Compile and run setdiff</button>
-<div id="editorDivsetdiff" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPresetdiff"></pre>
+<script name="defSkeletonsetdiff">
+let examplesetdiff = new Example("buttonrunBtnsetdiff",
+    "editorDivsetdiff", "outputPresetdiff", 
+    "skeletons/setdiff.c", 
+    "mpicc skeletons/setdiff.c && mpiexec -n 4 ./a.out" );
+examplesetdiff.initialize();
+</script>"
 <!-- skeleton end: setdiff -->
 </p name="exercise">
 </exercise>
@@ -3194,9 +3222,13 @@ for
 "<button id="buttonrunBtnisendirecv">Compile and run isendirecv</button>
 <div id="editorDivisendirecv" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreisendirecv"></pre>
-"<button id="buttonrunBtnisendirecv">Compile and run isendirecv</button>
-<div id="editorDivisendirecv" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreisendirecv"></pre>
+<script name="defSkeletonisendirecv">
+let exampleisendirecv = new Example("buttonrunBtnisendirecv",
+    "editorDivisendirecv", "outputPreisendirecv", 
+    "skeletons/isendirecv.c", 
+    "mpicc skeletons/isendirecv.c && mpiexec -n 4 ./a.out" );
+exampleisendirecv.initialize();
+</script>"
 <!-- skeleton end: isendirecv -->
   Now use nonblocking send/receive routines to implement
   the three-point averaging operation
@@ -3280,9 +3312,13 @@ hardware, firmware, and MPI implementation.
 "<button id="buttonrunBtnisendirecvarray">Compile and run isendirecvarray</button>
 <div id="editorDivisendirecvarray" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreisendirecvarray"></pre>
-"<button id="buttonrunBtnisendirecvarray">Compile and run isendirecvarray</button>
-<div id="editorDivisendirecvarray" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreisendirecvarray"></pre>
+<script name="defSkeletonisendirecvarray">
+let exampleisendirecvarray = new Example("buttonrunBtnisendirecvarray",
+    "editorDivisendirecvarray", "outputPreisendirecvarray", 
+    "skeletons/isendirecvarray.c", 
+    "mpicc skeletons/isendirecvarray.c && mpiexec -n 4 ./a.out" );
+exampleisendirecvarray.initialize();
+</script>"
 <!-- skeleton end: isendirecvarray -->
   Take your code of exercise&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/mpi-ptp.html#Receivestatusofthewaitcalls">4.2.2.6</a>

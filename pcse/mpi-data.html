@@ -2475,9 +2475,13 @@ FIGURE 6.5: Send strided data from process zero to all others
 "<button id="buttonrunBtnstridesend">Compile and run stridesend</button>
 <div id="editorDivstridesend" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrestridesend"></pre>
-"<button id="buttonrunBtnstridesend">Compile and run stridesend</button>
-<div id="editorDivstridesend" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrestridesend"></pre>
+<script name="defSkeletonstridesend">
+let examplestridesend = new Example("buttonrunBtnstridesend",
+    "editorDivstridesend", "outputPrestridesend", 
+    "skeletons/stridesend.c", 
+    "mpicc skeletons/stridesend.c && mpiexec -n 4 ./a.out" );
+examplestridesend.initialize();
+</script>"
 <!-- skeleton end: stridesend -->
 </p name="exercise">
 </exercise>
@@ -2600,9 +2604,13 @@ mpl::subarray_layout&lt;int&gt;(
 "<button id="buttonrunBtncubegather">Compile and run cubegather</button>
 <div id="editorDivcubegather" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrecubegather"></pre>
-"<button id="buttonrunBtncubegather">Compile and run cubegather</button>
-<div id="editorDivcubegather" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrecubegather"></pre>
+<script name="defSkeletoncubegather">
+let examplecubegather = new Example("buttonrunBtncubegather",
+    "editorDivcubegather", "outputPrecubegather", 
+    "skeletons/cubegather.c", 
+    "mpicc skeletons/cubegather.c && mpiexec -n 4 ./a.out" );
+examplecubegather.initialize();
+</script>"
 <!-- skeleton end: cubegather -->
 </p>
 

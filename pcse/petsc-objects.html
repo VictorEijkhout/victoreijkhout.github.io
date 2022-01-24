@@ -983,9 +983,13 @@ ibrun vec -n 12 -vec_view
 "<button id="buttonrunBtnvec">Compile and run vec</button>
 <div id="editorDivvec" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPrevec"></pre>
-"<button id="buttonrunBtnvec">Compile and run vec</button>
-<div id="editorDivvec" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPrevec"></pre>
+<script name="defSkeletonvec">
+let examplevec = new Example("buttonrunBtnvec",
+    "editorDivvec", "outputPrevec", 
+    "skeletons/vec.c", 
+    "mpicc skeletons/vec.c && mpiexec -n 4 ./a.out" );
+examplevec.initialize();
+</script>"
 <!-- skeleton end: vec -->
 </exercise>
 <!-- environment: exercise end embedded generator -->

@@ -852,9 +852,13 @@ FIGURE 10.1: Writing at an offset
 "<button id="buttonrunBtnblockwrite">Compile and run blockwrite</button>
 <div id="editorDivblockwrite" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreblockwrite"></pre>
-"<button id="buttonrunBtnblockwrite">Compile and run blockwrite</button>
-<div id="editorDivblockwrite" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreblockwrite"></pre>
+<script name="defSkeletonblockwrite">
+let exampleblockwrite = new Example("buttonrunBtnblockwrite",
+    "editorDivblockwrite", "outputPreblockwrite", 
+    "skeletons/blockwrite.c", 
+    "mpicc skeletons/blockwrite.c && mpiexec -n 4 ./a.out" );
+exampleblockwrite.initialize();
+</script>"
 <!-- skeleton end: blockwrite -->
 </p name="exercise">
 </exercise>
@@ -1088,9 +1092,13 @@ FIGURE 10.2: Writing at a view
 "<button id="buttonrunBtnviewwrite">Compile and run viewwrite</button>
 <div id="editorDivviewwrite" style="height:125px;border:1px solid black;"></div>
 <pre id="outputPreviewwrite"></pre>
-"<button id="buttonrunBtnviewwrite">Compile and run viewwrite</button>
-<div id="editorDivviewwrite" style="height:125px;border:1px solid black;"></div>
-<pre id="outputPreviewwrite"></pre>
+<script name="defSkeletonviewwrite">
+let exampleviewwrite = new Example("buttonrunBtnviewwrite",
+    "editorDivviewwrite", "outputPreviewwrite", 
+    "skeletons/viewwrite.c", 
+    "mpicc skeletons/viewwrite.c && mpiexec -n 4 ./a.out" );
+exampleviewwrite.initialize();
+</script>"
 <!-- skeleton end: viewwrite -->
   Write a file in the same way as in exercise&nbsp;
 10.1
