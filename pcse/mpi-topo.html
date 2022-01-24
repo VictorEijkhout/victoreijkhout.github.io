@@ -955,11 +955,11 @@ collectives, but they apply to a graph communicator.
 <p name="switchToTextMode">
   Use a degree value of&nbsp;1.
 <!-- skeleton start: rightgraph -->
-<button id="buttonrunBtnrightgraph">Compile and run rightgraph</button>
-<div id="editorDivrightgraph" style="height:125px;border:1px solid black;"></div>
+<button id="runBtnrightgraph">Compile and run rightgraph</button>
+<div id="editorDivrightgraph" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
 <pre id="outputPrerightgraph"></pre>
 <script name="defSkeletonrightgraph">
-let examplerightgraph = new Example("buttonrunBtnrightgraph",
+let examplerightgraph = new Example("runBtnrightgraph",
     "editorDivrightgraph", "outputPrerightgraph", 
     "skeletons/rightgraph.c", 
     "mpicc skeletons/rightgraph.c && mpiexec -n 4 ./a.out" );

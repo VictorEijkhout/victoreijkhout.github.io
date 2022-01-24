@@ -849,11 +849,11 @@ FIGURE 10.1: Writing at an offset
 <tt>MPI_File_write_at</tt>
 .
 <!-- skeleton start: blockwrite -->
-<button id="buttonrunBtnblockwrite">Compile and run blockwrite</button>
-<div id="editorDivblockwrite" style="height:125px;border:1px solid black;"></div>
+<button id="runBtnblockwrite">Compile and run blockwrite</button>
+<div id="editorDivblockwrite" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
 <pre id="outputPreblockwrite"></pre>
 <script name="defSkeletonblockwrite">
-let exampleblockwrite = new Example("buttonrunBtnblockwrite",
+let exampleblockwrite = new Example("runBtnblockwrite",
     "editorDivblockwrite", "outputPreblockwrite", 
     "skeletons/blockwrite.c", 
     "mpicc skeletons/blockwrite.c && mpiexec -n 4 ./a.out" );
@@ -1089,11 +1089,11 @@ FIGURE 10.2: Writing at a view
 <!-- TranslatingLineGenerator exercise ['exercise'] -->
 
 <!-- skeleton start: viewwrite -->
-<button id="buttonrunBtnviewwrite">Compile and run viewwrite</button>
-<div id="editorDivviewwrite" style="height:125px;border:1px solid black;"></div>
+<button id="runBtnviewwrite">Compile and run viewwrite</button>
+<div id="editorDivviewwrite" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
 <pre id="outputPreviewwrite"></pre>
 <script name="defSkeletonviewwrite">
-let exampleviewwrite = new Example("buttonrunBtnviewwrite",
+let exampleviewwrite = new Example("runBtnviewwrite",
     "editorDivviewwrite", "outputPreviewwrite", 
     "skeletons/viewwrite.c", 
     "mpicc skeletons/viewwrite.c && mpiexec -n 4 ./a.out" );
