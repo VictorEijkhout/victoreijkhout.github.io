@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -889,7 +889,9 @@ Then modify the program
   For bonus points, can you do a regression to determine&nbsp;$\alpha,\beta$?
 <!-- skeleton start: pingpong -->
 <button id="runBtnpingpong">Compile and run pingpong</button>
-<div id="editorDivpingpong" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivpingpong" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrepingpong"></pre>
 <script name="defSkeletonpingpong">
 let examplepingpong = new Example("runBtnpingpong",
@@ -1411,7 +1413,9 @@ figure&nbsp;
   behavior using timings, for instance running it on an increasing number of processes?
 <!-- skeleton start: rightsend -->
 <button id="runBtnrightsend">Compile and run rightsend</button>
-<div id="editorDivrightsend" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivrightsend" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerightsend"></pre>
 <script name="defSkeletonrightsend">
 let examplerightsend = new Example("runBtnrightsend",
@@ -1498,7 +1502,9 @@ successively passed down a sequence of processors.
   Question: could you have done this with a collective call?
 <!-- skeleton start: bucketblock -->
 <button id="runBtnbucketblock">Compile and run bucketblock</button>
-<div id="editorDivbucketblock" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivbucketblock" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrebucketblock"></pre>
 <script name="defSkeletonbucketblock">
 let examplebucketblock = new Example("runBtnbucketblock",
@@ -1855,7 +1861,9 @@ see figure&nbsp;
   every processor only has a single number to send to its neighbor.
 <!-- skeleton start: sendrecv -->
 <button id="runBtnsendrecv">Compile and run sendrecv</button>
-<div id="editorDivsendrecv" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivsendrecv" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPresendrecv"></pre>
 <script name="defSkeletonsendrecv">
 let examplesendrecv = new Example("runBtnsendrecv",
@@ -2696,7 +2704,9 @@ If you don't need the status objects, you can pass
 s?
 <!-- skeleton start: bucketpipenonblock -->
 <button id="runBtnbucketpipenonblock">Compile and run bucketpipenonblock</button>
-<div id="editorDivbucketpipenonblock" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivbucketpipenonblock" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrebucketpipenonblock"></pre>
 <script name="defSkeletonbucketpipenonblock">
 let examplebucketpipenonblock = new Example("runBtnbucketpipenonblock",
@@ -2738,7 +2748,9 @@ examplebucketpipenonblock.initialize();
   Solve this exercise instead with a circular bucket brigade algorithm.
 <!-- skeleton start: setdiff -->
 <button id="runBtnsetdiff">Compile and run setdiff</button>
-<div id="editorDivsetdiff" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivsetdiff" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPresetdiff"></pre>
 <script name="defSkeletonsetdiff">
 let examplesetdiff = new Example("runBtnsetdiff",
@@ -3208,7 +3220,9 @@ for
 
 <!-- skeleton start: isendirecv -->
 <button id="runBtnisendirecv">Compile and run isendirecv</button>
-<div id="editorDivisendirecv" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivisendirecv" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreisendirecv"></pre>
 <script name="defSkeletonisendirecv">
 let exampleisendirecv = new Example("runBtnisendirecv",
@@ -3298,7 +3312,9 @@ hardware, firmware, and MPI implementation.
 
 <!-- skeleton start: isendirecvarray -->
 <button id="runBtnisendirecvarray">Compile and run isendirecvarray</button>
-<div id="editorDivisendirecvarray" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivisendirecvarray" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreisendirecvarray"></pre>
 <script name="defSkeletonisendirecvarray">
 let exampleisendirecvarray = new Example("runBtnisendirecvarray",

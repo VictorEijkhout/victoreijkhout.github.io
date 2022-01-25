@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -424,7 +424,9 @@ int main(int argc,char **argv) {
 
 <!-- skeleton start: hello -->
 <button id="runBtnhello">Compile and run hello</button>
-<div id="editorDivhello" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivhello" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrehello"></pre>
 <script name="defSkeletonhello">
 let examplehello = new Example("runBtnhello",
@@ -1592,7 +1594,9 @@ Hello from process 2 out of 5!
 
 <!-- skeleton start: commrank -->
 <button id="runBtncommrank">Compile and run commrank</button>
-<div id="editorDivcommrank" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivcommrank" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrecommrank"></pre>
 <script name="defSkeletoncommrank">
 let examplecommrank = new Example("runBtncommrank",
@@ -1759,7 +1763,9 @@ trivial.)
   Can you find more than one solution?
 <!-- skeleton start: prime -->
 <button id="runBtnprime">Compile and run prime</button>
-<div id="editorDivprime" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivprime" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreprime"></pre>
 <script name="defSkeletonprime">
 let exampleprime = new Example("runBtnprime",

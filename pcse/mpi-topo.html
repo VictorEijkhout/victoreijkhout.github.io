@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -956,7 +956,9 @@ collectives, but they apply to a graph communicator.
   Use a degree value of&nbsp;1.
 <!-- skeleton start: rightgraph -->
 <button id="runBtnrightgraph">Compile and run rightgraph</button>
-<div id="editorDivrightgraph" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivrightgraph" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerightgraph"></pre>
 <script name="defSkeletonrightgraph">
 let examplerightgraph = new Example("runBtnrightgraph",

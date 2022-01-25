@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -850,7 +850,9 @@ FIGURE 10.1: Writing at an offset
 .
 <!-- skeleton start: blockwrite -->
 <button id="runBtnblockwrite">Compile and run blockwrite</button>
-<div id="editorDivblockwrite" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivblockwrite" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreblockwrite"></pre>
 <script name="defSkeletonblockwrite">
 let exampleblockwrite = new Example("runBtnblockwrite",
@@ -1090,7 +1092,9 @@ FIGURE 10.2: Writing at a view
 
 <!-- skeleton start: viewwrite -->
 <button id="runBtnviewwrite">Compile and run viewwrite</button>
-<div id="editorDivviewwrite" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivviewwrite" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreviewwrite"></pre>
 <script name="defSkeletonviewwrite">
 let exampleviewwrite = new Example("runBtnviewwrite",

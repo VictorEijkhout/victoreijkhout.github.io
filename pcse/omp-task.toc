@@ -4,7 +4,7 @@
 24.4 : <a href="omp-task.html#Taskreduction">Task reduction</a><br>
 24.5 : <a href="omp-task.html#More">More</a><br>
 24.5.1 : <a href="omp-task.html#Schedulingpoints">Scheduling points</a><br>
-24.5.2 : <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a><br>
+24.5.2 : <a href="omp-task.html#Hintsforperformanceimprovement">Hints for performance improvement</a><br>
 24.5.3 : <a href="omp-task.html#Taskcancelling">Task cancelling</a><br>
 24.6 : <a href="omp-task.html#Examples">Examples</a><br>
 24.6.1 : <a href="omp-task.html#Fibonacci">Fibonacci</a><br>

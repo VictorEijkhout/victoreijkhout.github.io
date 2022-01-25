@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -722,7 +722,9 @@ crumb trail:  > <a href="mpi-collective.html">mpi-collective</a> > <a href="mpi-
   and check that it is~1.
 <!-- skeleton start: randommax -->
 <button id="runBtnrandommax">Compile and run randommax</button>
-<div id="editorDivrandommax" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivrandommax" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerandommax"></pre>
 <script name="defSkeletonrandommax">
 let examplerandommax = new Example("runBtnrandommax",
@@ -2052,7 +2054,9 @@ For the following exercise, study figure&nbsp;
   all processors.
 <!-- skeleton start: jordan -->
 <button id="runBtnjordan">Compile and run jordan</button>
-<div id="editorDivjordan" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivjordan" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrejordan"></pre>
 <script name="defSkeletonjordan">
 let examplejordan = new Example("runBtnjordan",
@@ -2441,7 +2445,9 @@ Fill the array with consecutive integers, so that all local arrays,
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: scangather -->
 <button id="runBtnscangather">Compile and run scangather</button>
-<div id="editorDivscangather" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivscangather" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrescangather"></pre>
 <script name="defSkeletonscangather">
 let examplescangather = new Example("runBtnscangather",
@@ -2968,7 +2974,9 @@ originates from a different scatter operation.
   How do you construct the lengths and displacements arrays?
 <!-- skeleton start: scangather -->
 <button id="runBtnscangather">Compile and run scangather</button>
-<div id="editorDivscangather" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivscangather" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrescangather"></pre>
 <script name="defSkeletonscangather">
 let examplescangather = new Example("runBtnscangather",
@@ -4681,7 +4689,9 @@ It must be associative; it can be optionally commutative, which
 \]
 <!-- skeleton start: onenorm -->
 <button id="runBtnonenorm">Compile and run onenorm</button>
-<div id="editorDivonenorm" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivonenorm" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreonenorm"></pre>
 <script name="defSkeletononenorm">
 let exampleonenorm = new Example("runBtnonenorm",
@@ -4923,7 +4933,9 @@ overlap a nonblocking collective with a blocking one.
   nonblocking solution.
 <!-- skeleton start: procgridnonblock -->
 <button id="runBtnprocgridnonblock">Compile and run procgridnonblock</button>
-<div id="editorDivprocgridnonblock" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivprocgridnonblock" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreprocgridnonblock"></pre>
 <script name="defSkeletonprocgridnonblock">
 let exampleprocgridnonblock = new Example("runBtnprocgridnonblock",

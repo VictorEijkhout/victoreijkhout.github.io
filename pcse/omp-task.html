@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -961,10 +961,11 @@ while (!omp_test_lock(lock))
 <!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
 
-<h3><a id="Avoidingsmalltasks">24.5.2</a> Avoiding small tasks</h3>
+<h3><a id="Hintsforperformanceimprovement">24.5.2</a> Hints for performance improvement</h3>
 <p name=crumbs>
-crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Avoidingsmalltasks">Avoiding small tasks</a>
+crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Hintsforperformanceimprovement">Hints for performance improvement</a>
 </p>
+
 </p>
 
 <p name="switchToTextMode">
@@ -1013,13 +1014,32 @@ The
 <!-- environment: itemize end embedded generator -->
 <p name="switchToTextMode">
 
+If you want to indicate that certain tasks are more important
+than others, use the 
+<tt>priority</tt>
+ clause:
+<!-- environment: lstlisting start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=lstlisting ]] -->
+<lstlisting>
+<pre>
+#pragma omp task priority(5)
+</pre>
+</lstlisting>
+<!-- environment: lstlisting end embedded generator -->
+<p name="switchToTextMode">
+where the priority is any non-negative scalar
+less than 
+<tt>OMP_MAX_TASK_PRIORITY</tt>
+.
+</p>
+
 <h3><a id="Taskcancelling">24.5.3</a> Task cancelling</h3>
 <p name=crumbs>
 crumb trail:  > <a href="omp-task.html">omp-task</a> > <a href="omp-task.html#More">More</a> > <a href="omp-task.html#Taskcancelling">Task cancelling</a>
 </p>
-</p>
-
 <p name="switchToTextMode">
+
 It is possible (in OpenMP-) to cancel
 tasks. This is useful when tasks are used to perform a search: the
 task that finds the result first can cancel any outstanding search

@@ -25,7 +25,7 @@
 </head>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src=https://ccrs.cac.cornell.edu:8443/client.0.1.js></script>
+<script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
   constructor(buttonID, editorID, outputID, sourceFile, fileName, commandStr) {
@@ -1333,7 +1333,9 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 .
 <!-- skeleton start: rightput -->
 <button id="runBtnrightput">Compile and run rightput</button>
-<div id="editorDivrightput" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivrightput" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerightput"></pre>
 <script name="defSkeletonrightput">
 let examplerightput = new Example("runBtnrightput",
@@ -1374,7 +1376,9 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 <!-- environment: itemize end embedded generator -->
 <!-- skeleton start: randomput -->
 <button id="runBtnrandomput">Compile and run randomput</button>
-<div id="editorDivrandomput" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivrandomput" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerandomput"></pre>
 <script name="defSkeletonrandomput">
 let examplerandomput = new Example("runBtnrandomput",
@@ -2581,7 +2585,9 @@ while the remaining process spins until the others have performed their update.
   Can you replace the exclusive lock with a shared one?
 <!-- skeleton start: lockfetch -->
 <button id="runBtnlockfetch">Compile and run lockfetch</button>
-<div id="editorDivlockfetch" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivlockfetch" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrelockfetch"></pre>
 <script name="defSkeletonlockfetch">
 let examplelockfetch = new Example("runBtnlockfetch",
@@ -2621,7 +2627,9 @@ examplelockfetch.initialize();
 .
 <!-- skeleton start: lockfetchshared -->
 <button id="runBtnlockfetchshared">Compile and run lockfetchshared</button>
-<div id="editorDivlockfetchshared" style="height:125px;border:1px solid black; resize: vertical; overflow: auto;"></div>
+<div id="editorDivlockfetchshared" 
+     style="height:125px;border:1px solid black; 
+     resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrelockfetchshared"></pre>
 <script name="defSkeletonlockfetchshared">
 let examplelockfetchshared = new Example("runBtnlockfetchshared",
