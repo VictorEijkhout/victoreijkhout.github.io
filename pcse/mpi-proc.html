@@ -8,9 +8,8 @@
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-<script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.4.0/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <script type="text/x-mathjax-config">
   MathJax.Hub.Config({
@@ -1203,6 +1202,15 @@ MPI_Comm_rank(world_comm,&procid);
 </pre>
 </div>
 </div>
+</p>
+
+<p name="switchToTextMode">
+The resulting communicator compares as 
+<tt>MPI_CONGRUENT</tt>
+under 
+<tt>MPI_Comm_compare</tt>
+:
+\csnippetwithoutput{sessionmix}{examples/mpi/c}{sessionmix}
 </p>
 
 <p name="switchToTextMode">
