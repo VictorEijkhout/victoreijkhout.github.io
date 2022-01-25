@@ -3,22 +3,25 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script type="text/x-mathjax-config">
+<script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?...">
+</script>
+
+<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     tex2jax: {inlineMath: [['$','$']]}
   });
   MathJax.Hub.Config({
     TeX: { equationNumbers: { autoNumber: "AMS" } }
   });
-  </script>
+</script>
 
-  <link rel="stylesheet"
+<link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
@@ -727,8 +730,8 @@ crumb trail:  > <a href="mpi-collective.html">mpi-collective</a> > <a href="mpi-
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerandommax"></pre>
 <script name="defSkeletonrandommax">
-let examplerandommax = new Example("runBtnrandommax",
-    "editorDivrandommax", "outputPrerandommax", 
+let examplerandommax = new Example(
+    "runBtnrandommax", "editorDivrandommax", "outputPrerandommax", 
     "skeletons/randommax.c", "randommax.c",
     "mpicc randommax.c && mpiexec -n 4 ./a.out" );
 examplerandommax.initialize();
@@ -2059,8 +2062,8 @@ For the following exercise, study figure&nbsp;
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrejordan"></pre>
 <script name="defSkeletonjordan">
-let examplejordan = new Example("runBtnjordan",
-    "editorDivjordan", "outputPrejordan", 
+let examplejordan = new Example(
+    "runBtnjordan", "editorDivjordan", "outputPrejordan", 
     "skeletons/jordan.c", "jordan.c",
     "mpicc jordan.c && mpiexec -n 4 ./a.out" );
 examplejordan.initialize();
@@ -2450,8 +2453,8 @@ Fill the array with consecutive integers, so that all local arrays,
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrescangather"></pre>
 <script name="defSkeletonscangather">
-let examplescangather = new Example("runBtnscangather",
-    "editorDivscangather", "outputPrescangather", 
+let examplescangather = new Example(
+    "runBtnscangather", "editorDivscangather", "outputPrescangather", 
     "skeletons/scangather.c", "scangather.c",
     "mpicc scangather.c && mpiexec -n 4 ./a.out" );
 examplescangather.initialize();
@@ -2979,8 +2982,8 @@ originates from a different scatter operation.
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrescangather"></pre>
 <script name="defSkeletonscangather">
-let examplescangather = new Example("runBtnscangather",
-    "editorDivscangather", "outputPrescangather", 
+let examplescangather = new Example(
+    "runBtnscangather", "editorDivscangather", "outputPrescangather", 
     "skeletons/scangather.c", "scangather.c",
     "mpicc scangather.c && mpiexec -n 4 ./a.out" );
 examplescangather.initialize();
@@ -4694,8 +4697,8 @@ It must be associative; it can be optionally commutative, which
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreonenorm"></pre>
 <script name="defSkeletononenorm">
-let exampleonenorm = new Example("runBtnonenorm",
-    "editorDivonenorm", "outputPreonenorm", 
+let exampleonenorm = new Example(
+    "runBtnonenorm", "editorDivonenorm", "outputPreonenorm", 
     "skeletons/onenorm.c", "onenorm.c",
     "mpicc onenorm.c && mpiexec -n 4 ./a.out" );
 exampleonenorm.initialize();
@@ -4938,8 +4941,8 @@ overlap a nonblocking collective with a blocking one.
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreprocgridnonblock"></pre>
 <script name="defSkeletonprocgridnonblock">
-let exampleprocgridnonblock = new Example("runBtnprocgridnonblock",
-    "editorDivprocgridnonblock", "outputPreprocgridnonblock", 
+let exampleprocgridnonblock = new Example(
+    "runBtnprocgridnonblock", "editorDivprocgridnonblock", "outputPreprocgridnonblock", 
     "skeletons/procgridnonblock.c", "procgridnonblock.c",
     "mpicc procgridnonblock.c && mpiexec -n 4 ./a.out" );
 exampleprocgridnonblock.initialize();

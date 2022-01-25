@@ -3,22 +3,25 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script type="text/x-mathjax-config">
+<script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?...">
+</script>
+
+<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     tex2jax: {inlineMath: [['$','$']]}
   });
   MathJax.Hub.Config({
     TeX: { equationNumbers: { autoNumber: "AMS" } }
   });
-  </script>
+</script>
 
-  <link rel="stylesheet"
+<link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
@@ -894,8 +897,8 @@ Then modify the program
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrepingpong"></pre>
 <script name="defSkeletonpingpong">
-let examplepingpong = new Example("runBtnpingpong",
-    "editorDivpingpong", "outputPrepingpong", 
+let examplepingpong = new Example(
+    "runBtnpingpong", "editorDivpingpong", "outputPrepingpong", 
     "skeletons/pingpong.c", "pingpong.c",
     "mpicc pingpong.c && mpiexec -n 4 ./a.out" );
 examplepingpong.initialize();
@@ -1418,8 +1421,8 @@ figure&nbsp;
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrerightsend"></pre>
 <script name="defSkeletonrightsend">
-let examplerightsend = new Example("runBtnrightsend",
-    "editorDivrightsend", "outputPrerightsend", 
+let examplerightsend = new Example(
+    "runBtnrightsend", "editorDivrightsend", "outputPrerightsend", 
     "skeletons/rightsend.c", "rightsend.c",
     "mpicc rightsend.c && mpiexec -n 4 ./a.out" );
 examplerightsend.initialize();
@@ -1507,8 +1510,8 @@ successively passed down a sequence of processors.
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrebucketblock"></pre>
 <script name="defSkeletonbucketblock">
-let examplebucketblock = new Example("runBtnbucketblock",
-    "editorDivbucketblock", "outputPrebucketblock", 
+let examplebucketblock = new Example(
+    "runBtnbucketblock", "editorDivbucketblock", "outputPrebucketblock", 
     "skeletons/bucketblock.c", "bucketblock.c",
     "mpicc bucketblock.c && mpiexec -n 4 ./a.out" );
 examplebucketblock.initialize();
@@ -1866,8 +1869,8 @@ see figure&nbsp;
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPresendrecv"></pre>
 <script name="defSkeletonsendrecv">
-let examplesendrecv = new Example("runBtnsendrecv",
-    "editorDivsendrecv", "outputPresendrecv", 
+let examplesendrecv = new Example(
+    "runBtnsendrecv", "editorDivsendrecv", "outputPresendrecv", 
     "skeletons/sendrecv.c", "sendrecv.c",
     "mpicc sendrecv.c && mpiexec -n 4 ./a.out" );
 examplesendrecv.initialize();
@@ -2709,8 +2712,8 @@ s?
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrebucketpipenonblock"></pre>
 <script name="defSkeletonbucketpipenonblock">
-let examplebucketpipenonblock = new Example("runBtnbucketpipenonblock",
-    "editorDivbucketpipenonblock", "outputPrebucketpipenonblock", 
+let examplebucketpipenonblock = new Example(
+    "runBtnbucketpipenonblock", "editorDivbucketpipenonblock", "outputPrebucketpipenonblock", 
     "skeletons/bucketpipenonblock.c", "bucketpipenonblock.c",
     "mpicc bucketpipenonblock.c && mpiexec -n 4 ./a.out" );
 examplebucketpipenonblock.initialize();
@@ -2753,8 +2756,8 @@ examplebucketpipenonblock.initialize();
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPresetdiff"></pre>
 <script name="defSkeletonsetdiff">
-let examplesetdiff = new Example("runBtnsetdiff",
-    "editorDivsetdiff", "outputPresetdiff", 
+let examplesetdiff = new Example(
+    "runBtnsetdiff", "editorDivsetdiff", "outputPresetdiff", 
     "skeletons/setdiff.c", "setdiff.c",
     "mpicc setdiff.c && mpiexec -n 4 ./a.out" );
 examplesetdiff.initialize();
@@ -3225,8 +3228,8 @@ for
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreisendirecv"></pre>
 <script name="defSkeletonisendirecv">
-let exampleisendirecv = new Example("runBtnisendirecv",
-    "editorDivisendirecv", "outputPreisendirecv", 
+let exampleisendirecv = new Example(
+    "runBtnisendirecv", "editorDivisendirecv", "outputPreisendirecv", 
     "skeletons/isendirecv.c", "isendirecv.c",
     "mpicc isendirecv.c && mpiexec -n 4 ./a.out" );
 exampleisendirecv.initialize();
@@ -3317,8 +3320,8 @@ hardware, firmware, and MPI implementation.
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPreisendirecvarray"></pre>
 <script name="defSkeletonisendirecvarray">
-let exampleisendirecvarray = new Example("runBtnisendirecvarray",
-    "editorDivisendirecvarray", "outputPreisendirecvarray", 
+let exampleisendirecvarray = new Example(
+    "runBtnisendirecvarray", "editorDivisendirecvarray", "outputPreisendirecvarray", 
     "skeletons/isendirecvarray.c", "isendirecvarray.c",
     "mpicc isendirecvarray.c && mpiexec -n 4 ./a.out" );
 exampleisendirecvarray.initialize();

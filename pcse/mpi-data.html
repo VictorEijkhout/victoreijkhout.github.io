@@ -3,22 +3,25 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script type="text/x-mathjax-config">
+<script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?...">
+</script>
+
+<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     tex2jax: {inlineMath: [['$','$']]}
   });
   MathJax.Hub.Config({
     TeX: { equationNumbers: { autoNumber: "AMS" } }
   });
-  </script>
+</script>
 
-  <link rel="stylesheet"
+<link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/default.min.css">
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
@@ -2478,8 +2481,8 @@ FIGURE 6.5: Send strided data from process zero to all others
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrestridesend"></pre>
 <script name="defSkeletonstridesend">
-let examplestridesend = new Example("runBtnstridesend",
-    "editorDivstridesend", "outputPrestridesend", 
+let examplestridesend = new Example(
+    "runBtnstridesend", "editorDivstridesend", "outputPrestridesend", 
     "skeletons/stridesend.c", "stridesend.c",
     "mpicc stridesend.c && mpiexec -n 4 ./a.out" );
 examplestridesend.initialize();
@@ -2609,8 +2612,8 @@ mpl::subarray_layout&lt;int&gt;(
      resize:vertical; overflow: hidden;"></div>
 <pre id="outputPrecubegather"></pre>
 <script name="defSkeletoncubegather">
-let examplecubegather = new Example("runBtncubegather",
-    "editorDivcubegather", "outputPrecubegather", 
+let examplecubegather = new Example(
+    "runBtncubegather", "editorDivcubegather", "outputPrecubegather", 
     "skeletons/cubegather.c", "cubegather.c",
     "mpicc cubegather.c && mpiexec -n 4 ./a.out" );
 examplecubegather.initialize();
