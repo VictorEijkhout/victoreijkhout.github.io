@@ -1340,8 +1340,8 @@ error #6285: There is no matching specific subroutine for this generic subroutin
 <script name="defSkeletonrightput">
 let examplerightput = new Example("runBtnrightput",
     "editorDivrightput", "outputPrerightput", 
-    "skeletons/rightput.c", 
-    "mpicc skeletons/rightput.c && mpiexec -n 4 ./a.out" );
+    "skeletons/rightput.c", "rightput.c",
+    "mpicc rightput.c && mpiexec -n 4 ./a.out" );
 examplerightput.initialize();
 </script>
 <!-- skeleton end: rightput -->
@@ -1383,8 +1383,8 @@ if $r\geq .5$, zero writes in the window on&nbsp;2.
 <script name="defSkeletonrandomput">
 let examplerandomput = new Example("runBtnrandomput",
     "editorDivrandomput", "outputPrerandomput", 
-    "skeletons/randomput.c", 
-    "mpicc skeletons/randomput.c && mpiexec -n 4 ./a.out" );
+    "skeletons/randomput.c", "randomput.c",
+    "mpicc randomput.c && mpiexec -n 4 ./a.out" );
 examplerandomput.initialize();
 </script>
 <!-- skeleton end: randomput -->
@@ -2592,8 +2592,8 @@ while the remaining process spins until the others have performed their update.
 <script name="defSkeletonlockfetch">
 let examplelockfetch = new Example("runBtnlockfetch",
     "editorDivlockfetch", "outputPrelockfetch", 
-    "skeletons/lockfetch.c", 
-    "mpicc skeletons/lockfetch.c && mpiexec -n 4 ./a.out" );
+    "skeletons/lockfetch.c", "lockfetch.c",
+    "mpicc lockfetch.c && mpiexec -n 4 ./a.out" );
 examplelockfetch.initialize();
 </script>
 <!-- skeleton end: lockfetch -->
@@ -2634,8 +2634,8 @@ examplelockfetch.initialize();
 <script name="defSkeletonlockfetchshared">
 let examplelockfetchshared = new Example("runBtnlockfetchshared",
     "editorDivlockfetchshared", "outputPrelockfetchshared", 
-    "skeletons/lockfetchshared.c", 
-    "mpicc skeletons/lockfetchshared.c && mpiexec -n 4 ./a.out" );
+    "skeletons/lockfetchshared.c", "lockfetchshared.c",
+    "mpicc lockfetchshared.c && mpiexec -n 4 ./a.out" );
 examplelockfetchshared.initialize();
 </script>
 <!-- skeleton end: lockfetchshared -->

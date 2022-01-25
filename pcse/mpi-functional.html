@@ -431,8 +431,8 @@ int main(int argc,char **argv) {
 <script name="defSkeletonhello">
 let examplehello = new Example("runBtnhello",
     "editorDivhello", "outputPrehello", 
-    "skeletons/hello.c", 
-    "mpicc skeletons/hello.c && mpiexec -n 4 ./a.out" );
+    "skeletons/hello.c", "hello.c",
+    "mpicc hello.c && mpiexec -n 4 ./a.out" );
 examplehello.initialize();
 </script>
 <!-- skeleton end: hello -->
@@ -1601,8 +1601,8 @@ Hello from process 2 out of 5!
 <script name="defSkeletoncommrank">
 let examplecommrank = new Example("runBtncommrank",
     "editorDivcommrank", "outputPrecommrank", 
-    "skeletons/commrank.c", 
-    "mpicc skeletons/commrank.c && mpiexec -n 4 ./a.out" );
+    "skeletons/commrank.c", "commrank.c",
+    "mpicc commrank.c && mpiexec -n 4 ./a.out" );
 examplecommrank.initialize();
 </script>
 <!-- skeleton end: commrank -->
@@ -1770,8 +1770,8 @@ trivial.)
 <script name="defSkeletonprime">
 let exampleprime = new Example("runBtnprime",
     "editorDivprime", "outputPreprime", 
-    "skeletons/prime.c", 
-    "mpicc skeletons/prime.c && mpiexec -n 4 ./a.out" );
+    "skeletons/prime.c", "prime.c",
+    "mpicc prime.c && mpiexec -n 4 ./a.out" );
 exampleprime.initialize();
 </script>
 <!-- skeleton end: prime -->

@@ -857,8 +857,8 @@ FIGURE 10.1: Writing at an offset
 <script name="defSkeletonblockwrite">
 let exampleblockwrite = new Example("runBtnblockwrite",
     "editorDivblockwrite", "outputPreblockwrite", 
-    "skeletons/blockwrite.c", 
-    "mpicc skeletons/blockwrite.c && mpiexec -n 4 ./a.out" );
+    "skeletons/blockwrite.c", "blockwrite.c",
+    "mpicc blockwrite.c && mpiexec -n 4 ./a.out" );
 exampleblockwrite.initialize();
 </script>
 <!-- skeleton end: blockwrite -->
@@ -1099,8 +1099,8 @@ FIGURE 10.2: Writing at a view
 <script name="defSkeletonviewwrite">
 let exampleviewwrite = new Example("runBtnviewwrite",
     "editorDivviewwrite", "outputPreviewwrite", 
-    "skeletons/viewwrite.c", 
-    "mpicc skeletons/viewwrite.c && mpiexec -n 4 ./a.out" );
+    "skeletons/viewwrite.c", "viewwrite.c",
+    "mpicc viewwrite.c && mpiexec -n 4 ./a.out" );
 exampleviewwrite.initialize();
 </script>
 <!-- skeleton end: viewwrite -->

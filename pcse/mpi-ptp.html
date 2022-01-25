@@ -896,8 +896,8 @@ Then modify the program
 <script name="defSkeletonpingpong">
 let examplepingpong = new Example("runBtnpingpong",
     "editorDivpingpong", "outputPrepingpong", 
-    "skeletons/pingpong.c", 
-    "mpicc skeletons/pingpong.c && mpiexec -n 4 ./a.out" );
+    "skeletons/pingpong.c", "pingpong.c",
+    "mpicc pingpong.c && mpiexec -n 4 ./a.out" );
 examplepingpong.initialize();
 </script>
 <!-- skeleton end: pingpong -->
@@ -1420,8 +1420,8 @@ figure&nbsp;
 <script name="defSkeletonrightsend">
 let examplerightsend = new Example("runBtnrightsend",
     "editorDivrightsend", "outputPrerightsend", 
-    "skeletons/rightsend.c", 
-    "mpicc skeletons/rightsend.c && mpiexec -n 4 ./a.out" );
+    "skeletons/rightsend.c", "rightsend.c",
+    "mpicc rightsend.c && mpiexec -n 4 ./a.out" );
 examplerightsend.initialize();
 </script>
 <!-- skeleton end: rightsend -->
@@ -1509,8 +1509,8 @@ successively passed down a sequence of processors.
 <script name="defSkeletonbucketblock">
 let examplebucketblock = new Example("runBtnbucketblock",
     "editorDivbucketblock", "outputPrebucketblock", 
-    "skeletons/bucketblock.c", 
-    "mpicc skeletons/bucketblock.c && mpiexec -n 4 ./a.out" );
+    "skeletons/bucketblock.c", "bucketblock.c",
+    "mpicc bucketblock.c && mpiexec -n 4 ./a.out" );
 examplebucketblock.initialize();
 </script>
 <!-- skeleton end: bucketblock -->
@@ -1868,8 +1868,8 @@ see figure&nbsp;
 <script name="defSkeletonsendrecv">
 let examplesendrecv = new Example("runBtnsendrecv",
     "editorDivsendrecv", "outputPresendrecv", 
-    "skeletons/sendrecv.c", 
-    "mpicc skeletons/sendrecv.c && mpiexec -n 4 ./a.out" );
+    "skeletons/sendrecv.c", "sendrecv.c",
+    "mpicc sendrecv.c && mpiexec -n 4 ./a.out" );
 examplesendrecv.initialize();
 </script>
 <!-- skeleton end: sendrecv -->
@@ -2711,8 +2711,8 @@ s?
 <script name="defSkeletonbucketpipenonblock">
 let examplebucketpipenonblock = new Example("runBtnbucketpipenonblock",
     "editorDivbucketpipenonblock", "outputPrebucketpipenonblock", 
-    "skeletons/bucketpipenonblock.c", 
-    "mpicc skeletons/bucketpipenonblock.c && mpiexec -n 4 ./a.out" );
+    "skeletons/bucketpipenonblock.c", "bucketpipenonblock.c",
+    "mpicc bucketpipenonblock.c && mpiexec -n 4 ./a.out" );
 examplebucketpipenonblock.initialize();
 </script>
 <!-- skeleton end: bucketpipenonblock -->
@@ -2755,8 +2755,8 @@ examplebucketpipenonblock.initialize();
 <script name="defSkeletonsetdiff">
 let examplesetdiff = new Example("runBtnsetdiff",
     "editorDivsetdiff", "outputPresetdiff", 
-    "skeletons/setdiff.c", 
-    "mpicc skeletons/setdiff.c && mpiexec -n 4 ./a.out" );
+    "skeletons/setdiff.c", "setdiff.c",
+    "mpicc setdiff.c && mpiexec -n 4 ./a.out" );
 examplesetdiff.initialize();
 </script>
 <!-- skeleton end: setdiff -->
@@ -3227,8 +3227,8 @@ for
 <script name="defSkeletonisendirecv">
 let exampleisendirecv = new Example("runBtnisendirecv",
     "editorDivisendirecv", "outputPreisendirecv", 
-    "skeletons/isendirecv.c", 
-    "mpicc skeletons/isendirecv.c && mpiexec -n 4 ./a.out" );
+    "skeletons/isendirecv.c", "isendirecv.c",
+    "mpicc isendirecv.c && mpiexec -n 4 ./a.out" );
 exampleisendirecv.initialize();
 </script>
 <!-- skeleton end: isendirecv -->
@@ -3319,8 +3319,8 @@ hardware, firmware, and MPI implementation.
 <script name="defSkeletonisendirecvarray">
 let exampleisendirecvarray = new Example("runBtnisendirecvarray",
     "editorDivisendirecvarray", "outputPreisendirecvarray", 
-    "skeletons/isendirecvarray.c", 
-    "mpicc skeletons/isendirecvarray.c && mpiexec -n 4 ./a.out" );
+    "skeletons/isendirecvarray.c", "isendirecvarray.c",
+    "mpicc isendirecvarray.c && mpiexec -n 4 ./a.out" );
 exampleisendirecvarray.initialize();
 </script>
 <!-- skeleton end: isendirecvarray -->

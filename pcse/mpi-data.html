@@ -2480,8 +2480,8 @@ FIGURE 6.5: Send strided data from process zero to all others
 <script name="defSkeletonstridesend">
 let examplestridesend = new Example("runBtnstridesend",
     "editorDivstridesend", "outputPrestridesend", 
-    "skeletons/stridesend.c", 
-    "mpicc skeletons/stridesend.c && mpiexec -n 4 ./a.out" );
+    "skeletons/stridesend.c", "stridesend.c",
+    "mpicc stridesend.c && mpiexec -n 4 ./a.out" );
 examplestridesend.initialize();
 </script>
 <!-- skeleton end: stridesend -->
@@ -2611,8 +2611,8 @@ mpl::subarray_layout&lt;int&gt;(
 <script name="defSkeletoncubegather">
 let examplecubegather = new Example("runBtncubegather",
     "editorDivcubegather", "outputPrecubegather", 
-    "skeletons/cubegather.c", 
-    "mpicc skeletons/cubegather.c && mpiexec -n 4 ./a.out" );
+    "skeletons/cubegather.c", "cubegather.c",
+    "mpicc cubegather.c && mpiexec -n 4 ./a.out" );
 examplecubegather.initialize();
 </script>
 <!-- skeleton end: cubegather -->

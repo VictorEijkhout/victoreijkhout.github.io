@@ -729,8 +729,8 @@ crumb trail:  > <a href="mpi-collective.html">mpi-collective</a> > <a href="mpi-
 <script name="defSkeletonrandommax">
 let examplerandommax = new Example("runBtnrandommax",
     "editorDivrandommax", "outputPrerandommax", 
-    "skeletons/randommax.c", 
-    "mpicc skeletons/randommax.c && mpiexec -n 4 ./a.out" );
+    "skeletons/randommax.c", "randommax.c",
+    "mpicc randommax.c && mpiexec -n 4 ./a.out" );
 examplerandommax.initialize();
 </script>
 <!-- skeleton end: randommax -->
@@ -2061,8 +2061,8 @@ For the following exercise, study figure&nbsp;
 <script name="defSkeletonjordan">
 let examplejordan = new Example("runBtnjordan",
     "editorDivjordan", "outputPrejordan", 
-    "skeletons/jordan.c", 
-    "mpicc skeletons/jordan.c && mpiexec -n 4 ./a.out" );
+    "skeletons/jordan.c", "jordan.c",
+    "mpicc jordan.c && mpiexec -n 4 ./a.out" );
 examplejordan.initialize();
 </script>
 <!-- skeleton end: jordan -->
@@ -2452,8 +2452,8 @@ Fill the array with consecutive integers, so that all local arrays,
 <script name="defSkeletonscangather">
 let examplescangather = new Example("runBtnscangather",
     "editorDivscangather", "outputPrescangather", 
-    "skeletons/scangather.c", 
-    "mpicc skeletons/scangather.c && mpiexec -n 4 ./a.out" );
+    "skeletons/scangather.c", "scangather.c",
+    "mpicc scangather.c && mpiexec -n 4 ./a.out" );
 examplescangather.initialize();
 </script>
 <!-- skeleton end: scangather -->
@@ -2981,8 +2981,8 @@ originates from a different scatter operation.
 <script name="defSkeletonscangather">
 let examplescangather = new Example("runBtnscangather",
     "editorDivscangather", "outputPrescangather", 
-    "skeletons/scangather.c", 
-    "mpicc skeletons/scangather.c && mpiexec -n 4 ./a.out" );
+    "skeletons/scangather.c", "scangather.c",
+    "mpicc scangather.c && mpiexec -n 4 ./a.out" );
 examplescangather.initialize();
 </script>
 <!-- skeleton end: scangather -->
@@ -4696,8 +4696,8 @@ It must be associative; it can be optionally commutative, which
 <script name="defSkeletononenorm">
 let exampleonenorm = new Example("runBtnonenorm",
     "editorDivonenorm", "outputPreonenorm", 
-    "skeletons/onenorm.c", 
-    "mpicc skeletons/onenorm.c && mpiexec -n 4 ./a.out" );
+    "skeletons/onenorm.c", "onenorm.c",
+    "mpicc onenorm.c && mpiexec -n 4 ./a.out" );
 exampleonenorm.initialize();
 </script>
 <!-- skeleton end: onenorm -->
@@ -4940,8 +4940,8 @@ overlap a nonblocking collective with a blocking one.
 <script name="defSkeletonprocgridnonblock">
 let exampleprocgridnonblock = new Example("runBtnprocgridnonblock",
     "editorDivprocgridnonblock", "outputPreprocgridnonblock", 
-    "skeletons/procgridnonblock.c", 
-    "mpicc skeletons/procgridnonblock.c && mpiexec -n 4 ./a.out" );
+    "skeletons/procgridnonblock.c", "procgridnonblock.c",
+    "mpicc procgridnonblock.c && mpiexec -n 4 ./a.out" );
 exampleprocgridnonblock.initialize();
 </script>
 <!-- skeleton end: procgridnonblock -->
