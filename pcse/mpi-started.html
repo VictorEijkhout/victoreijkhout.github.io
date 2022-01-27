@@ -3,6 +3,7 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -25,7 +26,6 @@
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src=https://ccrs.cac.cornell.edu:8443/client.0.2.js></script>
 <script id="script">
 class Example {
@@ -148,10 +148,24 @@ only when necessary.
 <p name="switchToTextMode">
 Another reason that MPI was a big hit with programmers is that
 it does not ask you to learn a new language: it is a library that
-can be interface to C/C++ or Fortran; there are even bindings to Python.
-A~related point is that it is easy to install: there are free implementations
+can be interfaced to C/C++ or Fortran; there are even bindings to Python
+and 
+<i>Java</i>
+ (not described in this course).
+This does not mean, however, that it is simple to
+`add parallelism' to an existing sequential program.
+An MPI version of a serial program takes considerable rewriting;
+certainly more than shared memory parallelism through OpenMP,
+discussed later in this book.
+</p>
+
+<p name="switchToTextMode">
+MPI is also easy to install: there are free implementations
 that you can download and install on any computer that has a Unix-like
 operating system, even if that is not a parallel machine.
+However, if you are working on a supercomputer cluster,
+likely there will already be an MPI installation,
+tuned to that machine's network.
 </p>
 
 <h2><a id="History">1.2</a> History</h2>
