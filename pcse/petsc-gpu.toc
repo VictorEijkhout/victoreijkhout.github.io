@@ -1,4 +1,7 @@
 38.1 : <a href="petsc-gpu.html#InstallationwithGPUs">Installation with GPUs</a><br>
 38.2 : <a href="petsc-gpu.html#SetupforGPU">Setup for GPU</a><br>
 38.3 : <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a><br>
+38.3.1 : <a href="petsc-gpu.html#Vectors">Vectors</a><br>
+38.3.2 : <a href="petsc-gpu.html#Matrices">Matrices</a><br>
+38.3.3 : <a href="petsc-gpu.html#Arrayaccess">Array access</a><br>
 38.4 : <a href="petsc-gpu.html#Other">Other</a><br>

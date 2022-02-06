@@ -3,8 +3,10 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -560,6 +562,23 @@ vec = PETSc.Vec().create()
   member of 
 <tt>PETSc.Vec.Type</tt>
 .
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pyveccreate" aria-expanded="false" aria-controls="pyveccreate">
+        Python Code: pyveccreate
+      </button>
+    </h5>
+  </div>
+  <div id="pyveccreate" class="collapse">
+  <pre>
+// setvalues.py
+comm = PETSc.COMM_WORLD
+x = PETSc.Vec().create(comm=comm)
+x.setType(PETSc.Vec.Type.MPI)
+</pre>
+</div>
+</div>
 </remark>
 <!-- environment: pythonnote end embedded generator -->
 <p name="switchToTextMode">
@@ -736,10 +755,34 @@ sizes on the processors. Setting both is redundant, so it is possible
 to specify one and let the other be computed by the library. This is
 indicated by setting it to 
 <tt>PETSC_DECIDE</tt>
-(\plstinline{PETSc.DECIDE} in python).
+.
 </p>
 
+<!-- environment: pythonnote start embedded generator -->
+<!-- environment block purpose: [[ environment=pythonnote ]] -->
+<remark>
+<b>Python note</b>
+<!-- TranslatingLineGenerator pythonnote ['pythonnote'] -->
 <p name="switchToTextMode">
+  Use \plstinline{PETSc.DECIDE} for the parameter not specified:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pyvecsize" aria-expanded="false" aria-controls="pyvecsize">
+        Python Code: pyvecsize
+      </button>
+    </h5>
+  </div>
+  <div id="pyvecsize" class="collapse">
+  <pre>
+x.setSizes([2,PETSc.DECIDE])
+</pre>
+</div>
+</div>
+</remark>
+<!-- environment: pythonnote end embedded generator -->
+<p name="switchToTextMode">
+
 The size is queried with 
 <div class="card">
   <div class="card-header" id="headingOne">
@@ -1504,30 +1547,50 @@ xx_v- the Fortran90 pointer to the array
 </p>
 
 <p name="switchToTextMode">
-Note that in a distributed running context you can only get the array
-of local elements. Accessing the elements from another process
+In the following example, a vector is scaled through direct array access.
+Note the differing calls for the source and target vector,
+and note the 
+<tt>const</tt>
+ qualifier on the source array:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#vecgetarray" aria-expanded="false" aria-controls="vecgetarray">
+        C Code: vecgetarray
+      </button>
+    </h5>
+  </div>
+  <div id="vecgetarray" class="collapse">
+  <pre>
+// vecarray.c
+PetscScalar const *in_array;
+PetscScalar *out_array;
+VecGetArrayRead(x,&in_array);
+VecGetArray(y,&out_array);
+PetscInt localsize;
+VecGetLocalSize(x,&localsize);
+for (int i=0; i&lt;localsize; i++)
+  out_array[i] = 2*in_array[i];
+VecRestoreArrayRead(x,&in_array);
+VecRestoreArray(y,&out_array);
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+This example also uses 
+<tt>VecGetLocalSize</tt>
+to determine the size of the data accessed.
+Even running in a distributed context you can only get the array
+of local elements.
+Accessing the elements from another process
 requires explicit communication; see section&nbsp;
 <a href="http://pages.tacc.utexas.edu/~eijkhout/pcse/html/petsc-objects.html#VecScatter:all-to-alloperations">33.5.2</a>
 .
 </p>
 
-<!-- environment: lstlisting start embedded generator -->
-<!-- environment block purpose: [[ environment=lstlisting ]] -->
-<lstlisting>
-<pre>
-PetscScalar *in_array,*out_array;
-VecGetArrayRead(in,&in_array);
-VecGetArray(out,&out_array);
-VecGetLocalSize(in,&localsize);
-for (int i=0; i&lt;localsize; i++)
-  out_array[i] = 2*in_array[i];
-VecRestoreArrayRead(in,&in_array);
-VecRestoreArray(out,&out_array);
-</pre>
-</lstlisting>
-<!-- environment: lstlisting end embedded generator -->
 <p name="switchToTextMode">
-
 There are some variants to the \clstinline{VecGetArray} operation:
 <!-- environment: itemize start embedded generator -->
 </p>
@@ -1615,6 +1678,19 @@ into it.
   call PetscSynchronizedPrintf(comm,msg,ierr)
   call PetscSynchronizedFlush(comm,PETSC_STDOUT,ierr)
   call VecRestoreArrayF90(vector,elements,ierr)
+</pre>
+</div>
+</div>
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pfvecgetarray" aria-expanded="false" aria-controls="pfvecgetarray">
+        Fortran Code: pfvecgetarray
+      </button>
+    </h5>
+  </div>
+  <div id="pfvecgetarray" class="collapse">
+  <pre>
 </pre>
 </div>
 </div>

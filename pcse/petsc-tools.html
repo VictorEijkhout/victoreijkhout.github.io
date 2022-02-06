@@ -3,8 +3,10 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -174,11 +176,15 @@ Every PETSc routine is a function returning a parameter of type
 <li>
 For a good traceback, surround the executable part of any subprogram
   with 
-<tt>PetscFunctionBegin</tt>
+<tt>PetscFunctionBeginUser</tt>
  and 
 <tt>PetscFunctionReturn</tt>
 ,
   where the latter has the return value as parameter.
+  (The routine 
+<tt>PetscFunctionBegin</tt>
+ does the same, but
+  should only be used for PETSc library routines.)
 <li>
 Calling the macro 
 <tt>CHKERRQ</tt>
@@ -594,6 +600,38 @@ PETSc.Sys.syncFlush(type cls, comm=None)
 where for ordinary screen output you would use 
 <tt>stdout</tt>
  for the file.
+</p>
+
+<!-- environment: fortrannote start embedded generator -->
+<!-- environment block purpose: [[ environment=fortrannote ]] -->
+<remark>
+<b>Fortran note</b>
+<p name="remark">
+<!-- TranslatingLineGenerator fortrannote ['fortrannote'] -->
+  Fortran does not have the variable-number-of-arguments mechanism
+  from&nbsp;C, so you can only use 
+<tt>PetscPrintf</tt>
+  on a buffer that you construct with a 
+<tt>Write</tt>
+ statement:
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#pfprintf" aria-expanded="false" aria-controls="pfprintf">
+        Fortran Code: pfprintf
+      </button>
+    </h5>
+  </div>
+  <div id="pfprintf" class="collapse">
+  <pre>
+</pre>
+</div>
+</div>
+</p name="remark">
+</remark>
+<!-- environment: fortrannote end embedded generator -->
+<p name="switchToTextMode">
+{Print string construction}
 </p>
 
 <!-- environment: fortrannote start embedded generator -->

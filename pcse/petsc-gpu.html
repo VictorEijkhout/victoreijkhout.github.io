@@ -3,8 +3,10 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -82,6 +84,9 @@ class Example {
 38.1 : <a href="petsc-gpu.html#InstallationwithGPUs">Installation with GPUs</a><br>
 38.2 : <a href="petsc-gpu.html#SetupforGPU">Setup for GPU</a><br>
 38.3 : <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a><br>
+38.3.1 : <a href="petsc-gpu.html#Vectors">Vectors</a><br>
+38.3.2 : <a href="petsc-gpu.html#Matrices">Matrices</a><br>
+38.3.3 : <a href="petsc-gpu.html#Arrayaccess">Array access</a><br>
 38.4 : <a href="petsc-gpu.html#Other">Other</a><br>
 <a href="index.html">Back to Table of Contents</a>
 <h1>38 PETSc GPU support</h1>
@@ -175,7 +180,7 @@ or explicitly through
   </div>
   <div id="pcudainit" class="collapse">
   <pre>
-// cudamatself.c
+// cudainit.c
 ierr = PetscCUDAInitialize(comm,PETSC_DECIDE); CHKERRQ(ierr);
 ierr = PetscCUDAInitializeCheck(); CHKERRQ(ierr);
 </pre>
@@ -190,15 +195,106 @@ crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html
 </p>
 
 <p name="switchToTextMode">
-Dense matrices:
+Objects such as matrices and vectors need to be create
+explicitly with a CUDA type.
+After that, most PETSc calls are independent of the presence of GPUs.
+</p>
+
+<p name="switchToTextMode">
+Should you need to test, there is a 
+<span title="acronym" ><i>CPP</i></span>
+ macro
+<tt>PETSC_HAVE_CUDA</tt>
+.
+</p>
+
+<h3><a id="Vectors">38.3.1</a> Vectors</h3>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a> > <a href="petsc-gpu.html#Vectors">Vectors</a>
+</p>
+<p name="switchToTextMode">
+
+Analogous to vector creation as before,
+there are specific create calls
+<tt>VecCreateSeqCUDA</tt>
+,
+<tt>VecCreateMPICUDAWithArray</tt>
+,
+or the type can be set in 
+<tt>VecSetType</tt>
+:
+</p>
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#veccreatecuda" aria-expanded="false" aria-controls="veccreatecuda">
+        C Code: veccreatecuda
+      </button>
+    </h5>
+  </div>
+  <div id="veccreatecuda" class="collapse">
+  <pre>
+// kspcu.c
+#ifdef PETSC_HAVE_CUDA
+  ierr = VecCreateMPICUDA(comm,localsize,PETSC_DECIDE,&Rhs); CHKERRQ(ierr);
+#else
+  ierr = VecCreateMPI(comm,localsize,PETSC_DECIDE,&Rhs); CHKERRQ(ierr);
+#endif
+</pre>
+</div>
+</div>
+<p name="switchToTextMode">
+
+The type
+<tt>VECCUDA</tt>
+is sequential or parallel dependent on the run;
+specific types are
+<tt>VECSEQCUDA</tt>
+,
+<tt>VECMPICUDA</tt>
+.
+</p>
+
+<h3><a id="Matrices">38.3.2</a> Matrices</h3>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a> > <a href="petsc-gpu.html#Matrices">Matrices</a>
+</p>
+<p name="switchToTextMode">
+
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#matcreatecuda" aria-expanded="false" aria-controls="matcreatecuda">
+        C Code: matcreatecuda
+      </button>
+    </h5>
+  </div>
+  <div id="matcreatecuda" class="collapse">
+  <pre>
+ierr = MatCreate(comm,&A); CHKERRQ(ierr);
+#ifdef PETSC_HAVE_CUDA
+ierr = MatSetType(A,MATMPIAIJCUSPARSE); CHKERRQ(ierr);
+#else
+ierr = MatSetType(A,MATMPIAIJ); CHKERRQ(ierr);
+#endif
+</pre>
+</div>
+</div>
+</p>
+
+<p name="switchToTextMode">
+Dense matrices can be created with specific calls
 <tt>MatCreateDenseCUDA</tt>
 ,
 <tt>MatCreateSeqDenseCUDA</tt>
 ,
-giving types
-<tt>MATMPIDENSECUDA</tt>
-,
+or by setting types
 <tt>MATDENSECUDA</tt>
+,
+<tt>MATSEQDENSECUDA</tt>
+,
+<tt>MATMPIDENSECUDA</tt>
 .
 </p>
 
@@ -207,23 +303,19 @@ Sparse matrices:
 <tt>MATAIJCUSPARSE</tt>
 which is sequential or distributed
 depending on how the program is started.
-</p>
-
-<p name="switchToTextMode">
-Also
-<tt>VecCreateSeqCUDA</tt>
+Specific types are:
+<tt>MATMPIAIJCUSPARSE</tt>
 ,
-<tt>VecCreateMPICUDAWithArray</tt>
-,
-<tt>VECCUDA</tt>
-,
-<tt>VECSEQCUDA</tt>
-,
-<tt>VECMPICUDA</tt>
+<tt>MATSEQAIJCUSPARSE</tt>
 .
 </p>
 
+<h3><a id="Arrayaccess">38.3.3</a> Array access</h3>
+<p name=crumbs>
+crumb trail:  > <a href="petsc-gpu.html">petsc-gpu</a> > <a href="petsc-gpu.html#Distributedobjects">Distributed objects</a> > <a href="petsc-gpu.html#Arrayaccess">Array access</a>
+</p>
 <p name="switchToTextMode">
+
 All sorts of `array' operations such as
 <tt>MatDenseCUDAGetArray</tt>
 ,
@@ -270,6 +362,7 @@ to switch the allocator to GPU memory and back.
   </div>
   <div id="pccudaalloc" class="collapse">
   <pre>
+// cudamatself.c
 Mat cuda_matrix;
 PetscScalar *matdata;
 ierr = PetscMallocSetCUDAHost(); CHKERRQ(ierr);

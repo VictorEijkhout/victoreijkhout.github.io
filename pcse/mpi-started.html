@@ -3,8 +3,10 @@
 <link href="ihpsc.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -362,7 +364,14 @@ gcc -o my_mpi_prog my_mpi_prog.o -L/path/to/mpi -lmpich
 <p name="switchToTextMode">
 However, MPI libraries may have different names between different
 architectures, making it hard to have a portable makefile. Therefore,
-MPI typically has shell scripts around your compiler call:
+MPI typically has shell scripts around your compiler call,
+called 
+<tt>mpicc</tt>
+, 
+<tt>mpicxx</tt>
+, 
+<tt>mpif90</tt>
+for C/C++/Fortran respectively.
 <!-- environment: verbatim start embedded generator -->
 </p>
 <!-- environment block purpose: [[ environment=verbatim ]] -->
@@ -370,6 +379,24 @@ MPI typically has shell scripts around your compiler call:
 <pre>
 mpicc -c my_mpi_prog.c
 mpicc -o my_mpi_prog my_mpi_prog.o
+</pre>
+</verbatim>
+<!-- environment: verbatim end embedded generator -->
+<p name="switchToTextMode">
+
+If you want to know what 
+ does,
+there is usually an option that prints out its definition.
+On a Mac with the 
+<i>clang</i>
+ compiler:
+<!-- environment: verbatim start embedded generator -->
+</p>
+<!-- environment block purpose: [[ environment=verbatim ]] -->
+<verbatim>
+<pre>
+$$ mpicc -show
+clang -fPIC -fstack-protector -fno-stack-check -Qunused-arguments -g3 -O0 -Wno-implicit-function-declaration -Wl,-flat_namespace -Wl,-commons,use_dylibs -I/Users/eijkhout/Installation/petsc/petsc-3.16.1/macx-clang-debug/include -L/Users/eijkhout/Installation/petsc/petsc-3.16.1/macx-clang-debug/lib -lmpi -lpmpi
 </pre>
 </verbatim>
 <!-- environment: verbatim end embedded generator -->
