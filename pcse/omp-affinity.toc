@@ -1,9 +1,0 @@
-25.1 : <a href="omp-affinity.html#OpenMPthreadaffinitycontrol">OpenMP thread affinity control</a><br>
-25.1.1 : <a href="omp-affinity.html#Threadbinding">Thread binding</a><br>
-25.1.2 : <a href="omp-affinity.html#Effectsofthreadbinding">Effects of thread binding</a><br>
-25.1.3 : <a href="omp-affinity.html#Placedefinition">Place definition</a><br>
-25.1.4 : <a href="omp-affinity.html#Bindingpossibilities">Binding possibilities</a><br>
-25.2 : <a href="omp-affinity.html#First-touch">First-touch</a><br>
-25.2.1 : <a href="omp-affinity.html#C++">C++</a><br>
-25.2.2 : <a href="omp-affinity.html#Remarks">Remarks</a><br>
-25.3 : <a href="omp-affinity.html#AffinitycontroloutsideOpenMP">Affinity control outside OpenMP</a><br>

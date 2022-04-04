@@ -1,6 +1,0 @@
-45.1 : <a href="hybrid.html#Affinity">Affinity</a><br>
-45.2 : <a href="hybrid.html#Whatdoesthehardwarelooklike?">What does the hardware look like?</a><br>
-45.3 : <a href="hybrid.html#Affinitycontrol">Affinity control</a><br>
-45.4 : <a href="hybrid.html#Discussion">Discussion</a><br>
-45.5 : <a href="hybrid.html#Processesandcoresandaffinity">Processes and cores and affinity</a><br>
-45.6 : <a href="hybrid.html#Practicalspecification">Practical specification</a><br>

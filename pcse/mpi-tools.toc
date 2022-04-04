@@ -1,5 +1,0 @@
-14.1 : <a href="mpi-tools.html#Initializingthetoolsinterface">Initializing the tools interface</a><br>
-14.2 : <a href="mpi-tools.html#Controlvariables">Control variables</a><br>
-14.3 : <a href="mpi-tools.html#Performancevariables">Performance variables</a><br>
-14.3.1 : <a href="mpi-tools.html#Performanceexperimentsessions">Performance experiment sessions</a><br>
-14.4 : <a href="mpi-tools.html#Categoriesofvariables">Categories of variables</a><br>

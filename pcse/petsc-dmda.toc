@@ -1,8 +1,0 @@
-34.1 : <a href="petsc-dmda.html#Griddefinition">Grid definition</a><br>
-34.2 : <a href="petsc-dmda.html#Constructingavectoronagrid">Constructing a vector on a grid</a><br>
-34.2.1 : <a href="petsc-dmda.html#Createconfirmingvector">Create confirming vector</a><br>
-34.2.2 : <a href="petsc-dmda.html#ExtractvectorfromDMDA">Extract vector from DMDA</a><br>
-34.2.3 : <a href="petsc-dmda.html#Refinement">Refinement</a><br>
-34.3 : <a href="petsc-dmda.html#Constructingamatrixonagrid">Constructing a matrix on a grid</a><br>
-34.4 : <a href="petsc-dmda.html#Vectorsofadistributedarray">Vectors of a distributed array</a><br>
-34.5 : <a href="petsc-dmda.html#Matricesofadistributedarray">Matrices of a distributed array</a><br>

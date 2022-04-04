@@ -1,6 +1,0 @@
-29.1 : <a href="openmp.html#Runtimefunctionsandinternalcontrolvariables">Runtime functions and internal control variables</a><br>
-29.2 : <a href="openmp.html#Timing">Timing</a><br>
-29.3 : <a href="openmp.html#Threadsafety">Thread safety</a><br>
-29.4 : <a href="openmp.html#Performanceandtuning">Performance and tuning</a><br>
-29.5 : <a href="openmp.html#Accelerators">Accelerators</a><br>
-29.6 : <a href="openmp.html#Toolsinterface">Tools interface</a><br>

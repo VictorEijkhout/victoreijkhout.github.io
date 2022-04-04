@@ -1,6 +1,0 @@
-12.1 : <a href="mpi-shared.html#Recognizingsharedmemory">Recognizing shared memory</a><br>
-12.2 : <a href="mpi-shared.html#Sharedmemoryforwindows">Shared memory for windows</a><br>
-12.2.1 : <a href="mpi-shared.html#Pointerstoasharedwindow">Pointers to a shared window</a><br>
-12.2.2 : <a href="mpi-shared.html#Queryingthesharedstructure">Querying the shared structure</a><br>
-12.2.3 : <a href="mpi-shared.html#Heatequationexample">Heat equation example</a><br>
-12.2.4 : <a href="mpi-shared.html#Sharedbulkdata">Shared bulk data</a><br>

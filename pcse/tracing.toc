@@ -1,9 +1,0 @@
-50.1 : <a href="tracing.html#Timing">Timing</a><br>
-50.1.1 : <a href="tracing.html#Paralleltiming">Parallel timing</a><br>
-50.2 : <a href="tracing.html#Tau">Tau</a><br>
-50.2.1 : <a href="tracing.html#Instrumentation">Instrumentation</a><br>
-50.2.2 : <a href="tracing.html#Running">Running</a><br>
-50.2.3 : <a href="tracing.html#Output">Output</a><br>
-50.2.4 : <a href="tracing.html#Examples">Examples</a><br>
-50.2.4.1 : <a href="tracing.html#Bucketbrigade">Bucket brigade</a><br>
-50.2.4.2 : <a href="tracing.html#Butterflyexchange">Butterfly exchange</a><br>

@@ -1,3 +1,0 @@
-44.1 : <a href="architecture.html#Toolsfordiscovery">Tools for discovery</a><br>
-44.1.1 : <a href="architecture.html#Intelcpuinfo">Intel cpuinfo</a><br>
-44.1.2 : <a href="architecture.html#hwloc">hwloc</a><br>
